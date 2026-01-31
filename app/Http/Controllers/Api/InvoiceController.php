@@ -33,7 +33,7 @@ class InvoiceController extends Controller
         $validated = $request->validate([
             'site_job_id' => 'required|exists:site_jobs,id',
             'issue_date' => 'required|date',
-            'due_date' => 'required|date|after_or_equal:issue_date',
+            'due_date' => 'nullable|date|after_or_equal:issue_date',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.description' => 'required|string',
@@ -54,7 +54,7 @@ class InvoiceController extends Controller
                 'site_job_id' => $validated['site_job_id'],
                 'customer_id' => $siteJob->customer_id,
                 'issue_date' => $validated['issue_date'],
-                'due_date' => $validated['due_date'],
+                'due_date' => $validated['due_date'] ?? null,
                 'subtotal' => $subtotal,
                 'tax' => 0,
                 'total' => $subtotal,
