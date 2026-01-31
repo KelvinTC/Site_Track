@@ -5,6 +5,10 @@ use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\SiteJobController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\CompanyProfileController;
+
+Route::get('company-profile', [CompanyProfileController::class, 'show']);
+Route::put('company-profile', [CompanyProfileController::class, 'update']);
 
 Route::apiResource('customers', CustomerController::class);
 

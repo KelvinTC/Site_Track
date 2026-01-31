@@ -87,4 +87,14 @@ export default {
             return api.delete(`/payments/${id}`);
         },
     },
+
+    // Company Profile
+    companyProfile: {
+        get() {
+            return api.get('/company-profile');
+        },
+        update(data) {
+            return api.put('/company-profile', data);
+        },
+    },
 };

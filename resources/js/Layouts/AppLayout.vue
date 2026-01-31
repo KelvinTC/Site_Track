@@ -32,6 +32,10 @@
                                 <i class="bi bi-credit-card-fill"></i>
                                 <span>Payments</span>
                             </router-link>
+                            <router-link to="/settings" class="nav-link" :class="{ active: $route.path === '/settings' }">
+                                <i class="bi bi-gear-fill"></i>
+                                <span>Settings</span>
+                            </router-link>
                         </div>
                     </div>
 
@@ -83,6 +87,10 @@
             <router-link to="/invoices" class="nav-item" :class="{ active: $route.path === '/invoices' }">
                 <i class="bi bi-receipt"></i>
                 <span>Invoices</span>
+            </router-link>
+            <router-link to="/settings" class="nav-item" :class="{ active: $route.path === '/settings' }">
+                <i class="bi bi-gear-fill"></i>
+                <span>Settings</span>
             </router-link>
         </nav>
 
