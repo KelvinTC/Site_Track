@@ -1,17 +1,10 @@
 import './bootstrap';
-import { createApp, h } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createApp } from 'vue';
+import router from './router';
+import App from './App.vue';
 
-createInertiaApp({
-    title: (title) => `${title} - SiteTrack`,
-    resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
-    setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .mount(el);
-    },
-    progress: {
-        color: '#4B5563',
-    },
-});
+const app = createApp(App);
+
+app.use(router);
+
+app.mount('#app');
