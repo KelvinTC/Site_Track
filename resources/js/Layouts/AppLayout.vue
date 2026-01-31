@@ -131,18 +131,18 @@ const logout = () => {
 .nav-link {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.375rem 0.5rem;
-    font-size: 0.75rem;
+    gap: 0.2rem;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.625rem;
     font-weight: 500;
     color: var(--text-muted);
-    border-radius: 0.375rem;
+    border-radius: 0.25rem;
     text-decoration: none;
     transition: all 0.15s ease;
 }
 
 .nav-link i {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
 }
 
 .nav-link:hover {
