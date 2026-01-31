@@ -1,5 +1,19 @@
 <template>
     <AppLayout>
+        <!-- Toast Notification -->
+        <Transition name="toast">
+            <div v-if="successMessage" class="toast toast-success">
+                <i class="bi bi-check-circle-fill"></i>
+                {{ successMessage }}
+            </div>
+        </Transition>
+        <Transition name="toast">
+            <div v-if="errorMessage" class="toast toast-error">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                {{ errorMessage }}
+            </div>
+        </Transition>
+
         <!-- Page Header -->
         <div class="page-header">
             <div class="header-content">
@@ -25,17 +39,6 @@
                 </div>
             </div>
             <form @submit.prevent="saveProfile" class="card-body">
-                <!-- Success Message -->
-                <div v-if="successMessage" class="alert alert-success">
-                    <i class="bi bi-check-circle"></i>
-                    {{ successMessage }}
-                </div>
-
-                <!-- Error Message -->
-                <div v-if="errorMessage" class="alert alert-error">
-                    <i class="bi bi-exclamation-circle"></i>
-                    {{ errorMessage }}
-                </div>
 
                 <div class="form-section">
                     <h3 class="form-section-title">Basic Information</h3>
@@ -429,5 +432,61 @@ textarea.form-control {
 /* Spinning animation */
 .spinning {
     animation: spin 1s linear infinite;
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast-success {
+    background: #10b981;
+    color: white;
+}
+
+.toast-error {
+    background: #ef4444;
+    color: white;
+}
+
+.toast-enter-active {
+    animation: slideIn 0.3s ease;
+}
+
+.toast-leave-active {
+    animation: slideOut 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
 }
 </style>

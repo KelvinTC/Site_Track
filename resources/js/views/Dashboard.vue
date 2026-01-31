@@ -5,7 +5,7 @@
             <div class="header-content">
                 <div class="header-title">
                     <h1>Dashboard</h1>
-                    <p class="header-subtitle">Welcome back! Here's what's happening with your properties.</p>
+                    <p class="header-subtitle">Welcome back!.</p>
                 </div>
                 <router-link to="/jobs" class="btn btn-success">
                     <i class="bi bi-plus-lg"></i>

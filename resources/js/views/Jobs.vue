@@ -148,11 +148,11 @@
                             </div>
                             <div class="form-group full-width">
                                 <label class="form-label">Job Title *</label>
-                                <input v-model="form.title" type="text" required class="form-control" placeholder="e.g., Roof Repair" />
+                                <input v-model="form.title" type="text" required class="form-control" />
                             </div>
                             <div class="form-group full-width">
                                 <label class="form-label">Description</label>
-                                <textarea v-model="form.description" rows="3" class="form-control" placeholder="Job details and scope..."></textarea>
+                                <textarea v-model="form.description" rows="2" class="form-control"></textarea>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Status</label>
@@ -166,7 +166,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Site Address</label>
-                                <input v-model="form.site_address" type="text" class="form-control" placeholder="123 Main St" />
+                                <input v-model="form.site_address" type="text" class="form-control" />
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Start Date</label>
@@ -178,15 +178,15 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Estimated Cost</label>
-                                <input v-model="form.estimated_cost" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
+                                <input v-model="form.estimated_cost" type="number" step="0.01" min="0" class="form-control" />
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Actual Cost</label>
-                                <input v-model="form.actual_cost" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
+                                <input v-model="form.actual_cost" type="number" step="0.01" min="0" class="form-control" />
                             </div>
                             <div class="form-group full-width">
                                 <label class="form-label">Notes</label>
-                                <textarea v-model="form.notes" rows="2" class="form-control" placeholder="Additional notes..."></textarea>
+                                <textarea v-model="form.notes" rows="2" class="form-control"></textarea>
                             </div>
                         </div>
                     </form>

@@ -134,44 +134,31 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Full Name *</label>
-                                <div class="input-wrapper">
-                                    <i class="bi bi-person input-icon"></i>
-                                    <input v-model="form.name" type="text" required class="form-control with-icon" placeholder="John Smith" />
-                                </div>
+                                <input v-model="form.name" type="text" required class="form-control" />
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Email Address</label>
-                                <div class="input-wrapper">
-                                    <i class="bi bi-envelope input-icon"></i>
-                                    <input v-model="form.email" type="email" class="form-control with-icon" placeholder="john@example.com" />
-                                </div>
+                                <input v-model="form.email" type="email" class="form-control" />
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Phone Number</label>
-                                <div class="input-wrapper">
-                                    <i class="bi bi-telephone input-icon"></i>
-                                    <input v-model="form.phone" type="text" class="form-control with-icon" placeholder="(555) 123-4567" />
-                                </div>
+                                <input v-model="form.phone" type="text" class="form-control" />
                             </div>
                             <div class="form-group">
                                 <label class="form-label">City</label>
-                                <input v-model="form.city" type="text" class="form-control" placeholder="New York" />
+                                <input v-model="form.city" type="text" class="form-control" />
                             </div>
                             <div class="form-group">
-                                <label class="form-label">State</label>
-                                <input v-model="form.state" type="text" class="form-control" placeholder="NY" />
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">ZIP Code</label>
-                                <input v-model="form.zip" type="text" class="form-control" placeholder="10001" />
+                                <label class="form-label">Province</label>
+                                <input v-model="form.state" type="text" class="form-control" />
                             </div>
                             <div class="form-group full-width">
                                 <label class="form-label">Street Address</label>
-                                <textarea v-model="form.address" rows="2" class="form-control" placeholder="123 Main Street, Suite 100"></textarea>
+                                <textarea v-model="form.address" rows="2" class="form-control"></textarea>
                             </div>
                             <div class="form-group full-width">
                                 <label class="form-label">Notes</label>
-                                <textarea v-model="form.notes" rows="3" class="form-control" placeholder="Additional notes about this customer..."></textarea>
+                                <textarea v-model="form.notes" rows="2" class="form-control"></textarea>
                             </div>
                             <div class="form-group full-width">
                                 <label class="checkbox-label">
