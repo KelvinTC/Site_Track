@@ -42,38 +42,23 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">Company Name *</label>
-                            <div class="input-wrapper">
-                                <i class="bi bi-building input-icon"></i>
-                                <input v-model="form.company_name" type="text" required class="form-control with-icon" placeholder="Your Company Name" />
-                            </div>
+                            <input v-model="form.company_name" type="text" required class="form-control" />
                         </div>
                         <div class="form-group">
                             <label class="form-label">Email Address</label>
-                            <div class="input-wrapper">
-                                <i class="bi bi-envelope input-icon"></i>
-                                <input v-model="form.email" type="email" class="form-control with-icon" placeholder="contact@company.com" />
-                            </div>
+                            <input v-model="form.email" type="email" class="form-control" />
                         </div>
                         <div class="form-group">
                             <label class="form-label">Phone Number</label>
-                            <div class="input-wrapper">
-                                <i class="bi bi-telephone input-icon"></i>
-                                <input v-model="form.phone" type="text" class="form-control with-icon" placeholder="+1 (555) 123-4567" />
-                            </div>
+                            <input v-model="form.phone" type="text" class="form-control" />
                         </div>
                         <div class="form-group">
                             <label class="form-label">Website</label>
-                            <div class="input-wrapper">
-                                <i class="bi bi-globe input-icon"></i>
-                                <input v-model="form.website" type="text" class="form-control with-icon" placeholder="https://www.company.com" />
-                            </div>
+                            <input v-model="form.website" type="text" class="form-control" />
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Tax ID / VAT Number</label>
-                            <div class="input-wrapper">
-                                <i class="bi bi-hash input-icon"></i>
-                                <input v-model="form.tax_id" type="text" class="form-control with-icon" placeholder="XX-XXXXXXX" />
-                            </div>
+                            <label class="form-label">Tax ID / BP Number</label>
+                            <input v-model="form.tax_id" type="text" class="form-control" />
                         </div>
                     </div>
                 </div>
@@ -83,22 +68,15 @@
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label class="form-label">Street Address</label>
-                            <div class="input-wrapper">
-                                <i class="bi bi-geo-alt input-icon"></i>
-                                <input v-model="form.address" type="text" class="form-control with-icon" placeholder="123 Main Street" />
-                            </div>
+                            <input v-model="form.address" type="text" class="form-control" />
                         </div>
                         <div class="form-group">
                             <label class="form-label">City</label>
-                            <input v-model="form.city" type="text" class="form-control" placeholder="New York" />
+                            <input v-model="form.city" type="text" class="form-control" />
                         </div>
                         <div class="form-group">
-                            <label class="form-label">State / Province</label>
-                            <input v-model="form.state" type="text" class="form-control" placeholder="NY" />
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">ZIP / Postal Code</label>
-                            <input v-model="form.zip" type="text" class="form-control" placeholder="10001" />
+                            <label class="form-label">Province</label>
+                            <input v-model="form.state" type="text" class="form-control" />
                         </div>
                     </div>
                 </div>
@@ -108,11 +86,11 @@
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label class="form-label">Default Invoice Notes</label>
-                            <textarea v-model="form.invoice_notes" class="form-control" rows="3" placeholder="Payment terms, bank details, or other notes to appear on invoices..."></textarea>
+                            <textarea v-model="form.invoice_notes" class="form-control" rows="3"></textarea>
                         </div>
                         <div class="form-group full-width">
                             <label class="form-label">Invoice Footer Text</label>
-                            <textarea v-model="form.invoice_footer" class="form-control" rows="2" placeholder="Thank you for your business!"></textarea>
+                            <textarea v-model="form.invoice_footer" class="form-control" rows="2"></textarea>
                         </div>
                     </div>
                 </div>
