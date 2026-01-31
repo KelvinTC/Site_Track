@@ -728,23 +728,23 @@ onMounted(() => {
 
 .modal-content {
     background: white;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     width: 100%;
-    max-width: 350px;
+    max-width: 420px;
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
 }
 
 .modal-header {
-    padding: 0.4rem 0.6rem;
+    padding: 0.75rem 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
 .modal-header h5 {
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
     font-weight: 600;
     margin: 0;
     color: white;
@@ -754,51 +754,50 @@ onMounted(() => {
     background: rgba(255, 255, 255, 0.2);
     border: none;
     color: white;
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 0.625rem;
 }
 
-.modal-body { padding: 0.5rem; }
+.modal-body { padding: 1rem; }
 
 .modal-footer {
-    padding: 0.4rem 0.6rem;
+    padding: 0.75rem 1rem;
     border-top: 1px solid #f3f4f6;
     display: flex;
     justify-content: flex-end;
-    gap: 0.3rem;
+    gap: 0.5rem;
     background: #f9fafb;
 }
 
 /* Form */
-.form-group { margin-bottom: 0.35rem; }
+.form-group { margin-bottom: 0.75rem; }
 
 .form-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.35rem;
+    gap: 0.75rem;
 }
 
 .form-label {
     display: block;
     font-weight: 500;
-    font-size: 0.5rem;
+    font-size: 0.6875rem;
     color: #6b7280;
-    margin-bottom: 0.1rem;
+    margin-bottom: 0.25rem;
 }
 
 .form-control {
     width: 100%;
-    padding: 0.15rem 0.25rem;
-    font-size: 0.5625rem;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.75rem;
     background: white;
     border: 1px solid #d1d5db;
-    border-radius: 0.2rem;
+    border-radius: 0.375rem;
 }
 
 .form-control:focus {
@@ -812,16 +811,16 @@ onMounted(() => {
 
 .input-prefix {
     position: absolute;
-    left: 0.25rem;
+    left: 0.625rem;
     top: 50%;
     transform: translateY(-50%);
     color: #6b7280;
     font-weight: 500;
-    font-size: 0.5625rem;
+    font-size: 0.75rem;
 }
 
 .form-control.with-prefix {
-    padding-left: 1rem;
+    padding-left: 1.5rem;
 }
 
 /* Method Options */

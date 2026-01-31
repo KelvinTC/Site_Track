@@ -265,7 +265,7 @@ onMounted(() => {
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.4rem;
+    gap: 0.75rem;
 }
 .form-group {
     display: flex;
@@ -275,16 +275,16 @@ onMounted(() => {
     grid-column: 1 / -1;
 }
 .form-group label {
-    font-size: 0.5625rem;
+    font-size: 0.6875rem;
     color: #6b7280;
-    margin-bottom: 0.1rem;
+    margin-bottom: 0.25rem;
 }
 .form-group input,
 .form-group textarea {
-    padding: 0.2rem 0.3rem;
-    font-size: 0.625rem;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.75rem;
     border: 1px solid #d1d5db;
-    border-radius: 0.25rem;
+    border-radius: 0.375rem;
     width: 100%;
 }
 .form-group input:focus,
@@ -300,23 +300,23 @@ onMounted(() => {
 .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.4rem;
-    margin-top: 0.75rem;
-    padding-top: 0.5rem;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
     border-top: 1px solid #e5e7eb;
 }
 
 .btn {
-    padding: 0.2rem 0.5rem;
-    font-size: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
     font-weight: 500;
     border: none;
-    border-radius: 0.25rem;
+    border-radius: 0.375rem;
     cursor: pointer;
 }
 .btn-sm {
-    padding: 0.15rem 0.4rem;
-    font-size: 0.5625rem;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.6875rem;
 }
 .btn-primary {
     background: #6366f1;
