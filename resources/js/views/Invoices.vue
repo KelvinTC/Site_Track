@@ -244,7 +244,14 @@
                         <!-- Invoice Header -->
                         <div class="invoice-header-row">
                             <div class="invoice-company">
-                                <img src="/images/logo.png" alt="Mount Sinai" class="company-logo-img" />
+                                <img src="/images/logo.png" alt="Company Logo" class="company-logo-img" />
+                                <div class="company-details">
+                                    <p class="company-name">{{ companyProfile.company_name }}</p>
+                                    <p v-if="companyProfile.address">{{ companyProfile.address }}</p>
+                                    <p v-if="companyProfile.city || companyProfile.state">{{ [companyProfile.city, companyProfile.state].filter(Boolean).join(', ') }}</p>
+                                    <p v-if="companyProfile.phone">{{ companyProfile.phone }}</p>
+                                    <p v-if="companyProfile.email">{{ companyProfile.email }}</p>
+                                </div>
                             </div>
                             <div class="invoice-title-block">
                                 <h2 class="invoice-title">INVOICE</h2>
@@ -257,6 +264,7 @@
                                 <p class="detail-label">Bill To:</p>
                                 <p class="detail-value">{{ viewingInvoice.customer?.name }}</p>
                                 <p class="detail-sub">{{ viewingInvoice.customer?.address }}</p>
+                                <p v-if="viewingInvoice.customer?.city" class="detail-sub">{{ [viewingInvoice.customer?.city, viewingInvoice.customer?.state].filter(Boolean).join(', ') }}</p>
                             </div>
                             <div class="invoice-meta">
                                 <div class="invoice-meta-item">
@@ -303,14 +311,15 @@
                         </div>
 
                         <!-- Notes -->
-                        <div v-if="viewingInvoice.notes" class="invoice-notes">
+                        <div v-if="viewingInvoice.notes || companyProfile.invoice_notes" class="invoice-notes">
                             <p class="notes-label">Notes:</p>
-                            <p>{{ viewingInvoice.notes }}</p>
+                            <p v-if="viewingInvoice.notes">{{ viewingInvoice.notes }}</p>
+                            <p v-if="companyProfile.invoice_notes">{{ companyProfile.invoice_notes }}</p>
                         </div>
 
                         <!-- Footer -->
                         <div class="invoice-footer">
-                            Thank you for your business!
+                            {{ companyProfile.invoice_footer || 'Thank you for your business!' }}
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -331,6 +340,7 @@ const loading = ref(true);
 const saving = ref(false);
 const invoices = ref([]);
 const jobs = ref([]);
+const companyProfile = ref({});
 const searchQuery = ref('');
 const showModal = ref(false);
 const showViewModal = ref(false);
@@ -383,12 +393,14 @@ const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').sub
 const loadData = async () => {
     try {
         loading.value = true;
-        const [invoicesRes, jobsRes] = await Promise.all([
+        const [invoicesRes, jobsRes, profileRes] = await Promise.all([
             api.invoices.getAll(),
             api.jobs.getAll(),
+            api.companyProfile.get(),
         ]);
         invoices.value = invoicesRes.data;
         jobs.value = jobsRes.data;
+        companyProfile.value = profileRes.data;
     } catch (error) {
         console.error('Error loading data:', error);
     } finally {
@@ -984,10 +996,26 @@ onMounted(() => {
 }
 
 .company-logo-img {
-    width: 5rem;
-    height: 5rem;
-    border-radius: 0.5rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.25rem;
     object-fit: contain;
+}
+
+.company-details {
+    font-size: 0.5625rem;
+    color: #4b5563;
+    line-height: 1.3;
+}
+
+.company-details .company-name {
+    font-weight: 600;
+    color: #111827;
+    font-size: 0.6875rem;
+}
+
+.company-details p {
+    margin: 0;
 }
 
 .invoice-title-block {
