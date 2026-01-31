@@ -1,5 +1,10 @@
 <template>
     <div class="login-page">
+        <!-- Dark Mode Toggle -->
+        <button @click="toggleDarkMode" class="dark-mode-toggle-login" :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+            <i :class="isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill'"></i>
+        </button>
+
         <!-- Background decoration -->
         <div class="bg-decoration">
             <div class="bg-shape bg-shape-1"></div>
@@ -107,8 +112,13 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { useDarkMode } from '@/composables/useDarkMode';
 
 const router = useRouter();
+const { isDark, toggleDarkMode, initTheme } = useDarkMode();
+
+// Initialize theme on mount
+initTheme();
 
 const form = reactive({
     email: '',
@@ -151,6 +161,46 @@ const handleLogin = async () => {
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
+    transition: background 0.3s ease;
+}
+
+:global(.dark) .login-page {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+}
+
+/* Dark Mode Toggle on Login */
+.dark-mode-toggle-login {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dark-mode-toggle-login:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.dark-mode-toggle-login i {
+    font-size: 1.25rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dark-mode-toggle-login:hover i {
+    transform: rotate(15deg);
 }
 
 /* Background Decorations */
@@ -221,6 +271,12 @@ const handleLogin = async () => {
     background: white;
     padding: 0.75rem;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease;
+}
+
+:global(.dark) .logo-img {
+    background: #27272a;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .logo-text {
@@ -244,6 +300,12 @@ const handleLogin = async () => {
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
     padding: 2.5rem;
     animation: slideUp 0.5s ease-out;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+:global(.dark) .login-card {
+    background: #1f1f23;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
 }
 
 @keyframes slideUp {
@@ -267,12 +329,22 @@ const handleLogin = async () => {
     font-weight: 700;
     color: #111827;
     margin: 0 0 0.5rem;
+    transition: color 0.3s ease;
+}
+
+:global(.dark) .login-header h2 {
+    color: #fafafa;
 }
 
 .login-header p {
     color: #6b7280;
     font-size: 0.9375rem;
     margin: 0;
+    transition: color 0.3s ease;
+}
+
+:global(.dark) .login-header p {
+    color: #a1a1aa;
 }
 
 /* Alert */
@@ -314,6 +386,11 @@ const handleLogin = async () => {
     font-weight: 600;
     font-size: 0.875rem;
     color: #374151;
+    transition: color 0.3s ease;
+}
+
+:global(.dark) .form-label {
+    color: #e4e4e7;
 }
 
 .input-wrapper {
@@ -340,6 +417,26 @@ const handleLogin = async () => {
     border: 1.5px solid #e5e7eb;
     border-radius: 0.75rem;
     transition: all 0.2s ease;
+}
+
+:global(.dark) .form-control {
+    color: #fafafa;
+    background: #27272a;
+    border-color: #3f3f46;
+}
+
+:global(.dark) .form-control::placeholder {
+    color: #71717a;
+}
+
+:global(.dark) .form-control:hover {
+    border-color: #52525b;
+}
+
+:global(.dark) .form-control:focus {
+    background: #1f1f23;
+    border-color: #818cf8;
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2);
 }
 
 .form-control.with-icon {
@@ -382,6 +479,22 @@ const handleLogin = async () => {
     color: #6b7280;
 }
 
+:global(.dark) .toggle-password {
+    color: #71717a;
+}
+
+:global(.dark) .toggle-password:hover {
+    color: #a1a1aa;
+}
+
+:global(.dark) .input-icon {
+    color: #71717a;
+}
+
+:global(.dark) .input-wrapper:focus-within .input-icon {
+    color: #a5b4fc;
+}
+
 /* Form Options */
 .form-options {
     display: flex;
@@ -396,6 +509,11 @@ const handleLogin = async () => {
     gap: 0.5rem;
     color: #4b5563;
     cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+:global(.dark) .checkbox-label {
+    color: #a1a1aa;
 }
 
 .form-checkbox {
@@ -407,6 +525,11 @@ const handleLogin = async () => {
     accent-color: #667eea;
 }
 
+:global(.dark) .form-checkbox {
+    border-color: #52525b;
+    background: #27272a;
+}
+
 .forgot-link {
     color: #667eea;
     text-decoration: none;
@@ -416,6 +539,14 @@ const handleLogin = async () => {
 
 .forgot-link:hover {
     color: #5a67d8;
+}
+
+:global(.dark) .forgot-link {
+    color: #a5b4fc;
+}
+
+:global(.dark) .forgot-link:hover {
+    color: #c7d2fe;
 }
 
 /* Login Button */

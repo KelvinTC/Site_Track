@@ -9,7 +9,17 @@
 </template>
 
 <script setup>
-// Root Vue component
+import { onMounted } from 'vue';
+
+// Initialize dark mode on app startup
+onMounted(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else if (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+    }
+});
 </script>
 
 <style>

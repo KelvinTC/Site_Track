@@ -36,13 +36,18 @@
                     </div>
 
                     <!-- Right Side Actions -->
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <!-- Dark Mode Toggle -->
+                        <button @click="toggleDarkMode" class="dark-mode-toggle" :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+                            <i :class="isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill'"></i>
+                        </button>
+
                         <!-- User Menu -->
                         <div class="hidden sm:flex items-center gap-2 mr-2">
                             <div class="user-avatar">
                                 <i class="bi bi-person-fill"></i>
                             </div>
-                            <span class="text-sm font-medium text-gray-700">Admin</span>
+                            <span class="text-sm font-medium username-text">Admin</span>
                         </div>
 
                         <button @click="logout" class="btn btn-primary btn-logout">
@@ -88,8 +93,14 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { useDarkMode } from '@/composables/useDarkMode';
 
 const router = useRouter();
+const { isDark, toggleDarkMode, initTheme } = useDarkMode();
+
+// Initialize theme on mount
+initTheme();
+
 const logout = () => {
     localStorage.removeItem('isAuthenticated');
     router.push('/login');
@@ -98,8 +109,9 @@ const logout = () => {
 
 <style scoped>
 .app-wrapper {
-    background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
+    background: var(--bg-base);
     min-height: 100vh;
+    transition: background var(--transition-slow);
 }
 
 /* Main Content Area */
@@ -128,14 +140,15 @@ const logout = () => {
 
 /* Premium Navbar */
 .navbar {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--glass-border);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
     position: sticky;
     top: 0;
     z-index: 100;
+    transition: background var(--transition-slow), border-color var(--transition-slow);
 }
 
 .navbar-container {
@@ -196,7 +209,7 @@ const logout = () => {
     padding: 0.625rem 1rem;
     font-size: 0.9375rem;
     font-weight: 500;
-    color: #4b5563;
+    color: var(--text-muted);
     border-radius: 0.75rem;
     text-decoration: none;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -209,8 +222,8 @@ const logout = () => {
 }
 
 .nav-link:hover {
-    color: #4f46e5;
-    background: rgba(99, 102, 241, 0.08);
+    color: var(--primary-500);
+    background: rgba(99, 102, 241, 0.1);
 }
 
 .nav-link:hover i {
@@ -218,8 +231,8 @@ const logout = () => {
 }
 
 .nav-link.active {
-    color: #4f46e5;
-    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary-500);
+    background: rgba(99, 102, 241, 0.15);
     font-weight: 600;
 }
 
@@ -231,7 +244,7 @@ const logout = () => {
     transform: translateX(-50%);
     width: 50%;
     height: 2px;
-    background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-violet));
     border-radius: 999px;
 }
 
@@ -240,12 +253,16 @@ const logout = () => {
     width: 2rem;
     height: 2rem;
     border-radius: 0.5rem;
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #4f46e5;
+    color: var(--primary-500);
     font-size: 0.875rem;
+}
+
+.username-text {
+    color: var(--text-secondary);
 }
 
 /* Logout Button */
@@ -261,16 +278,17 @@ const logout = () => {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.9);
+    border-top: 1px solid var(--glass-border);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
     z-index: 1000;
     display: flex;
     justify-content: space-around;
     padding: 0.5rem 0.25rem;
     padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    transition: background var(--transition-slow), border-color var(--transition-slow);
 }
 
 .mobile-bottom-nav .nav-item {
@@ -278,7 +296,7 @@ const logout = () => {
     flex-direction: column;
     align-items: center;
     padding: 0.5rem 0.75rem;
-    color: #6b7280;
+    color: var(--text-muted);
     font-size: 0.625rem;
     font-weight: 600;
     text-decoration: none;
@@ -303,8 +321,8 @@ const logout = () => {
 }
 
 .mobile-bottom-nav .nav-item.active {
-    color: #4f46e5;
-    background: rgba(99, 102, 241, 0.08);
+    color: var(--primary-500);
+    background: rgba(99, 102, 241, 0.15);
 }
 
 .mobile-bottom-nav .nav-item.active::before {
@@ -315,7 +333,7 @@ const logout = () => {
     transform: translateX(-50%);
     width: 2.5rem;
     height: 3px;
-    background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-violet));
     border-radius: 999px;
 }
 
@@ -323,10 +341,40 @@ const logout = () => {
     transform: scale(1.1);
 }
 
+/* Dark Mode Toggle */
+.dark-mode-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dark-mode-toggle:hover {
+    background: var(--border-light);
+    color: var(--text-primary);
+}
+
+.dark-mode-toggle i {
+    font-size: 1.125rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dark-mode-toggle:hover i {
+    transform: rotate(15deg);
+}
+
 /* Print Styles */
 @media print {
     .navbar,
-    .mobile-bottom-nav {
+    .mobile-bottom-nav,
+    .dark-mode-toggle {
         display: none !important;
     }
 
