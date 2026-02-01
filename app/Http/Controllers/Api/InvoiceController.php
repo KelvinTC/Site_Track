@@ -30,7 +30,13 @@ class InvoiceController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        // Convert empty strings to null for optional date fields
+        $input = $request->all();
+        if (isset($input['due_date']) && $input['due_date'] === '') {
+            $input['due_date'] = null;
+        }
+
+        $validated = validator($input, [
             'site_job_id' => 'required|exists:site_jobs,id',
             'issue_date' => 'required|date',
             'due_date' => 'nullable|date|after_or_equal:issue_date',
@@ -40,7 +46,7 @@ class InvoiceController extends Controller
             'items.*.type' => 'required|in:labor,material,other',
             'items.*.quantity' => 'required|numeric|min:0',
             'items.*.unit_price' => 'required|numeric|min:0',
-        ]);
+        ])->validate();
 
         return DB::transaction(function () use ($validated) {
             $siteJob = SiteJob::findOrFail($validated['site_job_id']);
