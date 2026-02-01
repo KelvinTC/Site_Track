@@ -105,6 +105,9 @@
                                 </td>
                                 <td class="text-right">
                                     <div class="action-buttons">
+                                        <button @click="openStatementModal(customer)" class="btn btn-sm btn-ghost" title="Statement">
+                                            <i class="bi bi-file-text"></i>
+                                        </button>
                                         <button @click="openEditModal(customer)" class="btn btn-sm btn-ghost" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -184,12 +187,69 @@
                 </div>
             </div>
         </Transition>
+
+        <!-- Statement Modal -->
+        <Transition name="modal">
+            <div v-if="showStatementModal" class="modal-backdrop" @click.self="closeStatementModal">
+                <div class="modal-content modal-large">
+                    <div class="modal-header modal-header-primary">
+                        <h5>Customer Statement</h5>
+                        <button @click="closeStatementModal" class="modal-close">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Date Range Picker -->
+                        <div v-if="!statementData" class="date-range-picker">
+                            <div class="preset-buttons">
+                                <button
+                                    v-for="preset in datePresets"
+                                    :key="preset.label"
+                                    @click="applyDatePreset(preset)"
+                                    class="btn btn-sm"
+                                    :class="selectedPreset === preset.label ? 'btn-primary' : 'btn-secondary'"
+                                >
+                                    {{ preset.label }}
+                                </button>
+                            </div>
+                            <div class="custom-date-range">
+                                <div class="form-group">
+                                    <label class="form-label">From Date</label>
+                                    <input v-model="statementFromDate" type="date" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">To Date</label>
+                                    <input v-model="statementToDate" type="date" class="form-control" />
+                                </div>
+                            </div>
+                            <button @click="generateStatement" :disabled="loadingStatement" class="btn btn-primary">
+                                <span v-if="loadingStatement" class="spinner"></span>
+                                <span v-else>
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    Generate Statement
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Statement Display -->
+                        <div v-if="statementData">
+                            <button @click="statementData = null" class="btn btn-secondary btn-sm mb-3">
+                                <i class="bi bi-arrow-left"></i>
+                                Back to Date Selection
+                            </button>
+                            <CustomerStatement :statement="statementData" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </AppLayout>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
+import CustomerStatement from '../components/CustomerStatement.vue';
 import api from '../api';
 
 const loading = ref(true);
@@ -210,6 +270,84 @@ const form = ref({
     notes: '',
     is_active: true,
 });
+
+// Statement state
+const showStatementModal = ref(false);
+const selectedCustomerForStatement = ref(null);
+const statementFromDate = ref('');
+const statementToDate = ref('');
+const selectedPreset = ref('This Month');
+const loadingStatement = ref(false);
+const statementData = ref(null);
+
+const datePresets = [
+    { label: 'This Month', getRange: () => {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        return { from: formatDateForInput(start), to: formatDateForInput(end) };
+    }},
+    { label: 'Last Month', getRange: () => {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const end = new Date(now.getFullYear(), now.getMonth(), 0);
+        return { from: formatDateForInput(start), to: formatDateForInput(end) };
+    }},
+    { label: 'This Quarter', getRange: () => {
+        const now = new Date();
+        const quarter = Math.floor(now.getMonth() / 3);
+        const start = new Date(now.getFullYear(), quarter * 3, 1);
+        const end = new Date(now.getFullYear(), quarter * 3 + 3, 0);
+        return { from: formatDateForInput(start), to: formatDateForInput(end) };
+    }},
+    { label: 'This Year', getRange: () => {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 1);
+        const end = new Date(now.getFullYear(), 11, 31);
+        return { from: formatDateForInput(start), to: formatDateForInput(end) };
+    }},
+];
+
+const formatDateForInput = (date) => {
+    return date.toISOString().split('T')[0];
+};
+
+const applyDatePreset = (preset) => {
+    selectedPreset.value = preset.label;
+    const range = preset.getRange();
+    statementFromDate.value = range.from;
+    statementToDate.value = range.to;
+};
+
+const openStatementModal = (customer) => {
+    selectedCustomerForStatement.value = customer;
+    statementData.value = null;
+    applyDatePreset(datePresets[0]); // Default to This Month
+    showStatementModal.value = true;
+};
+
+const closeStatementModal = () => {
+    showStatementModal.value = false;
+    selectedCustomerForStatement.value = null;
+    statementData.value = null;
+};
+
+const generateStatement = async () => {
+    if (!selectedCustomerForStatement.value || !statementFromDate.value || !statementToDate.value) return;
+    try {
+        loadingStatement.value = true;
+        const response = await api.customers.getStatement(
+            selectedCustomerForStatement.value.id,
+            statementFromDate.value,
+            statementToDate.value
+        );
+        statementData.value = response.data;
+    } catch (error) {
+        console.error('Error generating statement:', error);
+    } finally {
+        loadingStatement.value = false;
+    }
+};
 
 const filteredCustomers = computed(() => {
     if (!searchQuery.value) return customers.value;
@@ -808,4 +946,35 @@ textarea.form-control {
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .text-muted { color: #9ca3af; font-size: 0.8125rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+
+/* Large Modal */
+.modal-large {
+    max-width: 900px;
+}
+
+/* Date Range Picker */
+.date-range-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.custom-date-range {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 480px) {
+    .custom-date-range {
+        grid-template-columns: 1fr;
+    }
+}
 </style>

@@ -5,6 +5,7 @@ import Customers from '../views/Customers.vue';
 import Jobs from '../views/Jobs.vue';
 import Invoices from '../views/Invoices.vue';
 import Payments from '../views/Payments.vue';
+import Statements from '../views/Statements.vue';
 import Settings from '../views/Settings.vue';
 
 const routes = [
@@ -42,6 +43,12 @@ const routes = [
         path: '/payments',
         name: 'Payments',
         component: Payments,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/statements',
+        name: 'Statements',
+        component: Statements,
         meta: { requiresAuth: true },
     },
     {

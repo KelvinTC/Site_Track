@@ -11,6 +11,7 @@ Route::get('company-profile', [CompanyProfileController::class, 'show']);
 Route::put('company-profile', [CompanyProfileController::class, 'update']);
 
 Route::apiResource('customers', CustomerController::class);
+Route::get('customers/{customer}/statement', [CustomerController::class, 'statement']);
 
 Route::apiResource('site-jobs', SiteJobController::class);
 Route::patch('site-jobs/{siteJob}/status', [SiteJobController::class, 'updateStatus']);

@@ -120,7 +120,7 @@
                                     <span class="amount-cell">+${{ formatNumber(payment.amount) }}</span>
                                 </td>
                                 <td>
-                                    <span class="reference-cell">{{ payment.reference || '-' }}</span>
+                                    <span class="reference-cell">{{ payment.reference_number || '-' }}</span>
                                 </td>
                                 <td class="text-right">
                                     <div class="action-buttons">
@@ -192,7 +192,7 @@
 
                         <div class="form-group">
                             <label class="form-label">Reference Number</label>
-                            <input v-model="form.reference" type="text" class="form-control" placeholder="e.g., Transaction ID" />
+                            <input v-model="form.reference_number" type="text" class="form-control" placeholder="e.g., Transaction ID" />
                         </div>
 
                         <div class="form-group">
@@ -235,7 +235,7 @@ const getEmptyForm = () => ({
     amount: '',
     payment_date: new Date().toISOString().split('T')[0],
     payment_method: 'cash',
-    reference: '',
+    reference_number: '',
     notes: '',
 });
 
@@ -315,7 +315,7 @@ const openEditModal = (payment) => {
         amount: payment.amount,
         payment_date: payment.payment_date,
         payment_method: payment.payment_method,
-        reference: payment.reference || '',
+        reference_number: payment.reference_number || '',
         notes: payment.notes || '',
     };
     showModal.value = true;

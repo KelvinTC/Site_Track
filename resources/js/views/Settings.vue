@@ -41,10 +41,6 @@
                         <span class="info-value">{{ form.phone || '-' }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Website</span>
-                        <span class="info-value">{{ form.website || '-' }}</span>
-                    </div>
-                    <div class="info-item">
                         <span class="info-label">Tax ID / BP Number</span>
                         <span class="info-value">{{ form.tax_id || '-' }}</span>
                     </div>
@@ -82,10 +78,6 @@
                     <div class="form-group">
                         <label>Phone</label>
                         <input v-model="form.phone" type="text" />
-                    </div>
-                    <div class="form-group">
-                        <label>Website</label>
-                        <input v-model="form.website" type="text" />
                     </div>
                     <div class="form-group">
                         <label>Tax ID / BP Number</label>
@@ -138,7 +130,6 @@ const form = ref({
     company_name: '',
     email: '',
     phone: '',
-    website: '',
     address: '',
     city: '',
     state: '',

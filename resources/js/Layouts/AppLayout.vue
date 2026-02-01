@@ -32,6 +32,10 @@
                                 <i class="bi bi-credit-card-fill"></i>
                                 <span>Payments</span>
                             </router-link>
+                            <router-link to="/statements" class="nav-link" :class="{ active: $route.path === '/statements' }">
+                                <i class="bi bi-file-text"></i>
+                                <span>Statements</span>
+                            </router-link>
                             <router-link to="/settings" class="nav-link" :class="{ active: $route.path === '/settings' }">
                                 <i class="bi bi-gear-fill"></i>
                                 <span>Settings</span>

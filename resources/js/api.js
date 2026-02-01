@@ -26,6 +26,9 @@ export default {
         delete(id) {
             return api.delete(`/customers/${id}`);
         },
+        getStatement(id, fromDate, toDate) {
+            return api.get(`/customers/${id}/statement`, { params: { from_date: fromDate, to_date: toDate } });
+        },
     },
 
     // Jobs
