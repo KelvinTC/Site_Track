@@ -30,25 +30,26 @@ class InvoiceController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        // Convert empty strings to null for optional date fields
-        $input = $request->all();
-        if (isset($input['due_date']) && $input['due_date'] === '') {
-            $input['due_date'] = null;
-        }
+        try {
+            // Convert empty strings to null for optional date fields
+            $input = $request->all();
+            if (isset($input['due_date']) && $input['due_date'] === '') {
+                $input['due_date'] = null;
+            }
 
-        $validated = validator($input, [
-            'site_job_id' => 'required|exists:site_jobs,id',
-            'issue_date' => 'required|date',
-            'due_date' => 'nullable|date|after_or_equal:issue_date',
-            'notes' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string',
-            'items.*.type' => 'required|in:labor,material,other',
-            'items.*.quantity' => 'required|numeric|min:0',
-            'items.*.unit_price' => 'required|numeric|min:0',
-        ])->validate();
+            $validated = validator($input, [
+                'site_job_id' => 'required|exists:site_jobs,id',
+                'issue_date' => 'required|date',
+                'due_date' => 'nullable|date|after_or_equal:issue_date',
+                'notes' => 'nullable|string',
+                'items' => 'required|array|min:1',
+                'items.*.description' => 'required|string',
+                'items.*.type' => 'required|in:labor,material,other',
+                'items.*.quantity' => 'required|numeric|min:0',
+                'items.*.unit_price' => 'required|numeric|min:0',
+            ])->validate();
 
-        return DB::transaction(function () use ($validated) {
+            return DB::transaction(function () use ($validated) {
             $siteJob = SiteJob::findOrFail($validated['site_job_id']);
 
             $subtotal = 0;
@@ -82,6 +83,12 @@ class InvoiceController extends Controller
 
             return response()->json($invoice, 201);
         });
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error creating invoice',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function show(Invoice $invoice): JsonResponse
