@@ -437,7 +437,15 @@ const saveInvoice = async () => {
     try {
         saving.value = true;
         formErrors.value = {};
-        await api.invoices.create(form.value);
+
+        // Clean up data - convert empty strings to null
+        const data = {
+            ...form.value,
+            due_date: form.value.due_date || null,
+            notes: form.value.notes || null,
+        };
+
+        await api.invoices.create(data);
         await loadData();
         closeModal();
     } catch (error) {
