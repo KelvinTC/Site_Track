@@ -13,13 +13,13 @@
         </div>
 
         <div class="login-container">
-            <!-- Logo -->
-            <div class="logo-section">
-                <img src="/images/logo.png" alt="Mount Sinai" class="logo-img" />
-            </div>
-
             <!-- Login Card -->
             <div class="login-card">
+                <!-- Logo inside card -->
+                <div class="card-logo">
+                    <img src="/images/logo.png" alt="SiteTrack" class="logo-img" />
+                </div>
+
                 <div class="login-header">
                     <h2>Welcome back</h2>
                     <p>Sign in to continue to your dashboard</p>
@@ -89,21 +89,11 @@
                         </span>
                     </button>
                 </form>
-
-                <!-- Footer -->
-<!--                <div class="login-footer">-->
-<!--                    <p>Protected by enterprise-grade security</p>-->
-<!--                    <div class="security-badges">-->
-<!--                        <i class="bi bi-shield-check"></i>-->
-<!--                        <i class="bi bi-lock-fill"></i>-->
-<!--                        <i class="bi bi-patch-check-fill"></i>-->
-<!--                    </div>-->
-<!--                </div>-->
             </div>
 
             <!-- Copyright -->
             <p class="copyright">
-                &copy; {{ new Date().getFullYear() }} Mount Sinai Construction. All rights reserved.
+                &copy; {{ new Date().getFullYear() }} SiteTrack. All rights reserved.
             </p>
         </div>
     </div>
@@ -157,15 +147,11 @@ const handleLogin = async () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
     transition: background 0.3s ease;
-}
-
-:global(.dark) .login-page {
-    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
 }
 
 /* Dark Mode Toggle on Login */
@@ -180,17 +166,17 @@ const handleLogin = async () => {
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 0.75rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .dark-mode-toggle-login:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.25);
     transform: scale(1.05);
 }
 
@@ -214,31 +200,31 @@ const handleLogin = async () => {
 .bg-shape {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     animation: float 20s ease-in-out infinite;
 }
 
 .bg-shape-1 {
-    width: 400px;
-    height: 400px;
-    top: -100px;
-    right: -100px;
+    width: 500px;
+    height: 500px;
+    top: -150px;
+    right: -150px;
     animation-delay: 0s;
 }
 
 .bg-shape-2 {
-    width: 300px;
-    height: 300px;
-    bottom: -50px;
-    left: -50px;
+    width: 400px;
+    height: 400px;
+    bottom: -100px;
+    left: -100px;
     animation-delay: -5s;
 }
 
 .bg-shape-3 {
-    width: 200px;
-    height: 200px;
+    width: 250px;
+    height: 250px;
     top: 50%;
-    left: 10%;
+    left: 15%;
     animation-delay: -10s;
 }
 
@@ -251,53 +237,16 @@ const handleLogin = async () => {
 
 .login-container {
     width: 100%;
-    max-width: 440px;
+    max-width: 420px;
     position: relative;
     z-index: 1;
-}
-
-/* Logo Section */
-.logo-section {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.logo-img {
-    width: 8rem;
-    height: 8rem;
-    border-radius: 1.25rem;
-    object-fit: contain;
-    margin: 0 auto 1.5rem;
-    background: white;
-    padding: 0.75rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    transition: background 0.3s ease;
-}
-
-:global(.dark) .logo-img {
-    background: #27272a;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-}
-
-.logo-text {
-    font-size: 2rem;
-    font-weight: 800;
-    color: white;
-    letter-spacing: -0.02em;
-    margin: 0;
-}
-
-.logo-tagline {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9375rem;
-    margin-top: 0.25rem;
 }
 
 /* Login Card */
 .login-card {
     background: white;
     border-radius: 1.5rem;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
     padding: 2.5rem;
     animation: slideUp 0.5s ease-out;
     transition: background 0.3s ease, box-shadow 0.3s ease;
@@ -305,7 +254,7 @@ const handleLogin = async () => {
 
 :global(.dark) .login-card {
     background: #1f1f23;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes slideUp {
@@ -317,6 +266,25 @@ const handleLogin = async () => {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Card Logo */
+.card-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.logo-img {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 1rem;
+    object-fit: contain;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+:global(.dark) .logo-img {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .login-header {
@@ -453,14 +421,14 @@ const handleLogin = async () => {
 
 .form-control:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #6366f1;
     background: white;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
 .form-control:focus + .input-icon,
 .input-wrapper:focus-within .input-icon {
-    color: #667eea;
+    color: #6366f1;
 }
 
 .toggle-password {
@@ -522,7 +490,7 @@ const handleLogin = async () => {
     border-radius: 0.25rem;
     border: 1.5px solid #d1d5db;
     cursor: pointer;
-    accent-color: #667eea;
+    accent-color: #6366f1;
 }
 
 :global(.dark) .form-checkbox {
@@ -531,14 +499,14 @@ const handleLogin = async () => {
 }
 
 .forgot-link {
-    color: #667eea;
+    color: #6366f1;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
 }
 
 .forgot-link:hover {
-    color: #5a67d8;
+    color: #4f46e5;
 }
 
 :global(.dark) .forgot-link {
@@ -556,18 +524,18 @@ const handleLogin = async () => {
     font-size: 1rem;
     font-weight: 600;
     border-radius: 0.75rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
     color: white;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
     margin-top: 0.5rem;
 }
 
 .btn-login:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
 }
 
 .btn-login:active:not(:disabled) {
@@ -607,40 +575,10 @@ const handleLogin = async () => {
     to { transform: rotate(360deg); }
 }
 
-/* Footer */
-.login-footer {
-    text-align: center;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-.login-footer p {
-    color: #9ca3af;
-    font-size: 0.8125rem;
-    margin: 0 0 0.75rem;
-}
-
-.security-badges {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.security-badges i {
-    font-size: 1.25rem;
-    color: #d1d5db;
-    transition: color 0.2s ease;
-}
-
-.security-badges i:hover {
-    color: #667eea;
-}
-
 /* Copyright */
 .copyright {
     text-align: center;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.6);
     font-size: 0.8125rem;
     margin-top: 2rem;
 }
@@ -671,17 +609,9 @@ const handleLogin = async () => {
         border-radius: 1.25rem;
     }
 
-    .logo-icon {
+    .logo-img {
         width: 4rem;
         height: 4rem;
-    }
-
-    .logo-icon i {
-        font-size: 1.75rem;
-    }
-
-    .logo-text {
-        font-size: 1.75rem;
     }
 
     .login-header h2 {
