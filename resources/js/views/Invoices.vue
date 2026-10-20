@@ -12,6 +12,10 @@
                         <i class="bi bi-search search-icon"></i>
                         <input v-model="searchQuery" type="text" placeholder="Search invoices..." class="search-input" />
                     </div>
+                    <a :href="api.exports.invoicesExcel()" class="btn btn-secondary">
+                        <i class="bi bi-file-earmark-excel"></i>
+                        <span>Export</span>
+                    </a>
                     <button @click="openCreateModal" class="btn btn-success">
                         <i class="bi bi-plus-lg"></i>
                         <span>New Invoice</span>
@@ -119,6 +123,9 @@
                                         <button @click="viewInvoice(invoice)" class="btn btn-sm btn-ghost" title="View">
                                             <i class="bi bi-eye"></i>
                                         </button>
+                                        <a :href="api.exports.invoicePdf(invoice.id)" class="btn btn-sm btn-ghost" title="Download PDF">
+                                            <i class="bi bi-file-pdf"></i>
+                                        </a>
                                         <button @click="deleteInvoice(invoice.id)" class="btn btn-sm btn-ghost btn-ghost-danger" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -249,9 +256,14 @@
                 <div class="modal-content modal-md">
                     <div class="modal-header">
                         <h5>Invoice Preview</h5>
-                        <button @click="printInvoice" class="btn btn-sm btn-primary">
-                            <i class="bi bi-printer"></i> Print
-                        </button>
+                        <div class="header-actions-modal">
+                            <a v-if="viewingInvoice" :href="api.exports.invoicePdf(viewingInvoice.id)" class="btn btn-sm btn-success">
+                                <i class="bi bi-file-pdf"></i> PDF
+                            </a>
+                            <button @click="printInvoice" class="btn btn-sm btn-primary">
+                                <i class="bi bi-printer"></i> Print
+                            </button>
+                        </div>
                     </div>
                     <div v-if="viewingInvoice" class="modal-body invoice-preview" id="invoice-print">
                         <!-- Invoice Header -->
@@ -498,6 +510,12 @@ const deleteInvoice = async (id) => {
 
 const printInvoice = () => {
     window.print();
+};
+
+// Expose api for template usage
+const exportUrls = {
+    invoicePdf: api.exports.invoicePdf,
+    invoicesExcel: api.exports.invoicesExcel,
 };
 
 onMounted(() => {
@@ -863,6 +881,11 @@ onMounted(() => {
     font-size: 0.875rem;
     font-weight: 600;
     margin: 0;
+}
+
+.header-actions-modal {
+    display: flex;
+    gap: 0.5rem;
 }
 
 .modal-header-primary { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); }

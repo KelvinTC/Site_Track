@@ -20,6 +20,10 @@
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                     </select>
+                    <a :href="api.exports.jobsExcel()" class="btn btn-secondary">
+                        <i class="bi bi-file-earmark-excel"></i>
+                        <span>Export</span>
+                    </a>
                     <button @click="openCreateModal" class="btn btn-success">
                         <i class="bi bi-plus-lg"></i>
                         <span>New Job</span>

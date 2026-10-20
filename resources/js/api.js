@@ -100,4 +100,26 @@ export default {
             return api.put('/company-profile', data);
         },
     },
+
+    // Exports
+    exports: {
+        invoicePdf(id) {
+            return `/api/export/invoices/${id}/pdf`;
+        },
+        invoicePdfPreview(id) {
+            return `/api/export/invoices/${id}/pdf/preview`;
+        },
+        invoicesExcel() {
+            return '/api/export/invoices/excel';
+        },
+        customersExcel() {
+            return '/api/export/customers/excel';
+        },
+        jobsExcel() {
+            return '/api/export/jobs/excel';
+        },
+        paymentsExcel() {
+            return '/api/export/payments/excel';
+        },
+    },
 };

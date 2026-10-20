@@ -17,6 +17,10 @@
                             class="search-input"
                         />
                     </div>
+                    <a :href="api.exports.customersExcel()" class="btn btn-secondary">
+                        <i class="bi bi-file-earmark-excel"></i>
+                        <span>Export</span>
+                    </a>
                     <button @click="openCreateModal" class="btn btn-success">
                         <i class="bi bi-plus-lg"></i>
                         <span>Add Customer</span>

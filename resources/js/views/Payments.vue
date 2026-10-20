@@ -17,6 +17,10 @@
                         <option value="cash">Cash</option>
                         <option value="bank_transfer">Bank Transfer</option>
                     </select>
+                    <a :href="api.exports.paymentsExcel()" class="btn btn-secondary">
+                        <i class="bi bi-file-earmark-excel"></i>
+                        <span>Export</span>
+                    </a>
                     <button @click="openCreateModal" class="btn btn-success">
                         <i class="bi bi-plus-lg"></i>
                         <span>Add Payment</span>
