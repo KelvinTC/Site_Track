@@ -284,10 +284,10 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0.75rem;
-    background: #f9fafb;
+    padding: 0.75rem 1rem;
+    background: transparent;
     border-bottom: 1px solid #e5e7eb;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 600;
 }
 .card-header i {

@@ -555,7 +555,7 @@ onMounted(() => loadData());
     justify-content: space-between;
     padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--gray-100);
-    background: var(--gray-50);
+    background: transparent;
 }
 
 .header-left {

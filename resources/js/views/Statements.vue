@@ -276,7 +276,7 @@ onMounted(() => {
     align-items: center;
     justify-content: space-between;
     padding: 1rem 1.5rem;
-    background: #f9fafb;
+    background: transparent;
     border-bottom: 1px solid #e5e7eb;
 }
 
