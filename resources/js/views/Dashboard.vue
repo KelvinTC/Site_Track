@@ -1,151 +1,275 @@
 <template>
     <AppLayout>
         <!-- Page Header -->
-        <div class="page-header">
+        <div class="dashboard-header">
             <div class="header-content">
-                <div class="header-title">
-                    <h1>Dashboard</h1>
-                    <p class="header-subtitle">Welcome back!.</p>
+                <div class="greeting">
+                    <h1 class="greeting-title">{{ greeting }}</h1>
+                    <p class="greeting-subtitle">Here's what's happening with your business today</p>
                 </div>
-                <router-link to="/jobs" class="btn btn-success">
-                    <i class="bi bi-plus-lg"></i>
-                    <span>New Job</span>
+                <div class="header-actions">
+                    <button @click="refreshData" class="btn btn-secondary" :disabled="loading">
+                        <i class="bi bi-arrow-clockwise" :class="{ 'spin': loading }"></i>
+                        <span>Refresh</span>
+                    </button>
+                    <router-link to="/jobs" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>New Job</span>
+                    </router-link>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-primary">
+                    <i class="bi bi-briefcase-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-value">{{ stats.activeJobs }}</p>
+                    <p class="stat-label">Active Jobs</p>
+                </div>
+                <div class="stat-trend trend-up" v-if="stats.activeJobs > 0">
+                    <i class="bi bi-arrow-up-right"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-warning">
+                    <i class="bi bi-receipt"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-value">{{ stats.unpaidInvoices }}</p>
+                    <p class="stat-label">Unpaid Invoices</p>
+                </div>
+                <div class="stat-trend trend-warning" v-if="stats.unpaidInvoices > 0">
+                    <i class="bi bi-exclamation-circle"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-success">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-value">${{ formatNumber(stats.totalRevenue) }}</p>
+                    <p class="stat-label">Total Revenue</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-danger">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-value">${{ formatNumber(stats.outstanding) }}</p>
+                    <p class="stat-label">Outstanding</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h2 class="section-title">Quick Actions</h2>
+            <div class="actions-grid">
+                <router-link to="/customers" class="action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #4f46e5;">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <span class="action-label">Add Customer</span>
+                </router-link>
+                <router-link to="/jobs" class="action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #059669;">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
+                    <span class="action-label">Create Job</span>
+                </router-link>
+                <router-link to="/invoices" class="action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #d97706;">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                    <span class="action-label">New Invoice</span>
+                </router-link>
+                <router-link to="/payments" class="action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); color: #7c3aed;">
+                        <i class="bi bi-credit-card-fill"></i>
+                    </div>
+                    <span class="action-label">Record Payment</span>
                 </router-link>
             </div>
         </div>
 
-        <!-- Loading State -->
-        <div v-if="loading" class="loading-container">
-            <div class="loader"></div>
-            <p class="loading-text">Loading your dashboard...</p>
-        </div>
-
-        <div v-else>
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon icon-primary">
-                        <i class="bi bi-briefcase-fill"></i>
-                    </div>
-                    <div class="stat-value">{{ stats.activeJobs }}</div>
-                    <div class="stat-label">Active Jobs</div>
-                    <div class="stat-trend trend-up" v-if="stats.activeJobs > 0">
-                        <i class="bi bi-arrow-up-short"></i>
-                        <span>In progress</span>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon icon-warning">
-                        <i class="bi bi-clock-history"></i>
-                    </div>
-                    <div class="stat-value">{{ stats.unpaidInvoices }}</div>
-                    <div class="stat-label">Unpaid Invoices</div>
-                    <div class="stat-trend trend-neutral" v-if="stats.unpaidInvoices > 0">
-                        <i class="bi bi-dash"></i>
-                        <span>Pending payment</span>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon icon-success">
-                        <i class="bi bi-graph-up-arrow"></i>
-                    </div>
-                    <div class="stat-value">${{ formatNumber(stats.totalRevenue) }}</div>
-                    <div class="stat-label">Total Revenue</div>
-                    <div class="stat-trend trend-up">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Collected</span>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon icon-danger">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </div>
-                    <div class="stat-value">${{ formatNumber(stats.outstandingBalance) }}</div>
-                    <div class="stat-label">Outstanding</div>
-                    <div class="stat-trend trend-down" v-if="stats.outstandingBalance > 0">
-                        <i class="bi bi-arrow-down-short"></i>
-                        <span>Awaiting</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Jobs Card -->
-            <div class="card jobs-card">
-                <div class="card-header card-header-primary">
+        <!-- Main Content Grid -->
+        <div class="dashboard-grid">
+            <!-- Recent Jobs -->
+            <div class="card">
+                <div class="card-header">
                     <div class="header-left">
-                        <i class="bi bi-briefcase"></i>
+                        <i class="bi bi-briefcase-fill"></i>
                         <span>Recent Jobs</span>
                     </div>
                     <router-link to="/jobs" class="view-all-link">
-                        View all
+                        View All
                         <i class="bi bi-arrow-right"></i>
                     </router-link>
                 </div>
                 <div class="card-body p-0">
-                    <!-- Empty State -->
-                    <div v-if="recentJobs.length === 0" class="empty-state">
-                        <div class="empty-state-icon">
-                            <i class="bi bi-briefcase"></i>
+                    <div v-if="loading" class="loading-state">
+                        <div class="skeleton-row" v-for="i in 4" :key="i">
+                            <div class="skeleton skeleton-avatar"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </div>
                         </div>
-                        <h3 class="empty-state-title">No jobs yet</h3>
-                        <p class="empty-state-description">
-                            Get started by creating your first job to track site work and progress.
-                        </p>
-                        <router-link to="/jobs" class="btn btn-primary">
-                            <i class="bi bi-plus-lg"></i>
-                            Create First Job
-                        </router-link>
                     </div>
+                    <div v-else-if="recentJobs.length === 0" class="empty-state-small">
+                        <i class="bi bi-briefcase"></i>
+                        <p>No jobs yet</p>
+                        <router-link to="/jobs" class="btn btn-sm btn-primary">Create First Job</router-link>
+                    </div>
+                    <div v-else class="list-items">
+                        <div v-for="job in recentJobs" :key="job.id" class="list-item">
+                            <div class="item-avatar">
+                                {{ getInitials(job.customer?.name) }}
+                            </div>
+                            <div class="item-info">
+                                <p class="item-title">{{ job.title }}</p>
+                                <p class="item-subtitle">{{ job.customer?.name || 'No customer' }}</p>
+                            </div>
+                            <span :class="['item-badge', getStatusClass(job.status)]">
+                                {{ formatStatus(job.status) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Jobs Table -->
-                    <div v-else class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Job #</th>
-                                    <th>Customer</th>
-                                    <th>Title</th>
-                                    <th class="text-center">Status</th>
-                                    <th class="text-center">Date</th>
-                                    <th class="text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="job in recentJobs" :key="job.id" class="table-row">
-                                    <td>
-                                        <span class="job-number">{{ job.job_number }}</span>
-                                    </td>
-                                    <td>
-                                        <div class="customer-cell">
-                                            <div class="customer-avatar">
-                                                {{ getInitials(job.customer?.name) }}
-                                            </div>
-                                            <span>{{ job.customer?.name || 'Unknown' }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="job-title">{{ job.title }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span :class="getStatusClass(job.status)">
-                                            <span class="status-dot"></span>
-                                            {{ formatStatus(job.status) }}
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="date-cell">{{ formatDate(job.created_at) }}</span>
-                                    </td>
-                                    <td class="text-right">
-                                        <router-link :to="`/jobs?id=${job.id}`" class="btn btn-sm btn-ghost">
-                                            <i class="bi bi-eye"></i>
-                                        </router-link>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <!-- Unpaid Invoices -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <i class="bi bi-exclamation-triangle-fill" style="color: #d97706;"></i>
+                        <span>Unpaid Invoices</span>
+                    </div>
+                    <router-link to="/invoices" class="view-all-link">
+                        View All
+                        <i class="bi bi-arrow-right"></i>
+                    </router-link>
+                </div>
+                <div class="card-body p-0">
+                    <div v-if="loading" class="loading-state">
+                        <div class="skeleton-row" v-for="i in 4" :key="i">
+                            <div class="skeleton skeleton-avatar"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else-if="unpaidInvoices.length === 0" class="empty-state-small success">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <p>All invoices paid!</p>
+                    </div>
+                    <div v-else class="list-items">
+                        <div v-for="invoice in unpaidInvoices" :key="invoice.id" class="list-item">
+                            <div class="item-info">
+                                <p class="item-title mono">{{ invoice.invoice_number }}</p>
+                                <p class="item-subtitle">{{ invoice.customer?.name }}</p>
+                            </div>
+                            <div class="item-amount">
+                                <p class="amount-value">${{ formatNumber(invoice.total) }}</p>
+                                <p class="amount-status" :class="getInvoiceAgeClass(invoice)">
+                                    {{ getInvoiceAge(invoice) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Payments -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <i class="bi bi-credit-card-fill" style="color: #059669;"></i>
+                        <span>Recent Payments</span>
+                    </div>
+                    <router-link to="/payments" class="view-all-link">
+                        View All
+                        <i class="bi bi-arrow-right"></i>
+                    </router-link>
+                </div>
+                <div class="card-body p-0">
+                    <div v-if="loading" class="loading-state">
+                        <div class="skeleton-row" v-for="i in 4" :key="i">
+                            <div class="skeleton skeleton-avatar"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else-if="recentPayments.length === 0" class="empty-state-small">
+                        <i class="bi bi-credit-card"></i>
+                        <p>No payments yet</p>
+                    </div>
+                    <div v-else class="list-items">
+                        <div v-for="payment in recentPayments" :key="payment.id" class="list-item">
+                            <div class="item-avatar success">
+                                <i :class="getPaymentIcon(payment.payment_method)"></i>
+                            </div>
+                            <div class="item-info">
+                                <p class="item-title">{{ payment.invoice?.invoice_number }}</p>
+                                <p class="item-subtitle">{{ formatDate(payment.payment_date) }}</p>
+                            </div>
+                            <p class="payment-amount">+${{ formatNumber(payment.amount) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Customers -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Top Customers</span>
+                    </div>
+                    <router-link to="/customers" class="view-all-link">
+                        View All
+                        <i class="bi bi-arrow-right"></i>
+                    </router-link>
+                </div>
+                <div class="card-body p-0">
+                    <div v-if="loading" class="loading-state">
+                        <div class="skeleton-row" v-for="i in 4" :key="i">
+                            <div class="skeleton skeleton-avatar"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else-if="topCustomers.length === 0" class="empty-state-small">
+                        <i class="bi bi-people"></i>
+                        <p>No customers yet</p>
+                        <router-link to="/customers" class="btn btn-sm btn-primary">Add Customer</router-link>
+                    </div>
+                    <div v-else class="list-items">
+                        <div v-for="customer in topCustomers" :key="customer.id" class="list-item">
+                            <div class="item-avatar">
+                                {{ getInitials(customer.name) }}
+                            </div>
+                            <div class="item-info">
+                                <p class="item-title">{{ customer.name }}</p>
+                                <p class="item-subtitle">{{ customer.invoices?.length || 0 }} invoices</p>
+                            </div>
+                            <span :class="['item-badge', customer.is_active ? 'badge-success' : 'badge-secondary']">
+                                {{ customer.is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -154,75 +278,91 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 import api from '../api';
 
 const loading = ref(true);
-const stats = ref({ activeJobs: 0, unpaidInvoices: 0, totalRevenue: 0, outstandingBalance: 0 });
-const recentJobs = ref([]);
+const jobs = ref([]);
+const invoices = ref([]);
+const payments = ref([]);
+const customers = ref([]);
+
+const greeting = computed(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+});
+
+const stats = computed(() => ({
+    activeJobs: jobs.value.filter(j => ['new', 'in_progress'].includes(j.status)).length,
+    unpaidInvoices: invoices.value.filter(i => i.status !== 'paid').length,
+    totalRevenue: invoices.value.reduce((sum, i) => sum + parseFloat(i.total || 0), 0),
+    outstanding: invoices.value
+        .filter(i => i.status !== 'paid')
+        .reduce((sum, i) => sum + parseFloat(i.total || 0), 0),
+}));
+
+const recentJobs = computed(() => jobs.value.slice(0, 5));
+const unpaidInvoices = computed(() => invoices.value.filter(i => i.status !== 'paid').slice(0, 5));
+const recentPayments = computed(() => payments.value.slice(0, 5));
+const topCustomers = computed(() => customers.value.slice(0, 5));
 
 const formatNumber = (num) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num || 0);
-const formatDate = (date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-const formatStatus = (status) => status?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown';
+const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
 const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
+const formatStatus = (status) => ({ 'new': 'New', 'in_progress': 'In Progress', 'on_hold': 'On Hold', 'completed': 'Completed', 'cancelled': 'Cancelled' }[status] || status);
+const getStatusClass = (status) => ({ 'new': 'badge-info', 'in_progress': 'badge-warning', 'on_hold': 'badge-secondary', 'completed': 'badge-success', 'cancelled': 'badge-danger' }[status] || '');
 
-const getStatusClass = (status) => {
-    const classes = {
-        'new': 'badge badge-info badge-dot',
-        'in_progress': 'badge badge-warning badge-dot',
-        'on_hold': 'badge badge-secondary badge-dot',
-        'completed': 'badge badge-success badge-dot',
-        'cancelled': 'badge badge-danger badge-dot',
-    };
-    return classes[status] || 'badge badge-secondary badge-dot';
+const getInvoiceAge = (invoice) => {
+    if (!invoice.due_date) return 'No due date';
+    const diff = Math.floor((new Date() - new Date(invoice.due_date)) / (1000 * 60 * 60 * 24));
+    if (diff > 0) return `${diff}d overdue`;
+    if (diff === 0) return 'Due today';
+    return `${Math.abs(diff)}d left`;
 };
+
+const getInvoiceAgeClass = (invoice) => {
+    if (!invoice.due_date) return '';
+    const diff = Math.floor((new Date() - new Date(invoice.due_date)) / (1000 * 60 * 60 * 24));
+    return diff > 0 ? 'overdue' : diff === 0 ? 'due-today' : 'upcoming';
+};
+
+const getPaymentIcon = (method) => ({ 'cash': 'bi bi-cash-stack', 'bank_transfer': 'bi bi-bank', 'credit_card': 'bi bi-credit-card', 'check': 'bi bi-file-text' }[method] || 'bi bi-cash');
 
 const loadData = async () => {
     try {
         loading.value = true;
-        const [jobsRes, invoicesRes] = await Promise.all([api.jobs.getAll(), api.invoices.getAll()]);
-        const jobs = jobsRes.data;
-        const invoices = invoicesRes.data;
-
-        stats.value = {
-            activeJobs: jobs.filter(j => ['new', 'in_progress'].includes(j.status)).length,
-            unpaidInvoices: invoices.filter(i => ['unpaid', 'partial'].includes(i.status)).length,
-            totalRevenue: invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + parseFloat(i.total), 0),
-            outstandingBalance: invoices.filter(i => ['unpaid', 'partial'].includes(i.status)).reduce((sum, i) => sum + parseFloat(i.total - (i.amount_paid || 0)), 0),
-        };
-        recentJobs.value = jobs.slice(0, 8);
+        const [jobsRes, invoicesRes, paymentsRes, customersRes] = await Promise.all([
+            api.jobs.getAll(), api.invoices.getAll(), api.payments.getAll(), api.customers.getAll()
+        ]);
+        jobs.value = jobsRes.data;
+        invoices.value = invoicesRes.data;
+        payments.value = paymentsRes.data;
+        customers.value = customersRes.data;
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error loading dashboard:', error);
     } finally {
         loading.value = false;
     }
 };
 
+const refreshData = () => loadData();
 onMounted(() => loadData());
 </script>
 
 <style scoped>
-/* Page Header */
-.page-header {
-    margin-bottom: 2.5rem;
-    text-align: center;
-}
-
-@media (min-width: 640px) {
-    .page-header {
-        text-align: left;
-    }
-}
+/* Dashboard Header */
+.dashboard-header { margin-bottom: 2rem; }
 
 .header-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
+    gap: 1rem;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
     .header-content {
         flex-direction: row;
         align-items: center;
@@ -230,106 +370,64 @@ onMounted(() => loadData());
     }
 }
 
-.header-title h1 {
-    font-size: 1.875rem;
+.greeting-title {
+    font-size: 1.75rem;
     font-weight: 800;
-    color: #111827;
+    color: var(--gray-900);
     margin: 0;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
 }
 
-.header-subtitle {
-    color: #6b7280;
+.greeting-subtitle {
+    color: var(--gray-500);
     font-size: 0.9375rem;
-    margin: 0.5rem 0 0;
-    line-height: 1.5;
+    margin: 0.375rem 0 0;
 }
 
-/* Loading State */
-.loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-}
+.header-actions { display: flex; gap: 0.75rem; }
 
-.loader {
-    width: 3rem;
-    height: 3rem;
-    border: 3px solid #e5e7eb;
-    border-top-color: #4f46e5;
-    border-radius: 50%;
-    animation: spin 0.8s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.loading-text {
-    margin-top: 1rem;
-    color: #6b7280;
-    font-size: 0.9375rem;
-}
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 /* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-    margin-bottom: 2.5rem;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
-    .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.75rem;
-    }
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
-@media (min-width: 1024px) {
-    .stats-grid {
-        gap: 2rem;
-    }
-}
-
-/* Stat Card */
 .stat-card {
     background: white;
-    border-radius: 1.25rem;
-    padding: 1.75rem 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    transition: all 0.25s ease;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--gray-100);
     position: relative;
     overflow: hidden;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+    background: linear-gradient(90deg, var(--primary-500), #8b5cf6);
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s ease;
 }
 
-.stat-card:hover {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
-}
-
-.stat-card:hover::before {
-    opacity: 1;
-}
+.stat-card:hover::before { opacity: 1; }
 
 .stat-icon {
     width: 3rem;
@@ -339,309 +437,287 @@ onMounted(() => loadData());
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
-    margin: 0 auto 0.75rem;
-    transition: transform 0.3s ease;
+    margin-bottom: 0.75rem;
 }
 
-.stat-card:hover .stat-icon {
-    transform: scale(1.1);
-}
-
-.icon-primary {
-    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-    color: #4f46e5;
-}
-
-.icon-warning {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    color: #d97706;
-}
-
-.icon-success {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: #059669;
-}
-
-.icon-danger {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    color: #dc2626;
-}
+.icon-primary { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #4f46e5; }
+.icon-warning { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #d97706; }
+.icon-success { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #059669; }
+.icon-danger { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #dc2626; }
 
 .stat-value {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #111827;
-    line-height: 1.2;
+    color: var(--gray-900);
+    margin: 0;
     letter-spacing: -0.02em;
-}
-
-@media (min-width: 768px) {
-    .stat-value {
-        font-size: 1.75rem;
-    }
 }
 
 .stat-label {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--gray-500);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-top: 0.25rem;
+    margin: 0.25rem 0 0;
 }
 
 .stat-trend {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    font-size: 0.875rem;
+}
+
+.trend-up { color: #059669; }
+.trend-warning { color: #d97706; }
+
+/* Quick Actions */
+.quick-actions { margin-bottom: 2rem; }
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 1rem;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+    .actions-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid var(--gray-100);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-200);
+}
+
+.action-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.25rem;
-    font-size: 0.6875rem;
+    font-size: 1.25rem;
+    transition: transform 0.3s ease;
+}
+
+.action-card:hover .action-icon { transform: scale(1.1); }
+
+.action-label {
+    font-size: 0.8125rem;
     font-weight: 600;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid #f3f4f6;
+    color: var(--gray-700);
 }
 
-.trend-up {
-    color: #059669;
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
 }
 
-.trend-down {
-    color: #dc2626;
+@media (min-width: 768px) {
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-.trend-neutral {
-    color: #d97706;
-}
-
-/* Jobs Card */
-.jobs-card {
-    border-radius: 1.25rem;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+/* Card */
+.card {
     background: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--gray-100);
+    overflow: hidden;
 }
 
 .card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--gray-100);
+    background: var(--gray-50);
 }
 
 .header-left {
     display: flex;
     align-items: center;
-    gap: 0.625rem;
+    gap: 0.5rem;
     font-weight: 600;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
+    color: var(--gray-900);
 }
 
-.header-left i {
-    font-size: 1rem;
-    opacity: 0.9;
-}
+.header-left i { color: var(--primary-500); }
 
 .view-all-link {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    color: rgba(255, 255, 255, 0.9);
+    gap: 0.25rem;
     font-size: 0.8125rem;
     font-weight: 500;
+    color: var(--primary-600);
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: gap 0.2s ease;
 }
 
-.view-all-link:hover {
-    color: white;
-}
+.view-all-link:hover { gap: 0.5rem; }
 
-.view-all-link i {
-    font-size: 0.875rem;
-    transition: transform 0.2s ease;
-}
+.card-body { padding: 1rem; }
+.p-0 { padding: 0 !important; }
 
-.view-all-link:hover i {
-    transform: translateX(3px);
-}
+/* Loading State */
+.loading-state { padding: 1rem; }
 
-/* Table */
-.table-container {
-    overflow-x: auto;
-}
-
-.table {
-    width: 100%;
-    font-size: 0.875rem;
-}
-
-.table thead th {
-    background: #f9fafb;
-    color: #6b7280;
-    font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.875rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.table tbody tr {
-    transition: background-color 0.15s ease;
-}
-
-.table tbody tr:hover {
-    background: linear-gradient(90deg, rgba(99, 102, 241, 0.04) 0%, transparent 100%);
-}
-
-.table tbody td {
-    padding: 1rem;
-    vertical-align: middle;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* Job Number */
-.job-number {
-    font-weight: 700;
-    color: #4f46e5;
-    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', monospace;
-    font-size: 0.8125rem;
-}
-
-/* Customer Cell */
-.customer-cell {
+.skeleton-row {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    padding: 0.75rem 0;
 }
 
-.customer-avatar {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.5rem;
+.skeleton {
+    background: linear-gradient(90deg, var(--gray-200) 0%, var(--gray-100) 50%, var(--gray-200) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 0.375rem;
+}
+
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+.skeleton-avatar { width: 2.5rem; height: 2.5rem; border-radius: 0.625rem; flex-shrink: 0; }
+.skeleton-content { flex: 1; }
+.skeleton-title { height: 0.875rem; width: 60%; margin-bottom: 0.5rem; }
+.skeleton-text { height: 0.75rem; width: 40%; }
+
+/* Empty States */
+.empty-state-small {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    color: var(--gray-400);
+}
+
+.empty-state-small i { font-size: 2rem; margin-bottom: 0.75rem; }
+.empty-state-small p { margin: 0 0 1rem; font-size: 0.875rem; }
+.empty-state-small.success { color: #059669; }
+
+/* List Items */
+.list-items { padding: 0.5rem 0; }
+
+.list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    transition: background 0.2s ease;
+}
+
+.list-item:hover { background: var(--gray-50); }
+
+.item-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.625rem;
     background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #4f46e5;
+    flex-shrink: 0;
+}
+
+.item-avatar.success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #059669;
+}
+
+.item-info { flex: 1; min-width: 0; }
+
+.item-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-title.mono {
+    font-family: 'SF Mono', Monaco, monospace;
+    color: var(--primary-600);
+}
+
+.item-subtitle {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin: 0.125rem 0 0;
+}
+
+.item-badge {
     font-size: 0.6875rem;
     font-weight: 700;
-    color: #4f46e5;
-}
-
-/* Job Title */
-.job-title {
-    color: #374151;
-    font-weight: 500;
-}
-
-/* Date Cell */
-.date-cell {
-    color: #6b7280;
-    font-size: 0.8125rem;
-}
-
-/* Badge */
-.badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.375rem 0.75rem;
+    padding: 0.25rem 0.625rem;
     border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
-.badge-dot .status-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: currentColor;
-}
+.badge-info { background: #dbeafe; color: #1d4ed8; }
+.badge-warning { background: #fef3c7; color: #b45309; }
+.badge-secondary { background: #f3f4f6; color: #4b5563; }
+.badge-success { background: #d1fae5; color: #047857; }
+.badge-danger { background: #fee2e2; color: #b91c1c; }
 
-.badge-info {
-    background: #dbeafe;
-    color: #1d4ed8;
-}
+/* Invoice Amount */
+.item-amount { text-align: right; }
 
-.badge-warning {
-    background: #fef3c7;
-    color: #b45309;
-}
-
-.badge-success {
-    background: #d1fae5;
-    color: #047857;
-}
-
-.badge-danger {
-    background: #fee2e2;
-    color: #b91c1c;
-}
-
-.badge-secondary {
-    background: #f3f4f6;
-    color: #4b5563;
-}
-
-/* Ghost Button */
-.btn-ghost {
-    padding: 0.5rem;
-    color: #6b7280;
-    background: transparent;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-ghost:hover {
-    background: #f3f4f6;
-    color: #4f46e5;
-}
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 3.5rem 1.5rem;
-}
-
-.empty-state-icon {
-    width: 4.5rem;
-    height: 4.5rem;
-    border-radius: 1rem;
-    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.25rem;
-    font-size: 1.75rem;
-    color: #4f46e5;
-}
-
-.empty-state-title {
-    font-size: 1.125rem;
+.amount-value {
+    font-size: 0.875rem;
     font-weight: 700;
-    color: #111827;
-    margin: 0 0 0.5rem;
+    color: var(--gray-900);
+    margin: 0;
 }
 
-.empty-state-description {
+.amount-status {
+    font-size: 0.6875rem;
+    margin: 0.125rem 0 0;
+}
+
+.amount-status.overdue { color: #dc2626; }
+.amount-status.due-today { color: #d97706; }
+.amount-status.upcoming { color: #059669; }
+
+/* Payment Amount */
+.payment-amount {
     font-size: 0.9375rem;
-    color: #6b7280;
-    max-width: 20rem;
-    margin: 0 auto 1.5rem;
-    line-height: 1.5;
+    font-weight: 700;
+    color: #059669;
+    margin: 0;
 }
-
-/* Utilities */
-.p-0 { padding: 0 !important; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
 </style>
