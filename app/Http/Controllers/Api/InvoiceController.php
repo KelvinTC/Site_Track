@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\SiteJob;
+use App\Models\CompanyProfile;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
@@ -50,23 +52,40 @@ class InvoiceController extends Controller
             ])->validate();
 
             return DB::transaction(function () use ($validated) {
-            $siteJob = SiteJob::findOrFail($validated['site_job_id']);
+                $siteJob = SiteJob::findOrFail($validated['site_job_id']);
 
-            $subtotal = 0;
-            foreach ($validated['items'] as $item) {
-                $subtotal += $item['quantity'] * $item['unit_price'];
-            }
+                // Get VAT rate from company profile
+                $companyProfile = CompanyProfile::getProfile();
+                $vatRate = $companyProfile->vat_registered ? ($companyProfile->vat_rate ?? 15.00) : 0;
 
-            $invoice = Invoice::create([
-                'site_job_id' => $validated['site_job_id'],
-                'customer_id' => $siteJob->customer_id,
-                'issue_date' => $validated['issue_date'],
-                'due_date' => $validated['due_date'] ?? null,
-                'subtotal' => $subtotal,
-                'tax' => 0,
-                'total' => $subtotal,
-                'notes' => $validated['notes'] ?? null,
-            ]);
+                $subtotal = 0;
+                foreach ($validated['items'] as $item) {
+                    $subtotal += $item['quantity'] * $item['unit_price'];
+                }
+
+                // Calculate VAT
+                $vatAmount = round($subtotal * ($vatRate / 100), 2);
+                $total = $subtotal + $vatAmount;
+
+                Log::info('Creating invoice with VAT', [
+                    'subtotal' => $subtotal,
+                    'vat_rate' => $vatRate,
+                    'vat_amount' => $vatAmount,
+                    'total' => $total,
+                ]);
+
+                $invoice = Invoice::create([
+                    'site_job_id' => $validated['site_job_id'],
+                    'customer_id' => $siteJob->customer_id,
+                    'issue_date' => $validated['issue_date'],
+                    'due_date' => $validated['due_date'] ?? null,
+                    'subtotal' => $subtotal,
+                    'vat_rate' => $vatRate,
+                    'vat_amount' => $vatAmount,
+                    'tax' => $vatAmount,
+                    'total' => $total,
+                    'notes' => $validated['notes'] ?? null,
+                ]);
 
             foreach ($validated['items'] as $item) {
                 $total = $item['quantity'] * $item['unit_price'];

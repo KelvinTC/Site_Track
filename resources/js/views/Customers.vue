@@ -148,6 +148,10 @@
                                 <input v-model="form.phone" type="text" class="form-control" />
                             </div>
                             <div class="form-group">
+                                <label class="form-label">VAT Number</label>
+                                <input v-model="form.vat_number" type="text" class="form-control" placeholder="Customer VAT registration" />
+                            </div>
+                            <div class="form-group">
                                 <label class="form-label">City</label>
                                 <input v-model="form.city" type="text" class="form-control" />
                             </div>
@@ -267,6 +271,7 @@ const form = ref({
     city: '',
     state: '',
     zip: '',
+    vat_number: '',
     notes: '',
     is_active: true,
 });
@@ -388,6 +393,7 @@ const openCreateModal = () => {
         city: '',
         state: '',
         zip: '',
+        vat_number: '',
         notes: '',
         is_active: true,
     };

@@ -10,6 +10,7 @@
                 </p>
                 <p v-if="companyProfile.phone">{{ companyProfile.phone }}</p>
                 <p v-if="companyProfile.email">{{ companyProfile.email }}</p>
+                <p v-if="companyProfile.vat_number" class="vat-number">VAT No: {{ companyProfile.vat_number }}</p>
             </div>
             <div class="statement-title">
                 <h1>Customer Statement</h1>
@@ -27,6 +28,7 @@
             </p>
             <p v-if="statement.customer.phone">{{ statement.customer.phone }}</p>
             <p v-if="statement.customer.email">{{ statement.customer.email }}</p>
+            <p v-if="statement.customer.vat_number" class="vat-number">VAT No: {{ statement.customer.vat_number }}</p>
         </div>
 
         <!-- Statement Table -->
@@ -178,6 +180,11 @@ onMounted(() => {
     margin: 0.25rem 0;
     color: #4b5563;
     font-size: 0.875rem;
+}
+
+.vat-number {
+    font-weight: 600;
+    color: #4f46e5 !important;
 }
 
 .statement-title {

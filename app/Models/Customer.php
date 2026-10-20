@@ -18,6 +18,7 @@ class Customer extends Model
         'city',
         'state',
         'zip',
+        'vat_number',
         'notes',
         'is_active',
     ];

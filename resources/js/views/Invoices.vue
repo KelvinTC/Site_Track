@@ -207,7 +207,20 @@
                                 </div>
                             </div>
                             <div class="line-items-footer">
-                                <strong>Total: ${{ formatNumber(subtotal) }}</strong>
+                                <div class="totals-summary">
+                                    <div class="summary-row">
+                                        <span>Subtotal:</span>
+                                        <span>${{ formatNumber(subtotal) }}</span>
+                                    </div>
+                                    <div class="summary-row" v-if="companyProfile.vat_registered">
+                                        <span>VAT ({{ companyProfile.vat_rate || 15 }}%):</span>
+                                        <span>${{ formatNumber(subtotal * (companyProfile.vat_rate || 15) / 100) }}</span>
+                                    </div>
+                                    <div class="summary-row total">
+                                        <strong>Total:</strong>
+                                        <strong>${{ formatNumber(companyProfile.vat_registered ? subtotal * (1 + (companyProfile.vat_rate || 15) / 100) : subtotal) }}</strong>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -251,6 +264,7 @@
                                     <p v-if="companyProfile.city || companyProfile.state">{{ [companyProfile.city, companyProfile.state].filter(Boolean).join(', ') }}</p>
                                     <p v-if="companyProfile.phone">{{ companyProfile.phone }}</p>
                                     <p v-if="companyProfile.email">{{ companyProfile.email }}</p>
+                                    <p v-if="companyProfile.vat_number" class="vat-number">VAT No: {{ companyProfile.vat_number }}</p>
                                 </div>
                             </div>
                             <div class="invoice-title-block">
@@ -265,6 +279,7 @@
                                 <p class="detail-value">{{ viewingInvoice.customer?.name }}</p>
                                 <p class="detail-sub">{{ viewingInvoice.customer?.address }}</p>
                                 <p v-if="viewingInvoice.customer?.city" class="detail-sub">{{ [viewingInvoice.customer?.city, viewingInvoice.customer?.state].filter(Boolean).join(', ') }}</p>
+                                <p v-if="viewingInvoice.customer?.vat_number" class="detail-sub vat-number">VAT: {{ viewingInvoice.customer?.vat_number }}</p>
                             </div>
                             <div class="invoice-meta">
                                 <div class="invoice-meta-item">
@@ -304,10 +319,20 @@
                             </tbody>
                         </table>
 
-                        <!-- Total -->
-                        <div class="invoice-total">
-                            <span>Total</span>
-                            <span class="total-value">${{ formatNumber(viewingInvoice.total) }}</span>
+                        <!-- Totals -->
+                        <div class="invoice-totals">
+                            <div class="totals-row">
+                                <span>Subtotal</span>
+                                <span>${{ formatNumber(viewingInvoice.subtotal) }}</span>
+                            </div>
+                            <div class="totals-row" v-if="viewingInvoice.vat_rate > 0">
+                                <span>VAT ({{ viewingInvoice.vat_rate }}%)</span>
+                                <span>${{ formatNumber(viewingInvoice.vat_amount || viewingInvoice.tax) }}</span>
+                            </div>
+                            <div class="totals-row total-final">
+                                <span>Total</span>
+                                <span class="total-value">${{ formatNumber(viewingInvoice.total) }}</span>
+                            </div>
                         </div>
 
                         <!-- Notes -->
@@ -980,8 +1005,29 @@ onMounted(() => {
 .line-items-footer {
     padding: 0.75rem 1rem;
     background: #f3f4f6;
-    text-align: right;
-    font-size: 1rem;
+}
+
+.totals-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    font-size: 0.8125rem;
+    color: #4b5563;
+}
+
+.summary-row.total {
+    border-top: 1px solid #d1d5db;
+    padding-top: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 0.9375rem;
+    color: #111827;
 }
 
 /* Invoice Preview */
@@ -1116,16 +1162,36 @@ onMounted(() => {
     text-transform: capitalize;
 }
 
-.invoice-total {
+/* Invoice Totals */
+.invoice-totals {
+    margin-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 0.75rem;
+}
+
+.totals-row {
     display: flex;
     justify-content: space-between;
-    padding: 1rem 0;
+    padding: 0.375rem 0;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.totals-row.total-final {
     border-top: 2px solid #e5e7eb;
-    font-size: 1.25rem;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    font-size: 1.125rem;
     font-weight: 700;
+    color: #111827;
 }
 
 .total-value { color: #4f46e5; }
+
+.vat-number {
+    font-weight: 600;
+    color: #4f46e5;
+}
 
 .invoice-notes {
     background: #f9fafb;

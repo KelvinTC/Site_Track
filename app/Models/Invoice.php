@@ -28,6 +28,8 @@ class Invoice extends Model
         'issue_date',
         'due_date',
         'subtotal',
+        'vat_rate',
+        'vat_amount',
         'tax',
         'total',
         'status',
@@ -38,9 +40,21 @@ class Invoice extends Model
         'issue_date' => 'date',
         'due_date' => 'date',
         'subtotal' => 'decimal:2',
+        'vat_rate' => 'decimal:2',
+        'vat_amount' => 'decimal:2',
         'tax' => 'decimal:2',
         'total' => 'decimal:2',
     ];
+
+    /**
+     * Calculate VAT from subtotal
+     */
+    public function calculateVat(): void
+    {
+        $this->vat_amount = round($this->subtotal * ($this->vat_rate / 100), 2);
+        $this->tax = $this->vat_amount; // Keep tax field in sync
+        $this->total = $this->subtotal + $this->vat_amount;
+    }
 
     public function siteJob(): BelongsTo
     {

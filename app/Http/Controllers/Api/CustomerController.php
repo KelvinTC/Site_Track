@@ -28,6 +28,7 @@ class CustomerController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'zip' => 'nullable|string|max:20',
+            'vat_number' => 'nullable|string|max:20',
             'notes' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -54,6 +55,7 @@ class CustomerController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'zip' => 'nullable|string|max:20',
+            'vat_number' => 'nullable|string|max:20',
             'notes' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -160,6 +162,7 @@ class CustomerController extends Controller
                 'city' => $customer->city,
                 'state' => $customer->state,
                 'zip' => $customer->zip,
+                'vat_number' => $customer->vat_number,
             ],
             'period' => [
                 'from_date' => $fromDate,

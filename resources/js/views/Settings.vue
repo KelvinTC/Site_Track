@@ -44,6 +44,36 @@
                         <span class="info-label">Tax ID / BP Number</span>
                         <span class="info-value">{{ form.tax_id || '-' }}</span>
                     </div>
+                </div>
+
+                <!-- VAT Section -->
+                <div class="section-divider">
+                    <span class="section-title"><i class="bi bi-percent"></i> VAT Settings</span>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">VAT Registered</span>
+                        <span class="info-value">
+                            <span :class="form.vat_registered ? 'status-yes' : 'status-no'">
+                                {{ form.vat_registered ? 'Yes' : 'No' }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">VAT Number</span>
+                        <span class="info-value">{{ form.vat_number || '-' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">VAT Rate</span>
+                        <span class="info-value">{{ form.vat_rate || 15 }}%</span>
+                    </div>
+                </div>
+
+                <!-- Invoice Settings Section -->
+                <div class="section-divider">
+                    <span class="section-title"><i class="bi bi-receipt"></i> Invoice Settings</span>
+                </div>
+                <div class="info-grid">
                     <div class="info-item full">
                         <span class="info-label">Address</span>
                         <span class="info-value">{{ fullAddress || '-' }}</span>
@@ -83,6 +113,34 @@
                         <label>Tax ID / BP Number</label>
                         <input v-model="form.tax_id" type="text" />
                     </div>
+                </div>
+
+                <!-- VAT Settings Section -->
+                <div class="section-divider">
+                    <span class="section-title"><i class="bi bi-percent"></i> VAT Settings</span>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" v-model="form.vat_registered" />
+                            <span>VAT Registered</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>VAT Number</label>
+                        <input v-model="form.vat_number" type="text" placeholder="e.g. 10001234" :disabled="!form.vat_registered" />
+                    </div>
+                    <div class="form-group">
+                        <label>VAT Rate (%)</label>
+                        <input v-model.number="form.vat_rate" type="number" step="0.01" min="0" max="100" :disabled="!form.vat_registered" />
+                    </div>
+                </div>
+
+                <!-- Address Section -->
+                <div class="section-divider">
+                    <span class="section-title"><i class="bi bi-geo-alt"></i> Address</span>
+                </div>
+                <div class="form-grid">
                     <div class="form-group">
                         <label>Street Address</label>
                         <input v-model="form.address" type="text" />
@@ -95,6 +153,13 @@
                         <label>Province</label>
                         <input v-model="form.state" type="text" />
                     </div>
+                </div>
+
+                <!-- Invoice Settings Section -->
+                <div class="section-divider">
+                    <span class="section-title"><i class="bi bi-receipt"></i> Invoice Settings</span>
+                </div>
+                <div class="form-grid">
                     <div class="form-group full">
                         <label>Invoice Notes</label>
                         <textarea v-model="form.invoice_notes" rows="2"></textarea>
@@ -134,6 +199,9 @@ const form = ref({
     city: '',
     state: '',
     tax_id: '',
+    vat_number: '',
+    vat_rate: 15,
+    vat_registered: false,
     invoice_notes: '',
     invoice_footer: '',
 });
@@ -286,6 +354,63 @@ onMounted(() => {
 .form-group textarea {
     resize: vertical;
     min-height: 2rem;
+}
+.form-group input:disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+}
+
+/* Section Divider */
+.section-divider {
+    margin: 1rem 0 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+.section-title {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.section-title i {
+    margin-right: 0.25rem;
+}
+
+/* Checkbox Label */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem 0;
+}
+.checkbox-label input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #6366f1;
+}
+.checkbox-label span {
+    font-size: 0.75rem;
+    color: #374151;
+}
+
+/* Status Badges */
+.status-yes {
+    background: #d1fae5;
+    color: #047857;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+.status-no {
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
 }
 
 .form-actions {

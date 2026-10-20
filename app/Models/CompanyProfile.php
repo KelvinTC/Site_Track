@@ -16,9 +16,17 @@ class CompanyProfile extends Model
         'state',
         'zip',
         'tax_id',
+        'vat_number',
+        'vat_rate',
+        'vat_registered',
         'logo_path',
         'invoice_notes',
         'invoice_footer',
+    ];
+
+    protected $casts = [
+        'vat_rate' => 'decimal:2',
+        'vat_registered' => 'boolean',
     ];
 
     public static function getProfile(): self
