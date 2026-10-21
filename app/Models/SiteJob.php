@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Services\NumberGenerator;
 
@@ -50,5 +51,12 @@ class SiteJob extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function casuals(): BelongsToMany
+    {
+        return $this->belongsToMany(Casual::class, 'casual_site_job')
+            ->withPivot(['assigned_date', 'work_date', 'notes'])
+            ->withTimestamps();
     }
 }

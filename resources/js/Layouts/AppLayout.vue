@@ -26,6 +26,10 @@
                         <i class="bi bi-briefcase-fill"></i>
                         <span>Jobs</span>
                     </router-link>
+                    <router-link to="/casuals" class="nav-item" :class="{ active: $route.path === '/casuals' }">
+                        <i class="bi bi-person-badge-fill"></i>
+                        <span>Casuals</span>
+                    </router-link>
                 </div>
 
                 <div class="nav-section">

@@ -91,6 +91,41 @@ export default {
         },
     },
 
+    // Casuals
+    casuals: {
+        getAll(params = {}) {
+            return api.get('/casuals', { params });
+        },
+        get(id) {
+            return api.get(`/casuals/${id}`);
+        },
+        create(data) {
+            return api.post('/casuals', data);
+        },
+        update(id, data) {
+            return api.put(`/casuals/${id}`, data);
+        },
+        delete(id) {
+            return api.delete(`/casuals/${id}`);
+        },
+        getJobsReport(fromDate, toDate) {
+            return api.get('/casuals-report/jobs', { params: { from_date: fromDate, to_date: toDate } });
+        },
+    },
+
+    // Site Job Casuals
+    siteJobCasuals: {
+        getForJob(jobId) {
+            return api.get(`/site-jobs/${jobId}/casuals`);
+        },
+        assign(jobId, casualIds, workDate = null, notes = null) {
+            return api.post(`/site-jobs/${jobId}/casuals`, { casual_ids: casualIds, work_date: workDate, notes: notes });
+        },
+        unassign(jobId, casualId) {
+            return api.delete(`/site-jobs/${jobId}/casuals/${casualId}`);
+        },
+    },
+
     // Company Profile
     companyProfile: {
         get() {
@@ -120,6 +155,28 @@ export default {
         },
         paymentsExcel() {
             return '/api/export/payments/excel';
+        },
+        casualsExcel() {
+            return '/api/export/casuals/excel';
+        },
+        casualsReportExcel(fromDate, toDate) {
+            let url = '/api/export/casuals-report/excel';
+            const params = [];
+            if (fromDate) params.push(`from_date=${fromDate}`);
+            if (toDate) params.push(`to_date=${toDate}`);
+            if (params.length > 0) url += '?' + params.join('&');
+            return url;
+        },
+    },
+
+    // Imports
+    imports: {
+        casuals(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            return api.post('/import/casuals', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
         },
     },
 };

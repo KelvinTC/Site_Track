@@ -192,6 +192,60 @@
                                 <label class="form-label">Notes</label>
                                 <textarea v-model="form.notes" rows="2" class="form-control"></textarea>
                             </div>
+
+                            <!-- Casual Assignment Section (only when editing) -->
+                            <div v-if="editingJob" class="form-group full-width casuals-section">
+                                <label class="form-label">Assigned Casuals</label>
+
+                                <!-- Assigned Casuals Badges -->
+                                <div v-if="assignedCasuals.length > 0" class="assigned-casuals">
+                                    <span
+                                        v-for="casual in assignedCasuals"
+                                        :key="casual.id"
+                                        class="casual-badge"
+                                    >
+                                        {{ casual.name }}
+                                        <button
+                                            type="button"
+                                            @click="unassignCasual(casual.id)"
+                                            class="badge-remove"
+                                            title="Remove"
+                                        >
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                                <p v-else class="no-casuals-text">No casuals assigned to this job</p>
+
+                                <!-- Add Casuals -->
+                                <div class="add-casual-row">
+                                    <select v-model="selectedCasualId" class="form-control casual-select">
+                                        <option value="">Select casual to add...</option>
+                                        <option
+                                            v-for="casual in availableCasuals"
+                                            :key="casual.id"
+                                            :value="casual.id"
+                                        >
+                                            {{ casual.name }} ({{ casual.casual_number }})
+                                        </option>
+                                    </select>
+                                    <input
+                                        v-model="casualWorkDate"
+                                        type="date"
+                                        class="form-control work-date-input"
+                                        placeholder="Work date"
+                                    />
+                                    <button
+                                        type="button"
+                                        @click="assignCasual"
+                                        :disabled="!selectedCasualId"
+                                        class="btn btn-sm btn-primary"
+                                    >
+                                        <i class="bi bi-plus"></i>
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </form>
                     <div class="modal-footer">
@@ -219,10 +273,16 @@ const loading = ref(true);
 const saving = ref(false);
 const jobs = ref([]);
 const customers = ref([]);
+const casuals = ref([]);
 const searchQuery = ref('');
 const statusFilter = ref('');
 const showModal = ref(false);
 const editingJob = ref(null);
+
+// Casual assignment state
+const assignedCasuals = ref([]);
+const selectedCasualId = ref('');
+const casualWorkDate = ref('');
 
 const form = ref({
     customer_id: '',
@@ -235,6 +295,11 @@ const form = ref({
     actual_cost: '',
     site_address: '',
     notes: '',
+});
+
+const availableCasuals = computed(() => {
+    const assignedIds = assignedCasuals.value.map(c => c.id);
+    return casuals.value.filter(c => c.is_active && !assignedIds.includes(c.id));
 });
 
 const filteredJobs = computed(() => {
@@ -271,12 +336,14 @@ const getStatusClass = (status) => {
 const loadData = async () => {
     try {
         loading.value = true;
-        const [jobsRes, customersRes] = await Promise.all([
+        const [jobsRes, customersRes, casualsRes] = await Promise.all([
             api.jobs.getAll(),
-            api.customers.getAll()
+            api.customers.getAll(),
+            api.casuals.getAll()
         ]);
         jobs.value = jobsRes.data;
         customers.value = customersRes.data;
+        casuals.value = casualsRes.data;
     } catch (error) {
         console.error('Error loading data:', error);
     } finally {
@@ -284,8 +351,47 @@ const loadData = async () => {
     }
 };
 
+const loadJobCasuals = async (jobId) => {
+    try {
+        const response = await api.siteJobCasuals.getForJob(jobId);
+        assignedCasuals.value = response.data;
+    } catch (error) {
+        console.error('Error loading job casuals:', error);
+        assignedCasuals.value = [];
+    }
+};
+
+const assignCasual = async () => {
+    if (!selectedCasualId.value || !editingJob.value) return;
+    try {
+        await api.siteJobCasuals.assign(
+            editingJob.value.id,
+            [selectedCasualId.value],
+            casualWorkDate.value || null
+        );
+        await loadJobCasuals(editingJob.value.id);
+        selectedCasualId.value = '';
+        casualWorkDate.value = '';
+    } catch (error) {
+        console.error('Error assigning casual:', error);
+    }
+};
+
+const unassignCasual = async (casualId) => {
+    if (!editingJob.value) return;
+    try {
+        await api.siteJobCasuals.unassign(editingJob.value.id, casualId);
+        await loadJobCasuals(editingJob.value.id);
+    } catch (error) {
+        console.error('Error unassigning casual:', error);
+    }
+};
+
 const openCreateModal = () => {
     editingJob.value = null;
+    assignedCasuals.value = [];
+    selectedCasualId.value = '';
+    casualWorkDate.value = '';
     form.value = {
         customer_id: '',
         title: '',
@@ -301,8 +407,10 @@ const openCreateModal = () => {
     showModal.value = true;
 };
 
-const openEditModal = (job) => {
+const openEditModal = async (job) => {
     editingJob.value = job;
+    selectedCasualId.value = '';
+    casualWorkDate.value = '';
     form.value = {
         customer_id: job.customer_id,
         title: job.title,
@@ -316,11 +424,15 @@ const openEditModal = (job) => {
         notes: job.notes || '',
     };
     showModal.value = true;
+    await loadJobCasuals(job.id);
 };
 
 const closeModal = () => {
     showModal.value = false;
     editingJob.value = null;
+    assignedCasuals.value = [];
+    selectedCasualId.value = '';
+    casualWorkDate.value = '';
 };
 
 const saveJob = async () => {
@@ -852,4 +964,75 @@ textarea.form-control {
 .p-0 { padding: 0 !important; }
 .text-center { text-align: center; }
 .text-right { text-align: right; }
+
+/* Casuals Assignment Section */
+.casuals-section {
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.assigned-casuals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.casual-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.5rem 0.375rem 0.75rem;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+}
+
+.badge-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    padding: 0;
+    background: rgba(30, 64, 175, 0.15);
+    border: none;
+    border-radius: 50%;
+    color: #1e40af;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.badge-remove:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.no-casuals-text {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 0 0 0.75rem;
+    font-style: italic;
+}
+
+.add-casual-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.casual-select {
+    flex: 1;
+}
+
+.work-date-input {
+    width: 140px;
+}
+
+.add-casual-row .btn {
+    flex-shrink: 0;
+}
 </style>

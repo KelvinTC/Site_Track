@@ -3,6 +3,7 @@ import Login from '../views/Login.vue';
 import Dashboard from '../views/Dashboard.vue';
 import Customers from '../views/Customers.vue';
 import Jobs from '../views/Jobs.vue';
+import Casuals from '../views/Casuals.vue';
 import Invoices from '../views/Invoices.vue';
 import Payments from '../views/Payments.vue';
 import Statements from '../views/Statements.vue';
@@ -31,6 +32,12 @@ const routes = [
         path: '/jobs',
         name: 'Jobs',
         component: Jobs,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/casuals',
+        name: 'Casuals',
+        component: Casuals,
         meta: { requiresAuth: true },
     },
     {
