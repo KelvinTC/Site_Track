@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,18 +12,19 @@ use App\Services\NumberGenerator;
 
 class SiteJob extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToCompany;
 
     protected static function booted(): void
     {
         static::creating(function (SiteJob $job) {
             if (empty($job->job_number)) {
-                $job->job_number = NumberGenerator::generateJobNumber();
+                $job->job_number = NumberGenerator::generateJobNumber($job->company_id);
             }
         });
     }
 
     protected $fillable = [
+        'company_id',
         'job_number',
         'customer_id',
         'title',

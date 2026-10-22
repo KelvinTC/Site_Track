@@ -37,6 +37,11 @@
             text-align: right;
             vertical-align: top;
         }
+        .company-logo {
+            max-width: 120px;
+            max-height: 60px;
+            margin-bottom: 12px;
+        }
         .company-name {
             font-size: 24px;
             font-weight: 700;
@@ -257,7 +262,10 @@
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <div class="company-name">{{ $company->company_name }}</div>
+                @if($logoBase64)
+                    <img src="{{ $logoBase64 }}" alt="Logo" class="company-logo">
+                @endif
+                <div class="company-name">{{ $company->name }}</div>
                 <div class="company-details">
                     @if($company->address){{ $company->address }}<br>@endif
                     @if($company->city || $company->state){{ $company->city }}@if($company->city && $company->state), @endif{{ $company->state }}<br>@endif
@@ -386,7 +394,7 @@
                 Thank you for your business!
             @endif
             <br><br>
-            {{ $company->company_name }} &bull; Generated on {{ now()->format('d M Y') }}
+            {{ $company->name }} &bull; Generated on {{ now()->format('d M Y') }}
         </div>
     </div>
 </body>

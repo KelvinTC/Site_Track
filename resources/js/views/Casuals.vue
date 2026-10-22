@@ -4,8 +4,8 @@
         <div class="page-header">
             <div class="header-content">
                 <div class="header-title">
-                    <h1>Casuals</h1>
-                    <p class="header-subtitle">Manage your casual workers directory</p>
+                    <h1>Employees</h1>
+                    <p class="header-subtitle">Manage your employees directory</p>
                 </div>
                 <div class="header-actions">
                     <div class="search-box">
@@ -13,8 +13,10 @@
                         <input
                             v-model="searchQuery"
                             type="text"
-                            placeholder="Search casuals..."
+                            placeholder="Search employees..."
                             class="search-input"
+                            @keyup.enter="handleSearch"
+                            @input="debouncedSearch"
                         />
                     </div>
                     <div class="dropdown">
@@ -39,7 +41,7 @@
                     </button>
                     <button @click="openCreateModal" class="btn btn-success">
                         <i class="bi bi-plus-lg"></i>
-                        <span>Add Casual</span>
+                        <span>Add Employee</span>
                     </button>
                 </div>
             </div>
@@ -48,41 +50,42 @@
         <!-- Loading State -->
         <div v-if="loading" class="loading-container">
             <div class="loader"></div>
-            <p class="loading-text">Loading casuals...</p>
+            <p class="loading-text">Loading employees...</p>
         </div>
 
-        <!-- Casuals Card -->
+        <!-- Employees Card -->
         <div v-else class="card">
             <div class="card-header card-header-primary">
                 <div class="header-left">
                     <i class="bi bi-person-badge-fill"></i>
-                    <span>Casual Workers Directory</span>
+                    <span>Employee Directory</span>
                 </div>
-                <span class="casual-count">{{ filteredCasuals.length }} casuals</span>
+                <span class="casual-count">{{ total }} employees</span>
             </div>
             <div class="card-body p-0">
                 <!-- Empty State -->
-                <div v-if="filteredCasuals.length === 0" class="empty-state">
+                <div v-if="casuals.length === 0" class="empty-state">
                     <div class="empty-state-icon">
                         <i class="bi bi-person-badge"></i>
                     </div>
-                    <h3 class="empty-state-title">No casuals found</h3>
+                    <h3 class="empty-state-title">No employees found</h3>
                     <p class="empty-state-description">
-                        {{ searchQuery ? 'Try adjusting your search criteria.' : 'Get started by adding your first casual worker.' }}
+                        {{ searchQuery ? 'Try adjusting your search criteria.' : 'Get started by adding your first employee.' }}
                     </p>
                     <button v-if="!searchQuery" @click="openCreateModal" class="btn btn-primary">
                         <i class="bi bi-plus-lg"></i>
-                        Add First Casual
+                        Add First Employee
                     </button>
                 </div>
 
-                <!-- Casuals Table -->
+                <!-- Employees Table -->
                 <div v-else class="table-container">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Casual #</th>
+                                <th>Employee #</th>
                                 <th>Name</th>
+                                <th>Department</th>
                                 <th>Job Title</th>
                                 <th>Phone</th>
                                 <th class="text-center">Total Jobs</th>
@@ -91,7 +94,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="casual in filteredCasuals" :key="casual.id">
+                            <tr v-for="casual in casuals" :key="casual.id">
                                 <td>
                                     <span class="casual-number">{{ casual.casual_number }}</span>
                                 </td>
@@ -105,6 +108,9 @@
                                             <span v-if="casual.email" class="casual-email">{{ casual.email }}</span>
                                         </div>
                                     </div>
+                                </td>
+                                <td>
+                                    <span class="department-cell">{{ casual.department?.name || '-' }}</span>
                                 </td>
                                 <td>
                                     <span class="job-title-cell">{{ casual.job_title || '-' }}</span>
@@ -135,6 +141,41 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                <div v-if="lastPage > 1" class="pagination-container">
+                    <div class="pagination-info">
+                        Showing {{ (currentPage - 1) * perPage + 1 }} to {{ Math.min(currentPage * perPage, total) }} of {{ total }} employees
+                    </div>
+                    <div class="pagination-controls">
+                        <button
+                            @click="goToPage(currentPage - 1)"
+                            :disabled="currentPage === 1"
+                            class="pagination-btn"
+                        >
+                            <i class="bi bi-chevron-left"></i>
+                            Previous
+                        </button>
+                        <div class="pagination-pages">
+                            <button
+                                v-for="page in visiblePages"
+                                :key="page"
+                                @click="goToPage(page)"
+                                :class="['pagination-page', { active: page === currentPage }]"
+                            >
+                                {{ page }}
+                            </button>
+                        </div>
+                        <button
+                            @click="goToPage(currentPage + 1)"
+                            :disabled="currentPage === lastPage"
+                            class="pagination-btn"
+                        >
+                            Next
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -143,7 +184,7 @@
             <div v-if="showModal" class="modal-backdrop" @click.self="closeModal">
                 <div class="modal-content">
                     <div class="modal-header modal-header-primary">
-                        <h5>{{ editingCasual ? 'Edit Casual' : 'Add New Casual' }}</h5>
+                        <h5>{{ editingCasual ? 'Edit Employee' : 'Add New Employee' }}</h5>
                         <button @click="closeModal" class="modal-close">
                             <i class="bi bi-x-lg"></i>
                         </button>
@@ -153,6 +194,15 @@
                             <div class="form-group full-width">
                                 <label class="form-label">Full Name *</label>
                                 <input v-model="form.name" type="text" required class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Department</label>
+                                <select v-model="form.department_id" class="form-control">
+                                    <option :value="null">Select Department</option>
+                                    <option v-for="dept in departments" :key="dept.id" :value="dept.id">
+                                        {{ dept.name }}
+                                    </option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Job Title</label>
@@ -187,7 +237,7 @@
                             <span v-if="saving" class="spinner"></span>
                             <span v-else>
                                 <i class="bi bi-check-lg"></i>
-                                {{ editingCasual ? 'Update Casual' : 'Add Casual' }}
+                                {{ editingCasual ? 'Update Employee' : 'Add Employee' }}
                             </span>
                         </button>
                     </div>
@@ -200,7 +250,7 @@
             <div v-if="showImportModal" class="modal-backdrop" @click.self="closeImportModal">
                 <div class="modal-content">
                     <div class="modal-header modal-header-primary">
-                        <h5>Import Casuals</h5>
+                        <h5>Import Employees</h5>
                         <button @click="closeImportModal" class="modal-close">
                             <i class="bi bi-x-lg"></i>
                         </button>
@@ -235,7 +285,7 @@
                         <div v-if="importResult" class="import-result">
                             <div v-if="importResult.imported > 0" class="result-success">
                                 <i class="bi bi-check-circle"></i>
-                                {{ importResult.imported }} casuals imported successfully
+                                {{ importResult.imported }} employees imported successfully
                             </div>
                             <div v-if="importResult.failed > 0" class="result-errors">
                                 <div class="error-header">
@@ -253,7 +303,12 @@
                         <!-- Template Download -->
                         <div class="template-info">
                             <p>Required columns: <strong>name</strong></p>
-                            <p>Optional columns: job_title, phone, email, notes, is_active</p>
+                            <p>Optional columns: department, job_title, phone, email, notes, is_active</p>
+                            <p>Departments: Finance, Transport, Executive, General Staff, Casual</p>
+                            <a :href="api.exports.casualsImportTemplate()" class="template-download-link">
+                                <i class="bi bi-download"></i>
+                                Download Import Template
+                            </a>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -281,7 +336,7 @@
             <div v-if="showReportModal" class="modal-backdrop" @click.self="closeReportModal">
                 <div class="modal-content modal-large">
                     <div class="modal-header modal-header-primary">
-                        <h5>Casuals Jobs Report</h5>
+                        <h5>Employees Jobs Report</h5>
                         <button @click="closeReportModal" class="modal-close">
                             <i class="bi bi-x-lg"></i>
                         </button>
@@ -334,7 +389,7 @@
                             <div class="report-summary">
                                 <div class="summary-card">
                                     <span class="summary-value">{{ reportData.length }}</span>
-                                    <span class="summary-label">Casuals</span>
+                                    <span class="summary-label">Employees</span>
                                 </div>
                                 <div class="summary-card">
                                     <span class="summary-value">{{ totalJobAssignments }}</span>
@@ -346,7 +401,7 @@
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th>Casual #</th>
+                                            <th>Employee #</th>
                                             <th>Name</th>
                                             <th>Job Title</th>
                                             <th class="text-center">Jobs Count</th>
@@ -388,13 +443,21 @@ import api from '../api';
 const loading = ref(true);
 const saving = ref(false);
 const casuals = ref([]);
+const departments = ref([]);
 const searchQuery = ref('');
 const showModal = ref(false);
 const editingCasual = ref(null);
 const showExportDropdown = ref(false);
 
+// Pagination
+const currentPage = ref(1);
+const lastPage = ref(1);
+const perPage = ref(15);
+const total = ref(0);
+
 const form = ref({
     name: '',
+    department_id: null,
     job_title: '',
     phone: '',
     email: '',
@@ -450,16 +513,20 @@ const formatDateForInput = (date) => {
     return date.toISOString().split('T')[0];
 };
 
-const filteredCasuals = computed(() => {
-    if (!searchQuery.value) return casuals.value;
-    const query = searchQuery.value.toLowerCase();
-    return casuals.value.filter(c =>
-        c.name.toLowerCase().includes(query) ||
-        (c.casual_number && c.casual_number.toLowerCase().includes(query)) ||
-        (c.job_title && c.job_title.toLowerCase().includes(query)) ||
-        (c.phone && c.phone.includes(query)) ||
-        (c.email && c.email.toLowerCase().includes(query))
-    );
+const visiblePages = computed(() => {
+    const pages = [];
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2));
+    let end = Math.min(lastPage.value, start + maxVisible - 1);
+
+    if (end - start + 1 < maxVisible) {
+        start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+        pages.push(i);
+    }
+    return pages;
 });
 
 const totalJobAssignments = computed(() => {
@@ -469,11 +536,28 @@ const totalJobAssignments = computed(() => {
 
 const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
 
-const loadCasuals = async () => {
+const loadEmployees = async (page = 1) => {
     try {
         loading.value = true;
-        const response = await api.casuals.getAll();
-        casuals.value = response.data;
+        const params = {
+            page,
+            per_page: perPage.value,
+        };
+        if (searchQuery.value) {
+            params.search = searchQuery.value;
+        }
+        const response = await api.casuals.getAll(params);
+
+        // Handle paginated response
+        if (response.data.data) {
+            casuals.value = response.data.data;
+            currentPage.value = response.data.current_page;
+            lastPage.value = response.data.last_page;
+            total.value = response.data.total;
+        } else {
+            casuals.value = response.data;
+            total.value = response.data.length;
+        }
     } catch (error) {
         console.error('Error loading casuals:', error);
     } finally {
@@ -481,10 +565,40 @@ const loadCasuals = async () => {
     }
 };
 
+const goToPage = (page) => {
+    if (page >= 1 && page <= lastPage.value) {
+        loadEmployees(page);
+    }
+};
+
+let searchTimeout = null;
+
+const handleSearch = () => {
+    currentPage.value = 1;
+    loadEmployees(1);
+};
+
+const debouncedSearch = () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        handleSearch();
+    }, 300);
+};
+
+const loadDepartments = async () => {
+    try {
+        const response = await api.departments.getAll();
+        departments.value = response.data;
+    } catch (error) {
+        console.error('Error loading departments:', error);
+    }
+};
+
 const openCreateModal = () => {
     editingCasual.value = null;
     form.value = {
         name: '',
+        department_id: null,
         job_title: '',
         phone: '',
         email: '',
@@ -513,7 +627,7 @@ const saveCasual = async () => {
         } else {
             await api.casuals.create(form.value);
         }
-        await loadCasuals();
+        await loadEmployees();
         closeModal();
     } catch (error) {
         console.error('Error saving casual:', error);
@@ -526,7 +640,7 @@ const deleteCasual = async (id) => {
     if (!confirm('Are you sure you want to delete this casual? This action cannot be undone.')) return;
     try {
         await api.casuals.delete(id);
-        await loadCasuals();
+        await loadEmployees();
     } catch (error) {
         console.error('Error deleting casual:', error);
     }
@@ -578,7 +692,7 @@ const importFile = async () => {
         const response = await api.imports.casuals(selectedFile.value);
         importResult.value = response.data;
         if (response.data.imported > 0) {
-            await loadCasuals();
+            await loadEmployees();
         }
     } catch (error) {
         console.error('Error importing casuals:', error);
@@ -625,12 +739,14 @@ const generateReport = async () => {
 };
 
 onMounted(() => {
-    loadCasuals();
+    loadEmployees();
+    loadDepartments();
     document.addEventListener('click', closeExportDropdown);
 });
 
 onUnmounted(() => {
     document.removeEventListener('click', closeExportDropdown);
+    clearTimeout(searchTimeout);
 });
 </script>
 
@@ -921,6 +1037,7 @@ onUnmounted(() => {
     color: #9ca3af;
 }
 
+.department-cell,
 .job-title-cell,
 .phone-cell {
     color: #6b7280;
@@ -1267,6 +1384,25 @@ textarea.form-control {
     margin: 0.25rem 0;
 }
 
+.template-download-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: #4f46e5;
+    color: white;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    transition: background-color 0.2s ease;
+}
+
+.template-download-link:hover {
+    background: #4338ca;
+}
+
 /* Date Range Picker */
 .date-range-picker {
     display: flex;
@@ -1358,14 +1494,107 @@ textarea.form-control {
     transform: translateY(20px) scale(0.98);
 }
 
+/* Pagination */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #f3f4f6;
+    background: #f9fafb;
+}
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-pages {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.pagination-page {
+    min-width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pagination-page:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.pagination-page.active {
+    background: #4f46e5;
+    border-color: #4f46e5;
+    color: white;
+}
+
 /* Utilities */
 .p-0 { padding: 0 !important; }
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 
+@media (max-width: 768px) {
+    .pagination-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .pagination-info {
+        text-align: center;
+    }
+}
+
 @media (max-width: 480px) {
     .custom-date-range {
         grid-template-columns: 1fr;
+    }
+
+    .pagination-pages {
+        display: none;
     }
 }
 </style>

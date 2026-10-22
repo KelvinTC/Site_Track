@@ -5,30 +5,70 @@ namespace App\Services;
 use App\Models\SiteJob;
 use App\Models\Invoice;
 use App\Models\Casual;
+use App\Models\Expense;
+use App\Models\Company;
 
 class NumberGenerator
 {
-    public static function generateJobNumber(): string
+    public static function generateJobNumber(?int $companyId = null): string
     {
-        $year = now()->year;
-        $count = SiteJob::whereYear('created_at', $year)->count() + 1;
+        $companyId = $companyId ?? auth()->user()?->current_company_id;
+        $company = $companyId ? Company::find($companyId) : null;
+        $prefix = $company?->job_prefix ?? 'JOB';
 
-        return sprintf('JOB-%d-%04d', $year, $count);
+        $year = now()->year;
+        $count = SiteJob::withoutGlobalScopes()
+            ->where('company_id', $companyId)
+            ->whereYear('created_at', $year)
+            ->count() + 1;
+
+        return sprintf('%s-%d-%04d', $prefix, $year, $count);
     }
 
-    public static function generateInvoiceNumber(): string
+    public static function generateInvoiceNumber(?int $companyId = null): string
     {
-        $year = now()->year;
-        $count = Invoice::whereYear('created_at', $year)->count() + 1;
+        $companyId = $companyId ?? auth()->user()?->current_company_id;
+        $company = $companyId ? Company::find($companyId) : null;
+        $prefix = $company?->invoice_prefix ?? 'INV';
 
-        return sprintf('INV-%d-%04d', $year, $count);
+        $year = now()->year;
+        $count = Invoice::withoutGlobalScopes()
+            ->where('company_id', $companyId)
+            ->whereYear('created_at', $year)
+            ->count() + 1;
+
+        return sprintf('%s-%d-%04d', $prefix, $year, $count);
     }
 
-    public static function generateCasualNumber(): string
+    public static function generateCasualNumber(?int $companyId = null): string
     {
-        $year = now()->year;
-        $count = Casual::withTrashed()->whereYear('created_at', $year)->count() + 1;
+        $companyId = $companyId ?? auth()->user()?->current_company_id;
+        $company = $companyId ? Company::find($companyId) : null;
+        $prefix = $company?->employee_prefix ?? 'EMP';
 
-        return sprintf('CAS-%d-%04d', $year, $count);
+        $year = now()->year;
+        $count = Casual::withoutGlobalScopes()
+            ->withTrashed()
+            ->where('company_id', $companyId)
+            ->whereYear('created_at', $year)
+            ->count() + 1;
+
+        return sprintf('%s-%d-%04d', $prefix, $year, $count);
+    }
+
+    public static function generateExpenseNumber(?int $companyId = null): string
+    {
+        $companyId = $companyId ?? auth()->user()?->current_company_id;
+        $company = $companyId ? Company::find($companyId) : null;
+        $prefix = $company?->expense_prefix ?? 'EXP';
+
+        $year = now()->year;
+        $count = Expense::withoutGlobalScopes()
+            ->withTrashed()
+            ->where('company_id', $companyId)
+            ->whereYear('created_at', $year)
+            ->count() + 1;
+
+        return sprintf('%s-%d-%04d', $prefix, $year, $count);
     }
 }

@@ -5,12 +5,20 @@
             <div class="header-content">
                 <div class="header-title">
                     <h1>Invoices</h1>
-                    <p class="header-subtitle">Create and manage invoices for your jobs</p>
+                    <p class="header-subtitle">Create, manage invoices and record payments</p>
                 </div>
                 <div class="header-actions">
                     <div class="search-box">
                         <i class="bi bi-search search-icon"></i>
                         <input v-model="searchQuery" type="text" placeholder="Search invoices..." class="search-input" />
+                    </div>
+                    <div class="filter-dropdown">
+                        <select v-model="statusFilter" class="status-filter">
+                            <option value="all">All Invoices</option>
+                            <option value="paid">Paid</option>
+                            <option value="unpaid">Unpaid</option>
+                            <option value="partial">Partially Paid</option>
+                        </select>
                     </div>
                     <a :href="api.exports.invoicesExcel()" class="btn btn-secondary">
                         <i class="bi bi-file-earmark-excel"></i>
@@ -38,7 +46,7 @@
                     <i class="bi bi-clock-fill"></i>
                 </div>
                 <div class="stat-value">${{ formatNumber(unpaidTotal) }}</div>
-                <div class="stat-label">Unpaid</div>
+                <div class="stat-label">Outstanding</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon icon-success">
@@ -92,6 +100,9 @@
                                 <th>Customer</th>
                                 <th>Job</th>
                                 <th class="text-right">Total</th>
+                                <th class="text-right">Paid</th>
+                                <th class="text-right">Balance</th>
+                                <th class="text-center">Status</th>
                                 <th class="text-center">Due Date</th>
                                 <th class="text-right">Actions</th>
                             </tr>
@@ -115,13 +126,32 @@
                                 <td class="text-right">
                                     <span class="total-amount">${{ formatNumber(invoice.total) }}</span>
                                 </td>
+                                <td class="text-right">
+                                    <span class="paid-amount">${{ formatNumber(invoice.amount_paid || 0) }}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span :class="['balance-amount', { 'text-danger': getBalance(invoice) > 0 }]">
+                                        ${{ formatNumber(getBalance(invoice)) }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span :class="['status-badge', 'status-' + invoice.status]">
+                                        {{ getStatusLabel(invoice.status) }}
+                                    </span>
+                                </td>
                                 <td class="text-center">
                                     <span class="date-cell">{{ invoice.due_date ? formatDate(invoice.due_date) : '-' }}</span>
                                 </td>
                                 <td class="text-right">
                                     <div class="action-buttons">
+                                        <button v-if="invoice.status !== 'paid'" @click="openPaymentModal(invoice)" class="btn btn-sm btn-success-soft" title="Record Payment">
+                                            <i class="bi bi-cash"></i>
+                                        </button>
                                         <button @click="viewInvoice(invoice)" class="btn btn-sm btn-ghost" title="View">
                                             <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button @click="openEmailModal(invoice)" class="btn btn-sm btn-ghost" title="Email Invoice">
+                                            <i class="bi bi-envelope"></i>
                                         </button>
                                         <a :href="api.exports.invoicePdf(invoice.id)" class="btn btn-sm btn-ghost" title="Download PDF">
                                             <i class="bi bi-file-pdf"></i>
@@ -253,9 +283,9 @@
         <!-- View Invoice Modal -->
         <Transition name="modal">
             <div v-if="showViewModal" class="modal-backdrop" @click.self="showViewModal = false">
-                <div class="modal-content modal-md">
+                <div class="modal-content modal-lg">
                     <div class="modal-header">
-                        <h5>Invoice Preview</h5>
+                        <h5>Invoice Details</h5>
                         <div class="header-actions-modal">
                             <a v-if="viewingInvoice" :href="api.exports.invoicePdf(viewingInvoice.id)" class="btn btn-sm btn-success">
                                 <i class="bi bi-file-pdf"></i> PDF
@@ -265,102 +295,304 @@
                             </button>
                         </div>
                     </div>
-                    <div v-if="viewingInvoice" class="modal-body invoice-preview" id="invoice-print">
-                        <!-- Invoice Header -->
-                        <div class="invoice-header-row">
-                            <div class="invoice-company">
-                                <img src="/images/logo.png" alt="Company Logo" class="company-logo-img" />
-                                <div class="company-details">
-                                    <p class="company-name">{{ companyProfile.company_name }}</p>
-                                    <p v-if="companyProfile.address">{{ companyProfile.address }}</p>
-                                    <p v-if="companyProfile.city || companyProfile.state">{{ [companyProfile.city, companyProfile.state].filter(Boolean).join(', ') }}</p>
-                                    <p v-if="companyProfile.phone">{{ companyProfile.phone }}</p>
-                                    <p v-if="companyProfile.email">{{ companyProfile.email }}</p>
-                                    <p v-if="companyProfile.vat_number" class="vat-number">VAT No: {{ companyProfile.vat_number }}</p>
+                    <div v-if="viewingInvoice" class="modal-body">
+                        <!-- Invoice Preview -->
+                        <div class="invoice-preview" id="invoice-print">
+                            <!-- Invoice Header -->
+                            <div class="invoice-header-row">
+                                <div class="invoice-company">
+                                    <img src="/images/logo.png" alt="Company Logo" class="company-logo-img" />
+                                    <div class="company-details">
+                                        <p class="company-name">{{ companyProfile.company_name }}</p>
+                                        <p v-if="companyProfile.address">{{ companyProfile.address }}</p>
+                                        <p v-if="companyProfile.city || companyProfile.state">{{ [companyProfile.city, companyProfile.state].filter(Boolean).join(', ') }}</p>
+                                        <p v-if="companyProfile.phone">{{ companyProfile.phone }}</p>
+                                        <p v-if="companyProfile.email">{{ companyProfile.email }}</p>
+                                        <p v-if="companyProfile.vat_number" class="vat-number">VAT No: {{ companyProfile.vat_number }}</p>
+                                    </div>
+                                </div>
+                                <div class="invoice-title-block">
+                                    <h2 class="invoice-title">INVOICE</h2>
+                                    <span :class="['status-badge', 'status-' + viewingInvoice.status]">
+                                        {{ getStatusLabel(viewingInvoice.status) }}
+                                    </span>
                                 </div>
                             </div>
-                            <div class="invoice-title-block">
-                                <h2 class="invoice-title">INVOICE</h2>
+
+                            <!-- Invoice Info Row -->
+                            <div class="invoice-info-row">
+                                <div class="bill-to">
+                                    <p class="detail-label">Bill To:</p>
+                                    <p class="detail-value">{{ viewingInvoice.customer?.name }}</p>
+                                    <p class="detail-sub">{{ viewingInvoice.customer?.address }}</p>
+                                    <p v-if="viewingInvoice.customer?.city" class="detail-sub">{{ [viewingInvoice.customer?.city, viewingInvoice.customer?.state].filter(Boolean).join(', ') }}</p>
+                                    <p v-if="viewingInvoice.customer?.vat_number" class="detail-sub vat-number">VAT: {{ viewingInvoice.customer?.vat_number }}</p>
+                                </div>
+                                <div class="invoice-meta">
+                                    <div class="invoice-meta-item">
+                                        <span class="meta-label">Invoice #</span>
+                                        <span class="meta-value">{{ viewingInvoice.invoice_number }}</span>
+                                    </div>
+                                    <div class="invoice-meta-item">
+                                        <span class="meta-label">Date</span>
+                                        <span class="meta-value">{{ formatDate(viewingInvoice.issue_date) }}</span>
+                                    </div>
+                                    <div class="invoice-meta-item">
+                                        <span class="meta-label">Due Date</span>
+                                        <span class="meta-value">{{ viewingInvoice.due_date ? formatDate(viewingInvoice.due_date) : 'N/A' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Items Table -->
+                            <table class="invoice-table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th class="text-center">Type</th>
+                                        <th class="text-right">Qty</th>
+                                        <th class="text-right">Price</th>
+                                        <th class="text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in viewingInvoice.items" :key="item.id">
+                                        <td>{{ item.description }}</td>
+                                        <td class="text-center"><span class="type-badge">{{ item.type }}</span></td>
+                                        <td class="text-right">{{ item.quantity }}</td>
+                                        <td class="text-right">${{ formatNumber(item.unit_price) }}</td>
+                                        <td class="text-right font-semibold">${{ formatNumber(item.total || item.quantity * item.unit_price) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Totals -->
+                            <div class="invoice-totals">
+                                <div class="totals-row">
+                                    <span>Subtotal</span>
+                                    <span>${{ formatNumber(viewingInvoice.subtotal) }}</span>
+                                </div>
+                                <div class="totals-row" v-if="viewingInvoice.vat_rate > 0">
+                                    <span>VAT ({{ viewingInvoice.vat_rate }}%)</span>
+                                    <span>${{ formatNumber(viewingInvoice.vat_amount || viewingInvoice.tax) }}</span>
+                                </div>
+                                <div class="totals-row total-final">
+                                    <span>Total</span>
+                                    <span class="total-value">${{ formatNumber(viewingInvoice.total) }}</span>
+                                </div>
+                                <div class="totals-row paid-row">
+                                    <span>Amount Paid</span>
+                                    <span class="text-success">${{ formatNumber(viewingInvoice.amount_paid || 0) }}</span>
+                                </div>
+                                <div class="totals-row balance-row">
+                                    <span>Balance Due</span>
+                                    <span :class="getBalance(viewingInvoice) > 0 ? 'text-danger' : 'text-success'">
+                                        ${{ formatNumber(getBalance(viewingInvoice)) }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Notes -->
+                            <div v-if="viewingInvoice.notes || companyProfile.invoice_notes" class="invoice-notes">
+                                <p class="notes-label">Notes:</p>
+                                <p v-if="viewingInvoice.notes">{{ viewingInvoice.notes }}</p>
+                                <p v-if="companyProfile.invoice_notes">{{ companyProfile.invoice_notes }}</p>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="invoice-footer">
+                                {{ companyProfile.invoice_footer || 'Thank you for your business!' }}
                             </div>
                         </div>
 
-                        <!-- Invoice Info Row -->
-                        <div class="invoice-info-row">
-                            <div class="bill-to">
-                                <p class="detail-label">Bill To:</p>
-                                <p class="detail-value">{{ viewingInvoice.customer?.name }}</p>
-                                <p class="detail-sub">{{ viewingInvoice.customer?.address }}</p>
-                                <p v-if="viewingInvoice.customer?.city" class="detail-sub">{{ [viewingInvoice.customer?.city, viewingInvoice.customer?.state].filter(Boolean).join(', ') }}</p>
-                                <p v-if="viewingInvoice.customer?.vat_number" class="detail-sub vat-number">VAT: {{ viewingInvoice.customer?.vat_number }}</p>
-                            </div>
-                            <div class="invoice-meta">
-                                <div class="invoice-meta-item">
-                                    <span class="meta-label">Invoice #</span>
-                                    <span class="meta-value">{{ viewingInvoice.invoice_number }}</span>
-                                </div>
-                                <div class="invoice-meta-item">
-                                    <span class="meta-label">Date</span>
-                                    <span class="meta-value">{{ formatDate(viewingInvoice.issue_date) }}</span>
-                                </div>
-                                <div class="invoice-meta-item">
-                                    <span class="meta-label">Due Date</span>
-                                    <span class="meta-value">{{ viewingInvoice.due_date ? formatDate(viewingInvoice.due_date) : 'N/A' }}</span>
-                                </div>
-                            </div>
+                        <!-- Payment History -->
+                        <div class="payment-history" v-if="viewingInvoice.payments?.length">
+                            <h4><i class="bi bi-clock-history"></i> Payment History</h4>
+                            <table class="payments-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Method</th>
+                                        <th>Reference</th>
+                                        <th class="text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="payment in viewingInvoice.payments" :key="payment.id">
+                                        <td>{{ formatDate(payment.payment_date) }}</td>
+                                        <td><span class="method-badge">{{ formatMethod(payment.payment_method) }}</span></td>
+                                        <td>{{ payment.reference_number || '-' }}</td>
+                                        <td class="text-right text-success font-semibold">+${{ formatNumber(payment.amount) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
-                        <!-- Items Table -->
-                        <table class="invoice-table">
-                            <thead>
-                                <tr>
-                                    <th>Description</th>
-                                    <th class="text-center">Type</th>
-                                    <th class="text-right">Qty</th>
-                                    <th class="text-right">Price</th>
-                                    <th class="text-right">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="item in viewingInvoice.items" :key="item.id">
-                                    <td>{{ item.description }}</td>
-                                    <td class="text-center"><span class="type-badge">{{ item.type }}</span></td>
-                                    <td class="text-right">{{ item.quantity }}</td>
-                                    <td class="text-right">${{ formatNumber(item.unit_price) }}</td>
-                                    <td class="text-right font-semibold">${{ formatNumber(item.total || item.quantity * item.unit_price) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- Totals -->
-                        <div class="invoice-totals">
-                            <div class="totals-row">
-                                <span>Subtotal</span>
-                                <span>${{ formatNumber(viewingInvoice.subtotal) }}</span>
-                            </div>
-                            <div class="totals-row" v-if="viewingInvoice.vat_rate > 0">
-                                <span>VAT ({{ viewingInvoice.vat_rate }}%)</span>
-                                <span>${{ formatNumber(viewingInvoice.vat_amount || viewingInvoice.tax) }}</span>
-                            </div>
-                            <div class="totals-row total-final">
-                                <span>Total</span>
-                                <span class="total-value">${{ formatNumber(viewingInvoice.total) }}</span>
-                            </div>
-                        </div>
-
-                        <!-- Notes -->
-                        <div v-if="viewingInvoice.notes || companyProfile.invoice_notes" class="invoice-notes">
-                            <p class="notes-label">Notes:</p>
-                            <p v-if="viewingInvoice.notes">{{ viewingInvoice.notes }}</p>
-                            <p v-if="companyProfile.invoice_notes">{{ companyProfile.invoice_notes }}</p>
-                        </div>
-
-                        <!-- Footer -->
-                        <div class="invoice-footer">
-                            {{ companyProfile.invoice_footer || 'Thank you for your business!' }}
+                        <!-- Record Payment Button -->
+                        <div v-if="viewingInvoice.status !== 'paid'" class="payment-action">
+                            <button @click="openPaymentModal(viewingInvoice); showViewModal = false" class="btn btn-success btn-lg">
+                                <i class="bi bi-cash"></i>
+                                Record Payment
+                            </button>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button @click="showViewModal = false" class="btn btn-secondary">Close</button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- Email Modal -->
+        <Transition name="modal">
+            <div v-if="showEmailModal" class="modal-backdrop" @click.self="closeEmailModal">
+                <div class="modal-content">
+                    <div class="modal-header modal-header-primary">
+                        <h5>Email Invoice</h5>
+                        <button @click="closeEmailModal" class="modal-close">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="email-invoice-summary" v-if="emailInvoice">
+                            <div class="summary-header">
+                                <span class="invoice-number">{{ emailInvoice.invoice_number }}</span>
+                                <span class="customer-name">{{ emailInvoice.customer?.name }}</span>
+                            </div>
+                            <div class="summary-detail">
+                                <span>Total: <strong>${{ formatNumber(emailInvoice.total) }}</strong></span>
+                                <span v-if="emailInvoice.last_sent_at" class="last-sent">
+                                    Last sent: {{ formatDate(emailInvoice.last_sent_at) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="sendEmail">
+                            <div class="form-group">
+                                <label class="form-label">Recipient Email *</label>
+                                <input v-model="emailForm.email" type="email" required class="form-control"
+                                    placeholder="customer@example.com" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Custom Message (Optional)</label>
+                                <textarea v-model="emailForm.message" rows="3" class="form-control"
+                                    placeholder="Add a personalized message to include in the email..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" @click="closeEmailModal" class="btn btn-secondary">Cancel</button>
+                        <button @click="sendEmail" :disabled="sendingEmail" class="btn btn-primary">
+                            <span v-if="sendingEmail" class="spinner"></span>
+                            <span v-else>
+                                <i class="bi bi-send"></i>
+                                Send Invoice
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- Payment Modal -->
+        <Transition name="modal">
+            <div v-if="showPaymentModal" class="modal-backdrop" @click.self="closePaymentModal">
+                <div class="modal-content">
+                    <div class="modal-header modal-header-success">
+                        <h5>Record Payment</h5>
+                        <button @click="closePaymentModal" class="modal-close">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Invoice Summary -->
+                        <div class="payment-invoice-summary" v-if="paymentInvoice">
+                            <div class="summary-header">
+                                <span class="invoice-number">{{ paymentInvoice.invoice_number }}</span>
+                                <span class="customer-name">{{ paymentInvoice.customer?.name }}</span>
+                            </div>
+                            <div class="summary-amounts">
+                                <div class="amount-item">
+                                    <span class="amount-label">Invoice Total</span>
+                                    <span class="amount-value">${{ formatNumber(paymentInvoice.total) }}</span>
+                                </div>
+                                <div class="amount-item">
+                                    <span class="amount-label">Previously Paid</span>
+                                    <span class="amount-value text-success">${{ formatNumber(paymentInvoice.amount_paid || 0) }}</span>
+                                </div>
+                                <div class="amount-item highlight">
+                                    <span class="amount-label">Balance Due</span>
+                                    <span class="amount-value text-danger">${{ formatNumber(getBalance(paymentInvoice)) }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="savePayment">
+                            <div class="form-group">
+                                <label class="form-label">Payment Amount *</label>
+                                <div class="input-wrapper">
+                                    <span class="input-prefix">$</span>
+                                    <input v-model="paymentForm.amount" type="number" step="0.01" min="0" :max="getBalance(paymentInvoice)" required class="form-control with-prefix" placeholder="0.00" />
+                                </div>
+                                <div class="quick-amounts" v-if="paymentInvoice">
+                                    <button type="button" @click="paymentForm.amount = getBalance(paymentInvoice)" class="quick-amount-btn">
+                                        Full Balance (${{ formatNumber(getBalance(paymentInvoice)) }})
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Payment Date *</label>
+                                <input v-model="paymentForm.payment_date" type="date" required class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Payment Method</label>
+                                <div class="method-options">
+                                    <label class="method-option" :class="{ active: paymentForm.payment_method === 'cash' }">
+                                        <input type="radio" v-model="paymentForm.payment_method" value="cash" />
+                                        <i class="bi bi-cash-stack"></i>
+                                        <span>Cash</span>
+                                    </label>
+                                    <label class="method-option" :class="{ active: paymentForm.payment_method === 'bank_transfer' }">
+                                        <input type="radio" v-model="paymentForm.payment_method" value="bank_transfer" />
+                                        <i class="bi bi-bank"></i>
+                                        <span>Bank Transfer</span>
+                                    </label>
+                                    <label class="method-option" :class="{ active: paymentForm.payment_method === 'cheque' }">
+                                        <input type="radio" v-model="paymentForm.payment_method" value="cheque" />
+                                        <i class="bi bi-credit-card-2-front"></i>
+                                        <span>Cheque</span>
+                                    </label>
+                                    <label class="method-option" :class="{ active: paymentForm.payment_method === 'mobile_money' }">
+                                        <input type="radio" v-model="paymentForm.payment_method" value="mobile_money" />
+                                        <i class="bi bi-phone"></i>
+                                        <span>Mobile Money</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Reference Number</label>
+                                <input v-model="paymentForm.reference_number" type="text" class="form-control" placeholder="e.g., Transaction ID, Cheque #" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Notes</label>
+                                <textarea v-model="paymentForm.notes" rows="2" class="form-control" placeholder="Add any notes about this payment..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" @click="closePaymentModal" class="btn btn-secondary">Cancel</button>
+                        <button @click="savePayment" :disabled="savingPayment" class="btn btn-success">
+                            <span v-if="savingPayment" class="spinner"></span>
+                            <span v-else>
+                                <i class="bi bi-check-lg"></i>
+                                Record Payment
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -375,13 +607,20 @@ import api from '../api';
 
 const loading = ref(true);
 const saving = ref(false);
+const savingPayment = ref(false);
+const sendingEmail = ref(false);
 const invoices = ref([]);
 const jobs = ref([]);
 const companyProfile = ref({});
 const searchQuery = ref('');
+const statusFilter = ref('all');
 const showModal = ref(false);
 const showViewModal = ref(false);
+const showPaymentModal = ref(false);
+const showEmailModal = ref(false);
 const viewingInvoice = ref(null);
+const paymentInvoice = ref(null);
+const emailInvoice = ref(null);
 const formErrors = ref({});
 
 const getEmptyForm = () => ({
@@ -392,15 +631,48 @@ const getEmptyForm = () => ({
     items: [{ description: '', type: 'labor', quantity: 1, unit_price: 0 }],
 });
 
+const getEmptyPaymentForm = () => ({
+    invoice_id: '',
+    amount: '',
+    payment_date: new Date().toISOString().split('T')[0],
+    payment_method: 'cash',
+    reference_number: '',
+    notes: '',
+});
+
+const getEmptyEmailForm = () => ({
+    email: '',
+    message: '',
+});
+
 const form = ref(getEmptyForm());
+const paymentForm = ref(getEmptyPaymentForm());
+const emailForm = ref(getEmptyEmailForm());
 
 const filteredInvoices = computed(() => {
-    if (!searchQuery.value) return invoices.value;
-    const query = searchQuery.value.toLowerCase();
-    return invoices.value.filter(i =>
-        i.invoice_number?.toLowerCase().includes(query) ||
-        i.customer?.name?.toLowerCase().includes(query)
-    );
+    let filtered = invoices.value;
+
+    // Filter by status
+    if (statusFilter.value !== 'all') {
+        if (statusFilter.value === 'paid') {
+            filtered = filtered.filter(i => i.status === 'paid');
+        } else if (statusFilter.value === 'unpaid') {
+            filtered = filtered.filter(i => ['unpaid', 'sent', 'overdue'].includes(i.status));
+        } else if (statusFilter.value === 'partial') {
+            filtered = filtered.filter(i => i.status === 'partial');
+        }
+    }
+
+    // Filter by search query
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        filtered = filtered.filter(i =>
+            i.invoice_number?.toLowerCase().includes(query) ||
+            i.customer?.name?.toLowerCase().includes(query)
+        );
+    }
+
+    return filtered;
 });
 
 const subtotal = computed(() =>
@@ -410,13 +682,11 @@ const subtotal = computed(() =>
 const unpaidTotal = computed(() =>
     invoices.value
         .filter(i => ['unpaid', 'partial', 'sent', 'overdue'].includes(i.status))
-        .reduce((sum, i) => sum + parseFloat(i.total || 0), 0)
+        .reduce((sum, i) => sum + getBalance(i), 0)
 );
 
 const paidTotal = computed(() =>
-    invoices.value
-        .filter(i => i.status === 'paid')
-        .reduce((sum, i) => sum + parseFloat(i.total || 0), 0)
+    invoices.value.reduce((sum, i) => sum + parseFloat(i.amount_paid || 0), 0)
 );
 
 const overdueCount = computed(() =>
@@ -425,7 +695,24 @@ const overdueCount = computed(() =>
 
 const formatNumber = (num) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num || 0);
 const formatDate = (date) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+const formatMethod = (method) => method?.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'Unknown';
 const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
+
+const getBalance = (invoice) => {
+    return parseFloat(invoice.total || 0) - parseFloat(invoice.amount_paid || 0);
+};
+
+const getStatusLabel = (status) => {
+    const labels = {
+        paid: 'Paid',
+        unpaid: 'Unpaid',
+        partial: 'Partial',
+        sent: 'Sent',
+        overdue: 'Overdue',
+        draft: 'Draft',
+    };
+    return labels[status] || status || 'Unknown';
+};
 
 const loadData = async () => {
     try {
@@ -458,6 +745,34 @@ const closeModal = () => {
 const viewInvoice = (invoice) => {
     viewingInvoice.value = invoice;
     showViewModal.value = true;
+};
+
+const openPaymentModal = (invoice) => {
+    paymentInvoice.value = invoice;
+    paymentForm.value = getEmptyPaymentForm();
+    paymentForm.value.invoice_id = invoice.id;
+    paymentForm.value.amount = getBalance(invoice);
+    showPaymentModal.value = true;
+};
+
+const closePaymentModal = () => {
+    showPaymentModal.value = false;
+    paymentInvoice.value = null;
+};
+
+const openEmailModal = (invoice) => {
+    emailInvoice.value = invoice;
+    emailForm.value = getEmptyEmailForm();
+    // Pre-fill with customer email if available
+    if (invoice.customer?.email) {
+        emailForm.value.email = invoice.customer.email;
+    }
+    showEmailModal.value = true;
+};
+
+const closeEmailModal = () => {
+    showEmailModal.value = false;
+    emailInvoice.value = null;
 };
 
 const addLineItem = () => {
@@ -495,6 +810,41 @@ const saveInvoice = async () => {
         }
     } finally {
         saving.value = false;
+    }
+};
+
+const savePayment = async () => {
+    try {
+        savingPayment.value = true;
+        await api.payments.create(paymentForm.value);
+        await loadData();
+        closePaymentModal();
+    } catch (error) {
+        console.error('Error saving payment:', error);
+        alert('Error recording payment. Please try again.');
+    } finally {
+        savingPayment.value = false;
+    }
+};
+
+const sendEmail = async () => {
+    if (!emailInvoice.value) return;
+
+    try {
+        sendingEmail.value = true;
+        const response = await api.invoices.sendEmail(
+            emailInvoice.value.id,
+            emailForm.value.email,
+            emailForm.value.message || null
+        );
+        await loadData();
+        closeEmailModal();
+        alert(response.data.message || 'Invoice sent successfully!');
+    } catch (error) {
+        console.error('Error sending email:', error);
+        alert(error.response?.data?.message || 'Failed to send email. Please try again.');
+    } finally {
+        sendingEmail.value = false;
     }
 };
 
@@ -609,6 +959,34 @@ onMounted(() => {
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 
+/* Filter Dropdown */
+.filter-dropdown {
+    min-width: 150px;
+}
+
+.status-filter {
+    width: 100%;
+    padding: 0.625rem 1rem;
+    font-size: 0.9375rem;
+    background: white;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
+}
+
+.status-filter:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
 /* Stats Grid */
 .stats-grid {
     display: grid;
@@ -621,12 +999,6 @@ onMounted(() => {
     .stats-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 1.75rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .stats-grid {
-        gap: 2rem;
     }
 }
 
@@ -791,7 +1163,54 @@ onMounted(() => {
     color: #111827;
 }
 
+.paid-amount {
+    color: #059669;
+}
+
+.balance-amount {
+    font-weight: 600;
+}
+
+.text-danger { color: #dc2626; }
+.text-success { color: #059669; }
+
 .date-cell { color: #6b7280; }
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    text-transform: capitalize;
+}
+
+.status-paid {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #059669;
+}
+
+.status-unpaid,
+.status-sent {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #d97706;
+}
+
+.status-partial {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #2563eb;
+}
+
+.status-overdue {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+}
+
+.status-draft {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #6b7280;
+}
 
 .action-buttons {
     display: flex;
@@ -811,6 +1230,18 @@ onMounted(() => {
 
 .btn-ghost:hover { background: #f3f4f6; color: #4f46e5; }
 .btn-ghost-danger:hover { background: #fee2e2; color: #dc2626; }
+
+.btn-success-soft {
+    padding: 0.5rem;
+    color: #059669;
+    background: #d1fae5;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-success-soft:hover { background: #a7f3d0; }
 
 /* Empty State */
 .empty-state {
@@ -862,12 +1293,12 @@ onMounted(() => {
     border-radius: 0.75rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     width: 100%;
+    max-width: 420px;
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
 }
 
-.modal-lg { max-width: 550px; }
-.modal-md { max-width: 500px; }
+.modal-lg { max-width: 600px; }
 
 .modal-header {
     padding: 0.75rem 1rem;
@@ -890,6 +1321,9 @@ onMounted(() => {
 
 .modal-header-primary { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); }
 .modal-header-primary h5 { color: white; }
+
+.modal-header-success { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+.modal-header-success h5 { color: white; }
 
 .modal-close {
     background: rgba(255, 255, 255, 0.2);
@@ -964,6 +1398,24 @@ onMounted(() => {
 .form-control-sm:focus {
     outline: none;
     border-color: #4f46e5;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-prefix {
+    position: absolute;
+    left: 0.625rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 0.75rem;
+}
+
+.form-control.with-prefix {
+    padding-left: 1.5rem;
 }
 
 /* Line Items */
@@ -1051,6 +1503,161 @@ onMounted(() => {
     margin-top: 0.25rem;
     font-size: 0.9375rem;
     color: #111827;
+}
+
+/* Email Invoice Summary */
+.email-invoice-summary {
+    background: #f9fafb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.email-invoice-summary .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.email-invoice-summary .summary-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.email-invoice-summary .last-sent {
+    font-size: 0.75rem;
+    color: #059669;
+}
+
+/* Payment Invoice Summary */
+.payment-invoice-summary {
+    background: #f9fafb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-header .invoice-number {
+    font-size: 1rem;
+}
+
+.summary-header .customer-name {
+    color: #6b7280;
+}
+
+.summary-amounts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.amount-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+}
+
+.amount-item .amount-label {
+    color: #6b7280;
+}
+
+.amount-item .amount-value {
+    font-weight: 600;
+}
+
+.amount-item.highlight {
+    background: white;
+    margin: 0.5rem -1rem -1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.amount-item.highlight .amount-label,
+.amount-item.highlight .amount-value {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.quick-amounts {
+    margin-top: 0.5rem;
+}
+
+.quick-amount-btn {
+    padding: 0.375rem 0.75rem;
+    background: #e0e7ff;
+    color: #4f46e5;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-amount-btn:hover {
+    background: #c7d2fe;
+}
+
+/* Method Options */
+.method-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.method-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.75rem 0.5rem;
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.method-option input {
+    display: none;
+}
+
+.method-option i {
+    font-size: 1.25rem;
+    color: #6b7280;
+}
+
+.method-option span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.method-option:hover {
+    border-color: #4f46e5;
+}
+
+.method-option.active {
+    background: #eef2ff;
+    border-color: #4f46e5;
+}
+
+.method-option.active i,
+.method-option.active span {
+    color: #4f46e5;
 }
 
 /* Invoice Preview */
@@ -1154,7 +1761,6 @@ onMounted(() => {
     margin: 0;
 }
 
-
 .invoice-table {
     width: 100%;
     font-size: 0.875rem;
@@ -1209,6 +1815,19 @@ onMounted(() => {
     color: #111827;
 }
 
+.totals-row.paid-row {
+    background: #f0fdf4;
+    margin: 0.5rem -1rem 0;
+    padding: 0.5rem 1rem;
+}
+
+.totals-row.balance-row {
+    background: #fef2f2;
+    margin: 0 -1rem;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+}
+
 .total-value { color: #4f46e5; }
 
 .vat-number {
@@ -1239,6 +1858,62 @@ onMounted(() => {
     border-top: 1px solid #e5e7eb;
 }
 
+/* Payment History */
+.payment-history {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.payment-history h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.payments-table {
+    width: 100%;
+    font-size: 0.8125rem;
+}
+
+.payments-table th {
+    background: #f9fafb;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+}
+
+.payments-table td {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.method-badge {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+}
+
+/* Payment Action */
+.payment-action {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.btn-lg {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+}
+
 .spinner {
     width: 1.25rem;
     height: 1.25rem;
@@ -1262,7 +1937,9 @@ onMounted(() => {
     .page-header,
     .stats-grid,
     .card,
-    .loading-container {
+    .loading-container,
+    .payment-history,
+    .payment-action {
         display: none !important;
     }
 

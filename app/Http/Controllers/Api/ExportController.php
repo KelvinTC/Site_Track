@@ -4,16 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
-use App\Models\CompanyProfile;
 use App\Exports\InvoicesExport;
 use App\Exports\CustomersExport;
 use App\Exports\JobsExport;
 use App\Exports\PaymentsExport;
 use App\Exports\CasualsExport;
 use App\Exports\CasualsJobsReportExport;
+use App\Exports\CasualsImportTemplate;
 use App\Imports\CasualsImport;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -22,14 +23,23 @@ class ExportController extends Controller
     /**
      * Download invoice as PDF
      */
-    public function invoicePdf(Invoice $invoice)
+    public function invoicePdf(Request $request, Invoice $invoice)
     {
         $invoice->load(['customer', 'siteJob', 'items', 'payments']);
-        $company = CompanyProfile::getProfile();
+        $company = $request->user()->currentCompany;
+
+        // Get logo as base64 for PDF embedding
+        $logoBase64 = null;
+        if ($company->logo_path && Storage::disk('public')->exists($company->logo_path)) {
+            $logoContent = Storage::disk('public')->get($company->logo_path);
+            $mimeType = Storage::disk('public')->mimeType($company->logo_path);
+            $logoBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($logoContent);
+        }
 
         $pdf = Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
             'company' => $company,
+            'logoBase64' => $logoBase64,
         ]);
 
         $pdf->setPaper('a4', 'portrait');
@@ -40,14 +50,23 @@ class ExportController extends Controller
     /**
      * Stream invoice PDF (for preview)
      */
-    public function invoicePdfPreview(Invoice $invoice)
+    public function invoicePdfPreview(Request $request, Invoice $invoice)
     {
         $invoice->load(['customer', 'siteJob', 'items', 'payments']);
-        $company = CompanyProfile::getProfile();
+        $company = $request->user()->currentCompany;
+
+        // Get logo as base64 for PDF embedding
+        $logoBase64 = null;
+        if ($company->logo_path && Storage::disk('public')->exists($company->logo_path)) {
+            $logoContent = Storage::disk('public')->get($company->logo_path);
+            $mimeType = Storage::disk('public')->mimeType($company->logo_path);
+            $logoBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($logoContent);
+        }
 
         $pdf = Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
             'company' => $company,
+            'logoBase64' => $logoBase64,
         ]);
 
         $pdf->setPaper('a4', 'portrait');
@@ -107,6 +126,14 @@ class ExportController extends Controller
             new CasualsJobsReportExport($fromDate, $toDate),
             'casuals-jobs-report-' . date('Y-m-d') . '.xlsx'
         );
+    }
+
+    /**
+     * Download casuals import template
+     */
+    public function casualsImportTemplate()
+    {
+        return Excel::download(new CasualsImportTemplate, 'employees-import-template.xlsx');
     }
 
     /**

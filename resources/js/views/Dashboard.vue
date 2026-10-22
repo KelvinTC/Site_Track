@@ -100,6 +100,64 @@
             </div>
         </div>
 
+        <!-- Aging Summary -->
+        <div v-if="agingData.total_outstanding > 0" class="aging-widget">
+            <div class="aging-widget-header">
+                <h2 class="section-title">Receivables Aging</h2>
+                <router-link to="/aging" class="view-all-link">
+                    View Report
+                    <i class="bi bi-arrow-right"></i>
+                </router-link>
+            </div>
+            <div class="aging-bars">
+                <div class="aging-bar-item">
+                    <div class="aging-bar-header">
+                        <span class="aging-label">Current</span>
+                        <span class="aging-value">${{ formatNumber(agingData.summary?.current?.total || 0) }}</span>
+                    </div>
+                    <div class="aging-bar-track">
+                        <div class="aging-bar-fill current" :style="{ width: getAgingPercent('current') + '%' }"></div>
+                    </div>
+                </div>
+                <div class="aging-bar-item">
+                    <div class="aging-bar-header">
+                        <span class="aging-label">1-30 Days</span>
+                        <span class="aging-value">${{ formatNumber(agingData.summary?.['1-30']?.total || 0) }}</span>
+                    </div>
+                    <div class="aging-bar-track">
+                        <div class="aging-bar-fill days-30" :style="{ width: getAgingPercent('1-30') + '%' }"></div>
+                    </div>
+                </div>
+                <div class="aging-bar-item">
+                    <div class="aging-bar-header">
+                        <span class="aging-label">31-60 Days</span>
+                        <span class="aging-value">${{ formatNumber(agingData.summary?.['31-60']?.total || 0) }}</span>
+                    </div>
+                    <div class="aging-bar-track">
+                        <div class="aging-bar-fill days-60" :style="{ width: getAgingPercent('31-60') + '%' }"></div>
+                    </div>
+                </div>
+                <div class="aging-bar-item">
+                    <div class="aging-bar-header">
+                        <span class="aging-label">61-90 Days</span>
+                        <span class="aging-value">${{ formatNumber(agingData.summary?.['61-90']?.total || 0) }}</span>
+                    </div>
+                    <div class="aging-bar-track">
+                        <div class="aging-bar-fill days-90" :style="{ width: getAgingPercent('61-90') + '%' }"></div>
+                    </div>
+                </div>
+                <div class="aging-bar-item">
+                    <div class="aging-bar-header">
+                        <span class="aging-label">90+ Days</span>
+                        <span class="aging-value danger">${{ formatNumber(agingData.summary?.['90+']?.total || 0) }}</span>
+                    </div>
+                    <div class="aging-bar-track">
+                        <div class="aging-bar-fill days-90plus" :style="{ width: getAgingPercent('90+') + '%' }"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Content Grid -->
         <div class="dashboard-grid">
             <!-- Recent Jobs -->
@@ -287,6 +345,7 @@ const jobs = ref([]);
 const invoices = ref([]);
 const payments = ref([]);
 const customers = ref([]);
+const agingData = ref({ summary: {} });
 
 const greeting = computed(() => {
     const hour = new Date().getHours();
@@ -331,16 +390,24 @@ const getInvoiceAgeClass = (invoice) => {
 
 const getPaymentIcon = (method) => ({ 'cash': 'bi bi-cash-stack', 'bank_transfer': 'bi bi-bank', 'credit_card': 'bi bi-credit-card', 'check': 'bi bi-file-text' }[method] || 'bi bi-cash');
 
+const getAgingPercent = (bucket) => {
+    const total = agingData.value.total_outstanding || 0;
+    if (total === 0) return 0;
+    const bucketTotal = agingData.value.summary?.[bucket]?.total || 0;
+    return Math.round((bucketTotal / total) * 100);
+};
+
 const loadData = async () => {
     try {
         loading.value = true;
-        const [jobsRes, invoicesRes, paymentsRes, customersRes] = await Promise.all([
-            api.jobs.getAll(), api.invoices.getAll(), api.payments.getAll(), api.customers.getAll()
+        const [jobsRes, invoicesRes, paymentsRes, customersRes, agingRes] = await Promise.all([
+            api.jobs.getAll(), api.invoices.getAll(), api.payments.getAll(), api.customers.getAll(), api.invoices.getAging()
         ]);
         jobs.value = jobsRes.data;
         invoices.value = invoicesRes.data;
         payments.value = paymentsRes.data;
         customers.value = customersRes.data;
+        agingData.value = agingRes.data;
     } catch (error) {
         console.error('Error loading dashboard:', error);
     } finally {
@@ -720,4 +787,84 @@ onMounted(() => loadData());
     color: #059669;
     margin: 0;
 }
+
+/* Aging Widget */
+.aging-widget {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--gray-100);
+}
+
+.aging-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.aging-widget-header .section-title {
+    margin: 0;
+}
+
+.aging-bars {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .aging-bars {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.aging-bar-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.aging-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.aging-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-500);
+}
+
+.aging-value {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.aging-value.danger {
+    color: #dc2626;
+}
+
+.aging-bar-track {
+    height: 6px;
+    background: var(--gray-200);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.aging-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.aging-bar-fill.current { background: #10b981; }
+.aging-bar-fill.days-30 { background: #f59e0b; }
+.aging-bar-fill.days-60 { background: #f97316; }
+.aging-bar-fill.days-90 { background: #ef4444; }
+.aging-bar-fill.days-90plus { background: #7f1d1d; }
 </style>

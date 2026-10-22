@@ -86,6 +86,11 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),
+            'host' => env('PGHOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('PGPORT', env('DB_PORT', '5432')),
+            'database' => env('PGDATABASE', env('DB_DATABASE', 'sitetrack')),
+            'username' => env('PGUSER', env('DB_USERNAME', 'sitetrack')),
+            'password' => env('PGPASSWORD', env('DB_PASSWORD', '')),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,

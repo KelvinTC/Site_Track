@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Illuminate\Support\Collection;
 
 class CasualsJobsReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
 {
@@ -21,9 +22,9 @@ class CasualsJobsReportExport implements FromCollection, WithHeadings, WithMappi
         $this->toDate = $toDate;
     }
 
-    public function collection()
+    public function collection(): Collection
     {
-        return Casual::with(['siteJobs' => function ($q) {
+        return Casual::with(['department', 'siteJobs' => function ($q) {
             if ($this->fromDate) {
                 $q->wherePivot('work_date', '>=', $this->fromDate);
             }
@@ -51,12 +52,13 @@ class CasualsJobsReportExport implements FromCollection, WithHeadings, WithMappi
     public function headings(): array
     {
         return [
-            'Casual #',
-            'Casual Name',
+            'Employee #',
+            'Employee Name',
+            'Department',
             'Job Title',
             'Phone',
-            'Job #',
-            'Job Title',
+            'Site Job #',
+            'Site Job Title',
             'Customer',
             'Work Date',
             'Notes',
@@ -68,6 +70,7 @@ class CasualsJobsReportExport implements FromCollection, WithHeadings, WithMappi
         return [
             $row['casual']->casual_number,
             $row['casual']->name,
+            $row['casual']->department?->name ?? '',
             $row['casual']->job_title ?? '',
             $row['casual']->phone ?? '',
             $row['job']?->job_number ?? '',

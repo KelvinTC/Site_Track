@@ -9,10 +9,11 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Illuminate\Support\Collection;
 
 class CustomersExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
 {
-    public function collection()
+    public function collection(): Collection
     {
         return Customer::withCount(['invoices', 'siteJobs'])->orderBy('name')->get();
     }

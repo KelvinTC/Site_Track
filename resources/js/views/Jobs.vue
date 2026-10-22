@@ -193,21 +193,21 @@
                                 <textarea v-model="form.notes" rows="2" class="form-control"></textarea>
                             </div>
 
-                            <!-- Casual Assignment Section (only when editing) -->
-                            <div v-if="editingJob" class="form-group full-width casuals-section">
-                                <label class="form-label">Assigned Casuals</label>
+                            <!-- Casual Assignment Section -->
+                            <div class="form-group full-width casuals-section">
+                                <label class="form-label">Assigned Employees</label>
 
-                                <!-- Assigned Casuals Badges -->
-                                <div v-if="assignedCasuals.length > 0" class="assigned-casuals">
+                                <!-- Assigned Employees Badges -->
+                                <div v-if="displayedCasuals.length > 0" class="assigned-casuals">
                                     <span
-                                        v-for="casual in assignedCasuals"
+                                        v-for="casual in displayedCasuals"
                                         :key="casual.id"
                                         class="casual-badge"
                                     >
                                         {{ casual.name }}
                                         <button
                                             type="button"
-                                            @click="unassignCasual(casual.id)"
+                                            @click="removeCasual(casual.id)"
                                             class="badge-remove"
                                             title="Remove"
                                         >
@@ -215,12 +215,12 @@
                                         </button>
                                     </span>
                                 </div>
-                                <p v-else class="no-casuals-text">No casuals assigned to this job</p>
+                                <p v-else class="no-casuals-text">No employees assigned to this job</p>
 
                                 <!-- Add Casuals -->
                                 <div class="add-casual-row">
                                     <select v-model="selectedCasualId" class="form-control casual-select">
-                                        <option value="">Select casual to add...</option>
+                                        <option value="">Select employee to add...</option>
                                         <option
                                             v-for="casual in availableCasuals"
                                             :key="casual.id"
@@ -237,7 +237,7 @@
                                     />
                                     <button
                                         type="button"
-                                        @click="assignCasual"
+                                        @click="addCasual"
                                         :disabled="!selectedCasualId"
                                         class="btn btn-sm btn-primary"
                                     >
@@ -281,6 +281,7 @@ const editingJob = ref(null);
 
 // Casual assignment state
 const assignedCasuals = ref([]);
+const pendingCasuals = ref([]); // For casuals added during job creation
 const selectedCasualId = ref('');
 const casualWorkDate = ref('');
 
@@ -297,9 +298,14 @@ const form = ref({
     notes: '',
 });
 
+// Casuals currently displayed (either from DB or pending for new job)
+const displayedCasuals = computed(() => {
+    return editingJob.value ? assignedCasuals.value : pendingCasuals.value;
+});
+
 const availableCasuals = computed(() => {
-    const assignedIds = assignedCasuals.value.map(c => c.id);
-    return casuals.value.filter(c => c.is_active && !assignedIds.includes(c.id));
+    const usedIds = displayedCasuals.value.map(c => c.id);
+    return casuals.value.filter(c => c.is_active && !usedIds.includes(c.id));
 });
 
 const filteredJobs = computed(() => {
@@ -361,35 +367,55 @@ const loadJobCasuals = async (jobId) => {
     }
 };
 
-const assignCasual = async () => {
-    if (!selectedCasualId.value || !editingJob.value) return;
-    try {
-        await api.siteJobCasuals.assign(
-            editingJob.value.id,
-            [selectedCasualId.value],
-            casualWorkDate.value || null
-        );
-        await loadJobCasuals(editingJob.value.id);
-        selectedCasualId.value = '';
-        casualWorkDate.value = '';
-    } catch (error) {
-        console.error('Error assigning casual:', error);
+const addCasual = async () => {
+    if (!selectedCasualId.value) return;
+
+    const casualToAdd = casuals.value.find(c => c.id === parseInt(selectedCasualId.value));
+    if (!casualToAdd) return;
+
+    if (editingJob.value) {
+        // Editing existing job - assign via API
+        try {
+            await api.siteJobCasuals.assign(
+                editingJob.value.id,
+                [selectedCasualId.value],
+                casualWorkDate.value || null
+            );
+            await loadJobCasuals(editingJob.value.id);
+        } catch (error) {
+            console.error('Error assigning casual:', error);
+        }
+    } else {
+        // Creating new job - add to pending list
+        pendingCasuals.value.push({
+            ...casualToAdd,
+            workDate: casualWorkDate.value || null
+        });
     }
+
+    selectedCasualId.value = '';
+    casualWorkDate.value = '';
 };
 
-const unassignCasual = async (casualId) => {
-    if (!editingJob.value) return;
-    try {
-        await api.siteJobCasuals.unassign(editingJob.value.id, casualId);
-        await loadJobCasuals(editingJob.value.id);
-    } catch (error) {
-        console.error('Error unassigning casual:', error);
+const removeCasual = async (casualId) => {
+    if (editingJob.value) {
+        // Editing existing job - unassign via API
+        try {
+            await api.siteJobCasuals.unassign(editingJob.value.id, casualId);
+            await loadJobCasuals(editingJob.value.id);
+        } catch (error) {
+            console.error('Error unassigning casual:', error);
+        }
+    } else {
+        // Creating new job - remove from pending list
+        pendingCasuals.value = pendingCasuals.value.filter(c => c.id !== casualId);
     }
 };
 
 const openCreateModal = () => {
     editingJob.value = null;
     assignedCasuals.value = [];
+    pendingCasuals.value = [];
     selectedCasualId.value = '';
     casualWorkDate.value = '';
     form.value = {
@@ -431,6 +457,7 @@ const closeModal = () => {
     showModal.value = false;
     editingJob.value = null;
     assignedCasuals.value = [];
+    pendingCasuals.value = [];
     selectedCasualId.value = '';
     casualWorkDate.value = '';
 };
@@ -451,11 +478,26 @@ const saveJob = async () => {
             site_address: form.value.site_address || null,
             notes: form.value.notes || null,
         };
+
         if (editingJob.value) {
             await api.jobs.update(editingJob.value.id, cleanedData);
         } else {
-            await api.jobs.create(cleanedData);
+            // Create new job
+            const response = await api.jobs.create(cleanedData);
+            const newJobId = response.data.id;
+
+            // Assign pending casuals to the new job
+            if (pendingCasuals.value.length > 0) {
+                for (const casual of pendingCasuals.value) {
+                    await api.siteJobCasuals.assign(
+                        newJobId,
+                        [casual.id],
+                        casual.workDate || null
+                    );
+                }
+            }
         }
+
         await loadData();
         closeModal();
     } catch (error) {

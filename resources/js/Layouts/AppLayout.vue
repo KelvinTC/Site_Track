@@ -5,7 +5,9 @@
             <!-- Logo -->
             <div class="sidebar-header">
                 <router-link to="/" class="sidebar-brand">
-                    <img src="/images/logo.png" alt="SiteTrack" class="sidebar-logo" />
+                    <div class="sidebar-logo-icon">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
                     <span class="brand-text">SiteTrack</span>
                 </router-link>
             </div>
@@ -18,17 +20,17 @@
                         <i class="bi bi-grid-1x2-fill"></i>
                         <span>Dashboard</span>
                     </router-link>
-                    <router-link to="/customers" class="nav-item" :class="{ active: $route.path === '/customers' }">
+                    <router-link v-if="isAdmin" to="/clients" class="nav-item" :class="{ active: $route.path === '/clients' }">
                         <i class="bi bi-people-fill"></i>
-                        <span>Customers</span>
+                        <span>Clients</span>
                     </router-link>
-                    <router-link to="/jobs" class="nav-item" :class="{ active: $route.path === '/jobs' }">
+                    <router-link v-if="isAdmin" to="/jobs" class="nav-item" :class="{ active: $route.path === '/jobs' }">
                         <i class="bi bi-briefcase-fill"></i>
                         <span>Jobs</span>
                     </router-link>
-                    <router-link to="/casuals" class="nav-item" :class="{ active: $route.path === '/casuals' }">
+                    <router-link v-if="isAdmin" to="/employees" class="nav-item" :class="{ active: $route.path === '/employees' }">
                         <i class="bi bi-person-badge-fill"></i>
-                        <span>Casuals</span>
+                        <span>Employees</span>
                     </router-link>
                 </div>
 
@@ -36,22 +38,73 @@
                     <span class="nav-section-title">Finance</span>
                     <router-link to="/invoices" class="nav-item" :class="{ active: $route.path === '/invoices' }">
                         <i class="bi bi-receipt"></i>
-                        <span>Invoices</span>
+                        <span>Invoices & Payments</span>
                     </router-link>
-                    <router-link to="/payments" class="nav-item" :class="{ active: $route.path === '/payments' }">
-                        <i class="bi bi-credit-card-fill"></i>
-                        <span>Payments</span>
+                    <router-link to="/expenses" class="nav-item" :class="{ active: $route.path === '/expenses' }">
+                        <i class="bi bi-wallet2"></i>
+                        <span>Expenses</span>
                     </router-link>
                     <router-link to="/statements" class="nav-item" :class="{ active: $route.path === '/statements' }">
                         <i class="bi bi-file-earmark-text"></i>
                         <span>Statements</span>
                     </router-link>
                 </div>
+
+                <!-- Accounting section - only Cost Centres for now -->
+                <div class="nav-section">
+                    <span class="nav-section-title">Accounting</span>
+                    <router-link to="/cost-centres" class="nav-item" :class="{ active: $route.path === '/cost-centres' }">
+                        <i class="bi bi-diagram-3-fill"></i>
+                        <span>Cost Centres</span>
+                    </router-link>
+                    <!-- Commented out - future features
+                    <router-link to="/chart-of-accounts" class="nav-item" :class="{ active: $route.path === '/chart-of-accounts' }">
+                        <i class="bi bi-journal-text"></i>
+                        <span>Chart of Accounts</span>
+                    </router-link>
+                    <router-link to="/journal-entries" class="nav-item" :class="{ active: $route.path === '/journal-entries' }">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                        <span>Journal Entries</span>
+                    </router-link>
+                    <router-link to="/bank-accounts" class="nav-item" :class="{ active: $route.path === '/bank-accounts' }">
+                        <i class="bi bi-bank2"></i>
+                        <span>Bank Accounts</span>
+                    </router-link>
+                    -->
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Reports</span>
+                    <router-link to="/aging" class="nav-item" :class="{ active: $route.path === '/aging' }">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Aging Report</span>
+                    </router-link>
+                    <router-link to="/reports/employee-jobs" class="nav-item" :class="{ active: $route.path === '/reports/employee-jobs' }">
+                        <i class="bi bi-person-lines-fill"></i>
+                        <span>Employee Jobs</span>
+                    </router-link>
+                    <router-link to="/reports/jobs-summary" class="nav-item" :class="{ active: $route.path === '/reports/jobs-summary' }">
+                        <i class="bi bi-bar-chart-fill"></i>
+                        <span>Jobs Summary</span>
+                    </router-link>
+                    <router-link to="/reports/revenue" class="nav-item" :class="{ active: $route.path === '/reports/revenue' }">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Revenue Report</span>
+                    </router-link>
+                    <router-link to="/reports/profit-loss" class="nav-item" :class="{ active: $route.path === '/reports/profit-loss' }">
+                        <i class="bi bi-calculator-fill"></i>
+                        <span>Profit & Loss</span>
+                    </router-link>
+                </div>
             </nav>
 
             <!-- Sidebar Footer -->
             <div class="sidebar-footer">
-                <router-link to="/settings" class="nav-item" :class="{ active: $route.path === '/settings' }">
+                <router-link v-if="isAdmin" to="/users" class="nav-item" :class="{ active: $route.path === '/users' }">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Team</span>
+                </router-link>
+                <router-link v-if="isOwner" to="/settings" class="nav-item" :class="{ active: $route.path === '/settings' }">
                     <i class="bi bi-gear-fill"></i>
                     <span>Settings</span>
                 </router-link>
@@ -65,11 +118,13 @@
         <!-- Mobile Header -->
         <header class="mobile-header">
             <router-link to="/" class="mobile-brand">
-                <img src="/images/logo.png" alt="SiteTrack" class="mobile-logo" />
+                <div class="mobile-logo-icon">
+                    <i class="bi bi-briefcase-fill"></i>
+                </div>
                 <span>SiteTrack</span>
             </router-link>
             <div class="mobile-actions">
-                <router-link to="/settings" class="mobile-action-btn">
+                <router-link v-if="isOwner" to="/settings" class="mobile-action-btn">
                     <i class="bi bi-gear-fill"></i>
                 </router-link>
                 <button @click="logout" class="mobile-action-btn">
@@ -91,11 +146,11 @@
                 <i class="bi bi-grid-1x2-fill"></i>
                 <span>Home</span>
             </router-link>
-            <router-link to="/customers" class="nav-item" :class="{ active: $route.path === '/customers' }">
+            <router-link v-if="isAdmin" to="/clients" class="nav-item" :class="{ active: $route.path === '/clients' }">
                 <i class="bi bi-people-fill"></i>
-                <span>Customers</span>
+                <span>Clients</span>
             </router-link>
-            <router-link to="/jobs" class="nav-item" :class="{ active: $route.path === '/jobs' }">
+            <router-link v-if="isAdmin" to="/jobs" class="nav-item" :class="{ active: $route.path === '/jobs' }">
                 <i class="bi bi-briefcase-fill"></i>
                 <span>Jobs</span>
             </router-link>
@@ -103,22 +158,56 @@
                 <i class="bi bi-receipt"></i>
                 <span>Invoices</span>
             </router-link>
-            <router-link to="/payments" class="nav-item" :class="{ active: $route.path === '/payments' }">
-                <i class="bi bi-credit-card-fill"></i>
-                <span>Payments</span>
+            <router-link to="/reports/employee-jobs" class="nav-item" :class="{ active: $route.path.startsWith('/reports') }">
+                <i class="bi bi-bar-chart-fill"></i>
+                <span>Reports</span>
             </router-link>
         </nav>
     </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import api from '@/api';
 
 const router = useRouter();
+const user = ref(null);
 
-const logout = () => {
-    localStorage.removeItem('isAuthenticated');
-    router.push('/login');
+// Load user from localStorage
+onMounted(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        try {
+            user.value = JSON.parse(storedUser);
+        } catch (e) {
+            console.error('Failed to parse stored user', e);
+        }
+    }
+});
+
+// Check if user is admin (owner or admin role)
+const isAdmin = computed(() => {
+    const role = user.value?.role;
+    return role === 'owner' || role === 'admin';
+});
+
+// Check if user is owner
+const isOwner = computed(() => {
+    return user.value?.role === 'owner';
+});
+
+const logout = async () => {
+    try {
+        await api.auth.logout();
+    } catch (err) {
+        // Ignore errors - we're logging out anyway
+    } finally {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAuthenticated');
+        router.push('/login');
+    }
 };
 </script>
 
@@ -164,14 +253,16 @@ const logout = () => {
     text-decoration: none;
 }
 
-.sidebar-logo {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 0.75rem;
-    object-fit: contain;
-    background: white;
-    padding: 0.25rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.sidebar-logo-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.625rem;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
 }
 
 .sidebar .brand-text {
@@ -279,11 +370,16 @@ const logout = () => {
     text-decoration: none;
 }
 
-.mobile-logo {
+.mobile-logo-icon {
     width: 2rem;
     height: 2rem;
     border-radius: 0.5rem;
-    object-fit: contain;
+    background: linear-gradient(135deg, var(--primary-600) 0%, #8b5cf6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: white;
 }
 
 .mobile-brand span {

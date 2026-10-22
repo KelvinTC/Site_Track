@@ -11,21 +11,43 @@ class CasualController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Casual::withCount('siteJobs');
+        $query = Casual::with('department')->withCount('siteJobs');
 
         if ($request->has('is_active')) {
             $query->where('is_active', $request->boolean('is_active'));
         }
 
-        $casuals = $query->orderBy('created_at', 'desc')->get();
+        if ($request->has('department_id')) {
+            $query->where('department_id', $request->department_id);
+        }
 
-        return response()->json($casuals);
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', "%{$search}%")
+                  ->orWhere('casual_number', 'ilike', "%{$search}%")
+                  ->orWhere('phone', 'ilike', "%{$search}%")
+                  ->orWhere('email', 'ilike', "%{$search}%");
+            });
+        }
+
+        $query->orderBy('created_at', 'desc');
+
+        // Support pagination
+        $perPage = $request->input('per_page', 15);
+        if ($request->has('page')) {
+            $casuals = $query->paginate($perPage);
+            return response()->json($casuals);
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'department_id' => 'nullable|exists:departments,id',
             'job_title' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:255',
@@ -34,13 +56,14 @@ class CasualController extends Controller
         ]);
 
         $casual = Casual::create($validated);
+        $casual->load('department');
 
         return response()->json($casual, 201);
     }
 
     public function show(Casual $casual): JsonResponse
     {
-        $casual->load(['siteJobs.customer']);
+        $casual->load(['siteJobs.customer', 'department']);
         $casual->loadCount('siteJobs');
 
         return response()->json($casual);
@@ -50,6 +73,7 @@ class CasualController extends Controller
     {
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
+            'department_id' => 'nullable|exists:departments,id',
             'job_title' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:255',
@@ -58,6 +82,7 @@ class CasualController extends Controller
         ]);
 
         $casual->update($validated);
+        $casual->load('department');
 
         return response()->json($casual);
     }
@@ -91,6 +116,8 @@ class CasualController extends Controller
                 'id' => $casual->id,
                 'casual_number' => $casual->casual_number,
                 'name' => $casual->name,
+                'department_id' => $casual->department_id,
+                'department_name' => $casual->department?->name,
                 'job_title' => $casual->job_title,
                 'phone' => $casual->phone,
                 'is_active' => $casual->is_active,

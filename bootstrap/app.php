@@ -14,6 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Trust all proxies for Railway deployment
         $middleware->trustProxies(at: '*');
+
+        // Enable Sanctum's stateful API for SPA authentication
+        $middleware->statefulApi();
+
+        // Register middleware aliases
+        $middleware->alias([
+            'company' => \App\Http\Middleware\EnsureCompanyContext::class,
+            'role' => \App\Http\Middleware\CheckRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

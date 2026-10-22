@@ -5,7 +5,7 @@
             <div class="header-content">
                 <div class="header-title">
                     <h1>Statements</h1>
-                    <p class="header-subtitle">Generate customer account statements</p>
+                    <p class="header-subtitle">Generate client account statements</p>
                 </div>
             </div>
         </div>
@@ -26,11 +26,11 @@
             </div>
             <div class="card-body">
                 <div class="generator-form">
-                    <!-- Customer Selection -->
+                    <!-- Client Selection -->
                     <div class="form-group">
-                        <label class="form-label">Customer *</label>
+                        <label class="form-label">Client *</label>
                         <select v-model="selectedCustomerId" class="form-control">
-                            <option value="">Select a customer...</option>
+                            <option value="">Select a client...</option>
                             <option v-for="customer in customers" :key="customer.id" :value="customer.id">
                                 {{ customer.name }}
                             </option>
@@ -90,10 +90,27 @@
                     <i class="bi bi-receipt"></i>
                     <span>Statement Preview</span>
                 </div>
-                <button @click="statementData = null" class="btn btn-sm btn-secondary">
-                    <i class="bi bi-x-lg"></i>
-                    Clear
-                </button>
+                <div class="header-actions">
+                    <button @click="exportStatement('excel')" class="btn btn-sm btn-success">
+                        <i class="bi bi-file-earmark-excel"></i>
+                        Excel
+                    </button>
+                    <button @click="exportStatement('csv')" class="btn btn-sm btn-secondary">
+                        <i class="bi bi-filetype-csv"></i>
+                        CSV
+                    </button>
+                    <button @click="exportStatement('pdf')" class="btn btn-sm btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                        PDF
+                    </button>
+                    <button @click="printStatement" class="btn btn-sm btn-secondary">
+                        <i class="bi bi-printer"></i>
+                        Print
+                    </button>
+                    <button @click="statementData = null" class="btn btn-sm btn-ghost">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <CustomerStatement :statement="statementData" />
@@ -183,6 +200,27 @@ const generateStatement = async () => {
     } finally {
         loadingStatement.value = false;
     }
+};
+
+const exportStatement = (format) => {
+    if (!selectedCustomerId.value) return;
+    let url;
+    switch (format) {
+        case 'excel':
+            url = api.exports.statementExcel(selectedCustomerId.value, fromDate.value, toDate.value);
+            break;
+        case 'csv':
+            url = api.exports.statementCsv(selectedCustomerId.value, fromDate.value, toDate.value);
+            break;
+        case 'pdf':
+            url = api.exports.statementPdf(selectedCustomerId.value, fromDate.value, toDate.value);
+            break;
+    }
+    if (url) window.open(url, '_blank');
+};
+
+const printStatement = () => {
+    window.print();
 };
 
 onMounted(() => {

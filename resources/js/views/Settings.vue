@@ -27,6 +27,28 @@
                 </button>
             </div>
             <div class="card-body">
+                <!-- Logo Section -->
+                <div class="logo-section">
+                    <div class="logo-preview" v-if="form.logo_url">
+                        <img :src="form.logo_url" alt="Company Logo" />
+                    </div>
+                    <div class="logo-placeholder" v-else>
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="logo-actions">
+                        <label class="btn btn-sm btn-secondary">
+                            <i class="bi bi-upload"></i> {{ form.logo_url ? 'Change' : 'Upload' }}
+                            <input type="file" accept="image/*" @change="handleLogoUpload" hidden />
+                        </label>
+                        <button v-if="form.logo_url" @click="removeLogo" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section-divider">
+                    <span class="section-title"><i class="bi bi-info-circle"></i> Company Info</span>
+                </div>
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="info-label">Company Name</span>
@@ -204,7 +226,10 @@ const form = ref({
     vat_registered: false,
     invoice_notes: '',
     invoice_footer: '',
+    logo_url: null,
 });
+
+const uploadingLogo = ref(false);
 
 const fullAddress = computed(() => {
     const parts = [form.value.address, form.value.city, form.value.state].filter(Boolean);
@@ -242,6 +267,35 @@ const saveProfile = async () => {
 const cancelEdit = () => {
     Object.assign(form.value, originalForm.value);
     editing.value = false;
+};
+
+const handleLogoUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    uploadingLogo.value = true;
+    try {
+        const response = await api.companyProfile.uploadLogo(file);
+        form.value.logo_url = response.data.logo_url;
+        successMessage.value = 'Logo uploaded!';
+        setTimeout(() => { successMessage.value = ''; }, 2000);
+    } catch (error) {
+        console.error('Error uploading logo:', error);
+    } finally {
+        uploadingLogo.value = false;
+        event.target.value = '';
+    }
+};
+
+const removeLogo = async () => {
+    try {
+        await api.companyProfile.deleteLogo();
+        form.value.logo_url = null;
+        successMessage.value = 'Logo removed!';
+        setTimeout(() => { successMessage.value = ''; }, 2000);
+    } catch (error) {
+        console.error('Error removing logo:', error);
+    }
 };
 
 onMounted(() => {
@@ -295,6 +349,55 @@ onMounted(() => {
 }
 .card-body {
     padding: 0.75rem;
+}
+
+/* Logo Section */
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+}
+
+.logo-preview {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.logo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.logo-placeholder {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 0.5rem;
+    background: #f3f4f6;
+    border: 2px dashed #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 1.5rem;
+}
+
+.logo-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-danger:hover {
+    background: #fecaca;
 }
 
 /* View Mode */

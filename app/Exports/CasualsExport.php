@@ -9,19 +9,21 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Illuminate\Support\Collection;
 
 class CasualsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
 {
-    public function collection()
+    public function collection(): Collection
     {
-        return Casual::withCount('siteJobs')->orderBy('name')->get();
+        return Casual::with('department')->withCount('siteJobs')->orderBy('name')->get();
     }
 
     public function headings(): array
     {
         return [
-            'Casual #',
+            'Employee #',
             'Name',
+            'Department',
             'Job Title',
             'Phone',
             'Email',
@@ -36,6 +38,7 @@ class CasualsExport implements FromCollection, WithHeadings, WithMapping, WithSt
         return [
             $casual->casual_number,
             $casual->name,
+            $casual->department?->name ?? '',
             $casual->job_title ?? '',
             $casual->phone ?? '',
             $casual->email ?? '',

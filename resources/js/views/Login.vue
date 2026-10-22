@@ -15,12 +15,10 @@
         <div class="login-container">
             <!-- Login Card -->
             <div class="login-card">
-                <!-- Logo inside card -->
-                <div class="card-logo">
-                    <img src="/images/logo.png" alt="SiteTrack" class="logo-img" />
-                </div>
-
                 <div class="login-header">
+                    <div class="app-logo">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
                     <h2>Welcome back</h2>
                     <p>Sign in to continue to your dashboard</p>
                 </div>
@@ -88,6 +86,12 @@
                             <i class="bi bi-arrow-right"></i>
                         </span>
                     </button>
+
+                    <!-- Register Link -->
+                    <p class="auth-link">
+                        Don't have an account?
+                        <router-link to="/register">Create one</router-link>
+                    </p>
                 </form>
             </div>
 
@@ -103,6 +107,7 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDarkMode } from '@/composables/useDarkMode';
+import api from '@/api';
 
 const router = useRouter();
 const { isDark, toggleDarkMode, initTheme } = useDarkMode();
@@ -125,16 +130,25 @@ const handleLogin = async () => {
     error.value = '';
 
     try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const response = await api.auth.login({
+            email: form.email,
+            password: form.password,
+        });
 
-        if (form.email && form.password) {
-            localStorage.setItem('isAuthenticated', 'true');
-            router.push('/');
-        } else {
-            error.value = 'Please enter your email and password';
-        }
+        // Store auth data
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('isAuthenticated', 'true');
+
+        router.push('/');
     } catch (err) {
-        error.value = 'Invalid email or password. Please try again.';
+        if (err.response?.data?.errors?.email) {
+            error.value = err.response.data.errors.email[0];
+        } else if (err.response?.data?.message) {
+            error.value = err.response.data.message;
+        } else {
+            error.value = 'Invalid email or password. Please try again.';
+        }
     } finally {
         loading.value = false;
     }
@@ -268,28 +282,26 @@ const handleLogin = async () => {
     }
 }
 
-/* Card Logo */
-.card-logo {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-}
-
-.logo-img {
-    width: 5rem;
-    height: 5rem;
-    border-radius: 1rem;
-    object-fit: contain;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-:global(.dark) .logo-img {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
-
 .login-header {
     text-align: center;
     margin-bottom: 2rem;
+}
+
+.app-logo {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+}
+
+.app-logo i {
+    font-size: 1.75rem;
+    color: white;
 }
 
 .login-header h2 {
@@ -573,6 +585,37 @@ const handleLogin = async () => {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* Auth Link */
+.auth-link {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.9375rem;
+    margin: 1rem 0 0;
+}
+
+.auth-link a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.auth-link a:hover {
+    color: #4f46e5;
+}
+
+:global(.dark) .auth-link {
+    color: #a1a1aa;
+}
+
+:global(.dark) .auth-link a {
+    color: #a5b4fc;
+}
+
+:global(.dark) .auth-link a:hover {
+    color: #c7d2fe;
 }
 
 /* Copyright */

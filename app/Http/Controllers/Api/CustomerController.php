@@ -121,11 +121,13 @@ class CustomerController extends Controller
         }
 
         foreach ($paymentsInPeriod as $payment) {
+            $invoiceNumber = $payment->invoice ? $payment->invoice->invoice_number : null;
             $transactions[] = [
                 'date' => $payment->payment_date->format('Y-m-d'),
                 'type' => 'payment',
                 'ref' => $payment->reference_number ?: 'PMT-' . $payment->id,
                 'description' => 'Payment - ' . ucfirst($payment->payment_method ?? 'Other'),
+                'invoice_number' => $invoiceNumber,
                 'debit' => null,
                 'credit' => (float) $payment->amount,
             ];

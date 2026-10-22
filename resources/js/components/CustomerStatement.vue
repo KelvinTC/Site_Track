@@ -55,7 +55,12 @@
                     <!-- Transaction Rows -->
                     <tr v-for="(transaction, index) in statement.transactions" :key="index" :class="transaction.type">
                         <td>{{ formatDate(transaction.date) }}</td>
-                        <td>{{ transaction.description }}</td>
+                        <td>
+                            {{ transaction.description }}
+                            <span v-if="transaction.invoice_number" class="invoice-ref">
+                                ({{ transaction.invoice_number }})
+                            </span>
+                        </td>
                         <td>{{ transaction.ref }}</td>
                         <td class="text-right">{{ transaction.debit ? formatCurrency(transaction.debit) : '' }}</td>
                         <td class="text-right">{{ transaction.credit ? formatCurrency(transaction.credit) : '' }}</td>
@@ -270,6 +275,12 @@ onMounted(() => {
 
 .statement-table tbody tr.payment td {
     color: #059669;
+}
+
+.invoice-ref {
+    font-size: 0.8125rem;
+    color: #4f46e5;
+    font-weight: 600;
 }
 
 .opening-balance-row,

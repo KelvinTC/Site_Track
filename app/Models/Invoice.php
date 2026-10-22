@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,18 +11,19 @@ use App\Services\NumberGenerator;
 
 class Invoice extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToCompany;
 
     protected static function booted(): void
     {
         static::creating(function (Invoice $invoice) {
             if (empty($invoice->invoice_number)) {
-                $invoice->invoice_number = NumberGenerator::generateInvoiceNumber();
+                $invoice->invoice_number = NumberGenerator::generateInvoiceNumber($invoice->company_id);
             }
         });
     }
 
     protected $fillable = [
+        'company_id',
         'invoice_number',
         'site_job_id',
         'customer_id',
@@ -34,6 +36,7 @@ class Invoice extends Model
         'total',
         'status',
         'notes',
+        'last_sent_at',
     ];
 
     protected $casts = [
@@ -44,15 +47,13 @@ class Invoice extends Model
         'vat_amount' => 'decimal:2',
         'tax' => 'decimal:2',
         'total' => 'decimal:2',
+        'last_sent_at' => 'datetime',
     ];
 
-    /**
-     * Calculate VAT from subtotal
-     */
     public function calculateVat(): void
     {
         $this->vat_amount = round($this->subtotal * ($this->vat_rate / 100), 2);
-        $this->tax = $this->vat_amount; // Keep tax field in sync
+        $this->tax = $this->vat_amount;
         $this->total = $this->subtotal + $this->vat_amount;
     }
 
