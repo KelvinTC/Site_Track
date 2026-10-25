@@ -11,10 +11,6 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <title>SiteTrack</title>
 
-        <!-- Favicon -->
-        <link rel="icon" type="image/png" href="/images/logo.png">
-        <link rel="apple-touch-icon" href="/images/logo.png">
-
         <!-- Google Fonts - Inter -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
