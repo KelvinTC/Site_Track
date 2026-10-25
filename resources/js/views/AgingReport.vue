@@ -318,9 +318,10 @@
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 import api from '../api';
+import { toDateInput } from '@/utils/date';
 
 const loading = ref(true);
-const asOfDate = ref(new Date().toISOString().split('T')[0]);
+const asOfDate = ref(toDateInput());
 const agingData = ref({});
 const viewMode = ref('customer');
 

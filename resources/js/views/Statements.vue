@@ -124,6 +124,7 @@ import { ref, onMounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 import CustomerStatement from '../components/CustomerStatement.vue';
 import api from '../api';
+import { toDateInput } from '@/utils/date';
 
 const loading = ref(true);
 const loadingStatement = ref(false);
@@ -163,7 +164,7 @@ const datePresets = [
 ];
 
 const formatDateForInput = (date) => {
-    return date.toISOString().split('T')[0];
+    return toDateInput(date);
 };
 
 const applyDatePreset = (preset) => {

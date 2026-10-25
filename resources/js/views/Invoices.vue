@@ -604,6 +604,7 @@
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 import api from '../api';
+import { toDateInput } from '@/utils/date';
 
 const loading = ref(true);
 const saving = ref(false);
@@ -625,7 +626,7 @@ const formErrors = ref({});
 
 const getEmptyForm = () => ({
     site_job_id: '',
-    issue_date: new Date().toISOString().split('T')[0],
+    issue_date: toDateInput(),
     due_date: '',
     notes: '',
     items: [{ description: '', type: 'labor', quantity: 1, unit_price: 0 }],
@@ -634,7 +635,7 @@ const getEmptyForm = () => ({
 const getEmptyPaymentForm = () => ({
     invoice_id: '',
     amount: '',
-    payment_date: new Date().toISOString().split('T')[0],
+    payment_date: toDateInput(),
     payment_method: 'cash',
     reference_number: '',
     notes: '',

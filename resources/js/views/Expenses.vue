@@ -296,6 +296,7 @@
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 import api from '../api';
+import { toDateInput } from '@/utils/date';
 
 const loading = ref(true);
 const saving = ref(false);
@@ -323,7 +324,7 @@ const form = ref({
     cost_centre_id: null,
     department_id: null,
     site_job_id: null,
-    expense_date: new Date().toISOString().split('T')[0],
+    expense_date: toDateInput(),
     description: '',
     reference: '',
     vendor: '',
@@ -431,7 +432,7 @@ const openCreateModal = () => {
         cost_centre_id: null,
         department_id: null,
         site_job_id: null,
-        expense_date: new Date().toISOString().split('T')[0],
+        expense_date: toDateInput(),
         description: '',
         reference: '',
         vendor: '',

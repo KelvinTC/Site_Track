@@ -177,10 +177,11 @@
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '../../Layouts/AppLayout.vue';
 import api from '../../api';
+import { toDateInput } from '@/utils/date';
 
 const loading = ref(true);
-const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
-const endDate = ref(new Date().toISOString().split('T')[0]);
+const startDate = ref(toDateInput(new Date(new Date().getFullYear(), new Date().getMonth(), 1)));
+const endDate = ref(toDateInput());
 const reportData = ref([]);
 const departments = ref([]);
 const employees = ref([]);

@@ -224,6 +224,7 @@
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 import api from '../api';
+import { toDateInput } from '@/utils/date';
 
 const loading = ref(true);
 const saving = ref(false);
@@ -237,7 +238,7 @@ const editingPayment = ref(null);
 const getEmptyForm = () => ({
     invoice_id: '',
     amount: '',
-    payment_date: new Date().toISOString().split('T')[0],
+    payment_date: toDateInput(),
     payment_method: 'cash',
     reference_number: '',
     notes: '',

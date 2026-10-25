@@ -438,6 +438,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 import api from '../api';
+import { toDateInput } from '@/utils/date';
 
 const loading = ref(true);
 const saving = ref(false);
@@ -509,7 +510,7 @@ const datePresets = [
 ];
 
 const formatDateForInput = (date) => {
-    return date.toISOString().split('T')[0];
+    return toDateInput(date);
 };
 
 const visiblePages = computed(() => {

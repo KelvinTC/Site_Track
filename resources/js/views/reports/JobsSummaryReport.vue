@@ -47,8 +47,9 @@
                 <label>Status</label>
                 <select v-model="filterStatus" class="filter-select">
                     <option value="">All Statuses</option>
-                    <option value="pending">Pending</option>
+                    <option value="new">New</option>
                     <option value="in_progress">In Progress</option>
+                    <option value="on_hold">On Hold</option>
                     <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
                 </select>
@@ -126,7 +127,7 @@
                                 <tr>
                                     <th>Job #</th>
                                     <th>Client</th>
-                                    <th>Description</th>
+                                    <th>Job</th>
                                     <th class="text-center">Date</th>
                                     <th class="text-center">Status</th>
                                     <th class="text-center">Workers</th>
@@ -143,7 +144,10 @@
                                             <span>{{ job.client_name }}</span>
                                         </div>
                                     </td>
-                                    <td>{{ job.description || '-' }}</td>
+                                    <td>
+                                        <div class="job-title">{{ job.title }}</div>
+                                        <div v-if="job.description" class="job-description">{{ job.description }}</div>
+                                    </td>
                                     <td class="text-center">{{ formatDate(job.date) }}</td>
                                     <td class="text-center">
                                         <span :class="['status-badge', 'status-' + job.status]">{{ formatStatus(job.status) }}</span>
@@ -171,10 +175,11 @@
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '../../Layouts/AppLayout.vue';
 import api from '../../api';
+import { toDateInput } from '@/utils/date';
 
 const loading = ref(true);
-const startDate = ref(new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]);
-const endDate = ref(new Date().toISOString().split('T')[0]);
+const startDate = ref(toDateInput(new Date(new Date().getFullYear(), 0, 1)));
+const endDate = ref(toDateInput());
 const jobs = ref([]);
 const clients = ref([]);
 
@@ -185,7 +190,7 @@ const filterStatus = ref('');
 const formatNumber = (num) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num || 0);
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
 const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
-const formatStatus = (status) => status ? status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : '-';
+const formatStatus = (status) => status ? status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : '-';
 
 const hasActiveFilters = computed(() => searchQuery.value || filterClient.value || filterStatus.value);
 
@@ -197,6 +202,7 @@ const filteredJobs = computed(() => {
         result = result.filter(job =>
             job.job_number?.toLowerCase().includes(query) ||
             job.client_name?.toLowerCase().includes(query) ||
+            job.title?.toLowerCase().includes(query) ||
             job.description?.toLowerCase().includes(query)
         );
     }
@@ -216,7 +222,7 @@ const summary = computed(() => ({
     total_jobs: filteredJobs.value.length,
     completed: filteredJobs.value.filter(j => j.status === 'completed').length,
     in_progress: filteredJobs.value.filter(j => j.status === 'in_progress').length,
-    total_value: filteredJobs.value.reduce((sum, j) => sum + (j.value || 0), 0),
+    total_value: filteredJobs.value.reduce((sum, j) => sum + Number(j.value || 0), 0),
 }));
 
 const clearFilters = () => {
@@ -261,9 +267,12 @@ onMounted(() => loadReport());
 
 .client-cell { display: flex; align-items: center; gap: 0.75rem; }
 .client-avatar { width: 2rem; height: 2rem; border-radius: 0.5rem; background: linear-gradient(135deg, var(--primary-100), var(--primary-200)); display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 700; color: var(--primary-600); }
+.job-title { font-weight: 600; color: var(--text-primary); }
+.job-description { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.125rem; }
 .worker-count { display: inline-block; min-width: 1.5rem; padding: 0.125rem 0.5rem; background: var(--primary-100); color: var(--primary-600); font-weight: 600; font-size: 0.75rem; border-radius: 9999px; }
 
-.status-pending { background: var(--warning-100); color: var(--warning-700); }
+.status-new { background: var(--primary-100); color: var(--primary-text); }
+.status-on_hold { background: var(--warning-100); color: var(--warning-700); }
 .status-in_progress { background: var(--info-100); color: var(--info-700); }
 .status-completed { background: var(--success-100); color: var(--success-600); }
 .status-cancelled { background: var(--danger-100); color: var(--danger-600); }

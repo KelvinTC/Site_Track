@@ -115,6 +115,31 @@ class ReportsTest extends TestCase
             ->assertJsonPath('jobs.0.invoiced', true);
     }
 
+    public function test_jobs_summary_includes_undated_and_ongoing_jobs(): void
+    {
+        // Started before the range with no end date: still running
+        SiteJob::create(['customer_id' => $this->customer->id, 'title' => 'Ongoing', 'start_date' => '2026-01-15', 'status' => 'in_progress', 'estimated_cost' => 1500]);
+        // No dates at all: counted by creation date (today)
+        SiteJob::create(['customer_id' => $this->customer->id, 'title' => 'Undated', 'status' => 'new', 'estimated_cost' => 2000]);
+        // Finished before the range: excluded
+        SiteJob::create(['customer_id' => $this->customer->id, 'title' => 'Old', 'start_date' => '2025-01-01', 'end_date' => '2025-02-01']);
+
+        $today = now()->format('Y-m-d');
+        $response = $this->getJson("/api/reports/jobs-summary?start_date=2026-04-01&end_date={$today}")->assertOk();
+
+        $titles = collect($response->json('jobs'))->pluck('title');
+        $this->assertTrue($titles->contains('Ongoing'));
+        $this->assertTrue($titles->contains('Undated'));
+        $this->assertFalse($titles->contains('Old'));
+
+        // Costs are numbers, so the page can add them up
+        $response->assertJsonPath('summary.total_estimated', 3500)
+            ->assertJsonPath('summary.in_progress', 1)
+            ->assertJsonPath('summary.new', 1);
+        $this->assertIsFloat($response->json('jobs.0.value') + 0.0);
+        $this->assertIsNotString($response->json('jobs.0.value'));
+    }
+
     public function test_customer_statement_balances(): void
     {
         $this->getJson("/api/customers/{$this->customer->id}/statement?from_date=2026-01-01&to_date=2026-12-31")

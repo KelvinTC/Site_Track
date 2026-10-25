@@ -162,14 +162,20 @@ class ReportController extends Controller
     {
         $jobs = SiteJob::with(['customer', 'casuals', 'invoices'])
             ->where(function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('start_date', [$startDate, $endDate])
-                    ->orWhereBetween('end_date', [$startDate, $endDate])
-                    ->orWhere(function ($q) use ($startDate, $endDate) {
-                        $q->where('start_date', '<=', $startDate)
-                          ->where('end_date', '>=', $endDate);
-                    });
+                // Dated jobs that overlap the range; a missing start or end date is open-ended
+                $query->where(function ($q) use ($startDate, $endDate) {
+                    $q->where(fn ($q) => $q->whereNotNull('start_date')->orWhereNotNull('end_date'))
+                        ->where(fn ($q) => $q->whereNull('start_date')->orWhere('start_date', '<=', $endDate))
+                        ->where(fn ($q) => $q->whereNull('end_date')->orWhere('end_date', '>=', $startDate));
+                })
+                // Jobs with no dates at all count from when they were created
+                ->orWhere(function ($q) use ($startDate, $endDate) {
+                    $q->whereNull('start_date')
+                        ->whereNull('end_date')
+                        ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59']);
+                });
             })
-            ->orderBy('start_date', 'desc')
+            ->orderByRaw('start_date DESC NULLS LAST')
             ->get();
 
         // Format jobs for frontend
@@ -186,8 +192,8 @@ class ReportController extends Controller
                 'end_date' => $job->end_date?->format('Y-m-d'),
                 'status' => $job->status,
                 'worker_count' => $job->casuals->count(),
-                'value' => $job->estimated_cost ?? 0,
-                'actual_cost' => $job->actual_cost ?? 0,
+                'value' => (float) ($job->estimated_cost ?? 0),
+                'actual_cost' => (float) ($job->actual_cost ?? 0),
                 'invoiced' => $job->invoices->count() > 0,
             ];
         });
@@ -204,11 +210,13 @@ class ReportController extends Controller
             'clients' => $clients,
             'summary' => [
                 'total_jobs' => $jobs->count(),
-                'total_estimated' => $jobs->sum('estimated_cost'),
-                'total_actual' => $jobs->sum('actual_cost'),
-                'completed' => $jobs->where('status', 'completed')->count(),
+                'total_estimated' => (float) $jobs->sum('estimated_cost'),
+                'total_actual' => (float) $jobs->sum('actual_cost'),
+                'new' => $jobs->where('status', 'new')->count(),
                 'in_progress' => $jobs->where('status', 'in_progress')->count(),
-                'pending' => $jobs->where('status', 'pending')->count(),
+                'on_hold' => $jobs->where('status', 'on_hold')->count(),
+                'completed' => $jobs->where('status', 'completed')->count(),
+                'cancelled' => $jobs->where('status', 'cancelled')->count(),
             ],
             'period' => [
                 'start_date' => $startDate,
