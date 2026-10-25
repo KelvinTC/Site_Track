@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Enable Sanctum's stateful API for SPA authentication
         $middleware->statefulApi();
 
+        // There is no named "login" route; the SPA handles /login
+        $middleware->redirectGuestsTo('/login');
+
         // Register middleware aliases
         $middleware->alias([
             'company' => \App\Http\Middleware\EnsureCompanyContext::class,
@@ -25,5 +28,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Always return JSON for API routes (e.g. 401 instead of redirecting to a missing login route)
+        $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/*'));
     })->create();

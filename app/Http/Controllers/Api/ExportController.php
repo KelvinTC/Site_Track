@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
+use App\Models\Customer;
 use App\Models\Invoice;
+use App\Services\CustomerStatement;
+use App\Exports\ArrayExport;
 use App\Exports\InvoicesExport;
 use App\Exports\CustomersExport;
 use App\Exports\JobsExport;
@@ -28,18 +32,10 @@ class ExportController extends Controller
         $invoice->load(['customer', 'siteJob', 'items', 'payments']);
         $company = $request->user()->currentCompany;
 
-        // Get logo as base64 for PDF embedding
-        $logoBase64 = null;
-        if ($company->logo_path && Storage::disk('public')->exists($company->logo_path)) {
-            $logoContent = Storage::disk('public')->get($company->logo_path);
-            $mimeType = Storage::disk('public')->mimeType($company->logo_path);
-            $logoBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($logoContent);
-        }
-
         $pdf = Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
             'company' => $company,
-            'logoBase64' => $logoBase64,
+            'logoBase64' => $this->companyLogoBase64($company),
         ]);
 
         $pdf->setPaper('a4', 'portrait');
@@ -55,18 +51,10 @@ class ExportController extends Controller
         $invoice->load(['customer', 'siteJob', 'items', 'payments']);
         $company = $request->user()->currentCompany;
 
-        // Get logo as base64 for PDF embedding
-        $logoBase64 = null;
-        if ($company->logo_path && Storage::disk('public')->exists($company->logo_path)) {
-            $logoContent = Storage::disk('public')->get($company->logo_path);
-            $mimeType = Storage::disk('public')->mimeType($company->logo_path);
-            $logoBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($logoContent);
-        }
-
         $pdf = Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
             'company' => $company,
-            'logoBase64' => $logoBase64,
+            'logoBase64' => $this->companyLogoBase64($company),
         ]);
 
         $pdf->setPaper('a4', 'portrait');
@@ -137,6 +125,41 @@ class ExportController extends Controller
     }
 
     /**
+     * Export customer statement to Excel
+     */
+    public function statementExcel(Request $request, Customer $customer)
+    {
+        return $this->statementSpreadsheet($request, $customer, 'xlsx');
+    }
+
+    /**
+     * Export customer statement to CSV
+     */
+    public function statementCsv(Request $request, Customer $customer)
+    {
+        return $this->statementSpreadsheet($request, $customer, 'csv');
+    }
+
+    /**
+     * Download customer statement as PDF
+     */
+    public function statementPdf(Request $request, Customer $customer)
+    {
+        $statement = CustomerStatement::build($customer, $request->query('from_date'), $request->query('to_date'));
+        $company = $request->user()->currentCompany;
+
+        $pdf = Pdf::loadView('pdf.statement', [
+            'statement' => $statement,
+            'company' => $company,
+            'logoBase64' => $this->companyLogoBase64($company),
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download($this->statementFilename($statement) . '.pdf');
+    }
+
+    /**
      * Import casuals from Excel
      */
     public function importCasuals(Request $request): JsonResponse
@@ -166,5 +189,53 @@ class ExportController extends Controller
             'failed' => count($failures),
             'errors' => $errors,
         ]);
+    }
+
+    protected function statementSpreadsheet(Request $request, Customer $customer, string $extension)
+    {
+        $statement = CustomerStatement::build($customer, $request->query('from_date'), $request->query('to_date'));
+
+        $rows = [[$statement['period']['from_date'], '', 'Opening Balance', '', '', '', $statement['opening_balance']]];
+        foreach ($statement['transactions'] as $transaction) {
+            $rows[] = [
+                $transaction['date'],
+                $transaction['ref'],
+                $transaction['description'],
+                $transaction['invoice_number'] ?? '',
+                $transaction['debit'],
+                $transaction['credit'],
+                $transaction['balance'],
+            ];
+        }
+        $rows[] = [$statement['period']['to_date'], '', 'Closing Balance', '', $statement['total_invoiced'], $statement['total_paid'], $statement['closing_balance']];
+
+        $type = $extension === 'csv' ? \Maatwebsite\Excel\Excel::CSV : \Maatwebsite\Excel\Excel::XLSX;
+
+        return Excel::download(
+            new ArrayExport(['Date', 'Reference', 'Description', 'Invoice #', 'Debit', 'Credit', 'Balance'], $rows, 'Statement'),
+            $this->statementFilename($statement) . '.' . $extension,
+            $type
+        );
+    }
+
+    protected function statementFilename(array $statement): string
+    {
+        return 'statement-' . \Illuminate\Support\Str::slug($statement['customer']['name'])
+            . '-' . $statement['period']['from_date'] . '-to-' . $statement['period']['to_date'];
+    }
+
+    /**
+     * Company logo as a base64 data URI for PDF embedding
+     */
+    protected function companyLogoBase64(?Company $company): ?string
+    {
+        if (!$company?->logo_path || !Storage::disk('public')->exists($company->logo_path)) {
+            return null;
+        }
+
+        $logoContent = Storage::disk('public')->get($company->logo_path);
+        $mimeType = Storage::disk('public')->mimeType($company->logo_path);
+
+        return 'data:' . $mimeType . ';base64,' . base64_encode($logoContent);
     }
 }

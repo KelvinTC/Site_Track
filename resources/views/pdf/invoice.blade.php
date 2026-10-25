@@ -10,7 +10,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Nunito', 'DejaVu Sans', sans-serif;
+            font-family: 'DejaVu Sans', sans-serif;
             font-size: 12px;
             line-height: 1.5;
             color: #374151;
@@ -44,7 +44,7 @@
         }
         .company-name {
             font-size: 24px;
-            font-weight: 700;
+            font-weight: bold;
             color: #1e1b4b;
             margin-bottom: 8px;
         }
@@ -55,7 +55,7 @@
         }
         .invoice-title {
             font-size: 32px;
-            font-weight: 800;
+            font-weight: bold;
             color: #4f46e5;
             margin-bottom: 8px;
         }
@@ -73,7 +73,7 @@
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: bold;
             text-transform: uppercase;
             margin-top: 8px;
         }
@@ -105,7 +105,7 @@
         }
         .section-title {
             font-size: 10px;
-            font-weight: 700;
+            font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #9ca3af;
@@ -113,7 +113,7 @@
         }
         .customer-name {
             font-size: 16px;
-            font-weight: 600;
+            font-weight: bold;
             color: #111827;
             margin-bottom: 4px;
         }
@@ -133,7 +133,7 @@
             padding: 12px;
             text-align: left;
             font-size: 10px;
-            font-weight: 700;
+            font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #6b7280;
@@ -148,7 +148,7 @@
             vertical-align: top;
         }
         .item-description {
-            font-weight: 500;
+            font-weight: normal;
             color: #111827;
         }
         .item-details {
@@ -178,7 +178,7 @@
         .totals-value {
             display: table-cell;
             text-align: right;
-            font-weight: 500;
+            font-weight: normal;
             color: #111827;
         }
         .totals-row.total {
@@ -189,12 +189,12 @@
         }
         .totals-row.total .totals-label {
             font-size: 14px;
-            font-weight: 700;
+            font-weight: bold;
             color: #111827;
         }
         .totals-row.total .totals-value {
             font-size: 18px;
-            font-weight: 800;
+            font-weight: bold;
             color: #4f46e5;
         }
         .notes-section {
@@ -205,7 +205,7 @@
         }
         .notes-title {
             font-size: 11px;
-            font-weight: 700;
+            font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #6b7280;
@@ -228,7 +228,7 @@
         }
         .payment-info-title {
             font-size: 11px;
-            font-weight: 700;
+            font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #6b7280;
@@ -253,7 +253,7 @@
             padding: 4px 0;
             color: #111827;
             font-size: 11px;
-            font-weight: 500;
+            font-weight: normal;
         }
     </style>
 </head>
@@ -368,8 +368,8 @@
                 <span class="totals-value" style="color: #047857;">-${{ number_format($invoice->amount_paid, 2) }}</span>
             </div>
             <div class="totals-row">
-                <span class="totals-label" style="font-weight: 600;">Balance Due</span>
-                <span class="totals-value" style="font-weight: 700; color: #b45309;">${{ number_format($invoice->balance, 2) }}</span>
+                <span class="totals-label" style="font-weight: bold;">Balance Due</span>
+                <span class="totals-value" style="font-weight: bold; color: #b45309;">${{ number_format($invoice->balance, 2) }}</span>
             </div>
             @endif
         </div>
