@@ -1,222 +1,103 @@
-# SiteTrack - Job Management System
+# SiteTrack
 
-**Built for Mount Sinai Construction**
+Job management, invoicing and bookkeeping for construction companies.
 
-A complete job tracking, invoicing, and payment management system for construction companies.
-
----
-
-## 🚀 What's Built
-
-### ✅ Backend (Laravel 12 + PostgreSQL)
-
-**Database Tables:**
-- `customers` - Customer information with soft deletes
-- `site_jobs` - Jobs with auto-generated job numbers (JOB-2026-0001)
-- `invoices` - Invoices with auto-generated numbers (INV-2026-0001)
-- `invoice_items` - Line items for labor/materials
-- `payments` - Payment tracking with auto invoice status updates
-
-**API Endpoints** (`/api/`)
-```
-Customers:  GET, POST, PUT, DELETE /api/customers
-Jobs:       GET, POST, PUT, DELETE /api/site-jobs
-            PATCH /api/site-jobs/{id}/status
-Invoices:   GET, POST, PUT, DELETE /api/invoices
-Payments:   GET, POST, PUT, DELETE /api/payments
-```
-
-**Features:**
-- Auto job number generation
-- Auto invoice number generation
-- Payment auto-updates invoice status (unpaid/partial/paid)
-- Balance calculation on invoices
-- Soft deletes on all models
+**Stack:** Laravel 12 · PostgreSQL · Vue 3 SPA · Tailwind CSS · Vite · Sanctum token auth
 
 ---
 
-### ✅ Frontend (Vue.js 3 SPA)
+## Features
 
-**Pages:**
-1. **Dashboard** - Stats cards + recent jobs table
-2. **Customers** - Full CRUD with search
-3. **Jobs** - Full CRUD with status filter & inline status updates
-4. **Invoices** - (Pending)
-5. **Payments** - (Pending)
+**Operations**
+- **Clients:** customer records with a statement (opening balance, transactions with running balance) for any date range
+- **Jobs:** auto-numbered (`JOB-2026-0001`), with a status workflow
+- **Employees (casuals):** worker directory, Excel import, assignment to jobs by work date
 
-**Technology:**
-- Vue 3 Composition API
-- Vue Router for navigation
-- Axios for API calls
-- Tailwind CSS for styling
+**Finance**
+- **Invoices:** labour/material line items, VAT, auto-numbered (`INV-2026-0001`), PDF download, email sending
+- **Payments:** recording a payment updates the invoice status (unpaid → partial → paid)
+- **Expenses:** categories, departments, cost centres, and an approval status
+- **Reports:** aging, revenue, profit & loss, jobs summary, employee jobs
+- **Exports:** Excel/CSV for lists and reports; PDF for invoices and statements
 
----
+**Platform**
+- **Multi-company:** a user can belong to several companies and switch between them; all data is scoped to the current company
+- **Roles** (per company):
 
-## 🔧 Setup Instructions
-
-### Prerequisites
-- PHP 8.3+
-- PostgreSQL
-- Node.js 20+ (required for Vite)
-- Composer
-
-### Installation
-
-1. **Install PHP dependencies:**
-```bash
-composer install
-```
-
-2. **Configure database:**
-Edit `.env`:
-```
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=mydb
-DB_USERNAME=myuser
-DB_PASSWORD=password
-```
-
-3. **Run migrations:**
-```bash
-php artisan migrate
-```
-
-4. **Install Node dependencies:**
-```bash
-npm install
-```
-
-5. **Start servers:**
-```bash
-# Terminal 1 - Laravel
-php artisan serve
-
-# Terminal 2 - Vite (requires Node 20+)
-npm run dev
-```
-
-6. **Visit:** `http://127.0.0.1:8000`
+  | Role | Access |
+  |---|---|
+  | owner | Everything, including company settings |
+  | admin | Users, clients, jobs, employees, and all finance |
+  | finance | Invoices, payments, expenses, reports, exports; read-only clients and jobs |
+  | member | Own profile only |
 
 ---
 
-## ⚠️ Current Issue
+## Local setup
 
-**Node.js version too old for Vite**
+**Requirements:** PHP 8.2+ (with `pdo_pgsql`, `mbstring`, `xml`, `gd`, `zip`, `intl`), Composer, Node 20+, PostgreSQL.
 
-Current: v18.19.1
-Required: v20.19+ or v22.12+
-
-**Fix:**
-```bash
-# Using NVM
-nvm install 20
-nvm use 20
-npm run dev
-
-# Or install Node 20 directly
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
-```
-
----
-
-## 🎯 Workflow
-
-1. **Create Customer** → Customers page
-2. **Create Job** → Select customer, auto-generates job number
-3. **Create Invoice** → Link to job, add line items
-4. **Record Payment** → Invoice status auto-updates
-5. **View Statement** → All customer transactions
-
----
-
-## 📊 Features Completed
-
-✅ Customer management (CRUD)
-✅ Job tracking with status workflow
-✅ Auto job numbering
-✅ Auto invoice numbering
-✅ Payment tracking
-✅ Invoice status auto-update
-✅ Dashboard with stats
-✅ Search & filters
+1. Create a database and user:
+   ```bash
+   sudo -u postgres psql -c "CREATE USER sitetrack WITH PASSWORD 'secret';" -c "CREATE DATABASE sitetrack OWNER sitetrack;"
+   ```
+2. Configure the app:
+   ```bash
+   cp .env.example .env
+   ```
+   Set `APP_ENV=local`, `APP_DEBUG=true`, `APP_URL=http://localhost:8000`, and the `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` values.
+3. Install and migrate:
+   ```bash
+   composer install
+   php artisan key:generate
+   php artisan migrate
+   npm install
+   ```
+4. (Optional) Seed one user per role, all with password `password`:
+   ```bash
+   php artisan db:seed
+   ```
+   Creates `owner@`, `admin@`, `finance@` and `member@sitetrack.test`.
+5. Start everything (Laravel server, queue, logs, Vite):
+   ```bash
+   composer dev
+   ```
+   Open http://127.0.0.1:8000.
 
 ---
 
-## 🚧 Features Pending
+## Tests
 
-- Invoice CRUD with line items
-- Payment CRUD page
-- Customer statements (date range, balance)
-- PDF invoice generation
-- Email notifications
-- User authentication
-- Role-based permissions
-
----
-
-## 🗄️ Database Schema
-
-### Customers
-`id, name, email, phone, address, city, state, zip, notes, is_active`
-
-### Site Jobs
-`id, job_number, customer_id, title, description, status, start_date, end_date, estimated_cost, actual_cost, site_address, notes`
-
-### Invoices
-`id, invoice_number, site_job_id, customer_id, issue_date, due_date, subtotal, tax, total, status, notes`
-
-### Invoice Items
-`id, invoice_id, description, type (labor/material/other), quantity, unit_price, total`
-
-### Payments
-`id, invoice_id, amount, payment_date, payment_method, reference_number, notes`
-
----
-
-## 🔌 API Testing
+Tests run against PostgreSQL in a separate `testing` schema of the same database, so they never touch the app's data. Create the schema once:
 
 ```bash
-# Get all customers
-curl http://127.0.0.1:8000/api/customers
-
-# Create customer
-curl -X POST http://127.0.0.1:8000/api/customers \
-  -H "Content-Type: application/json" \
-  -d '{"name": "John Doe", "email": "john@example.com", "phone": "555-1234"}'
-
-# Create job
-curl -X POST http://127.0.0.1:8000/api/site-jobs \
-  -H "Content-Type: application/json" \
-  -d '{"customer_id": 1, "title": "Kitchen Renovation", "status": "new"}'
+psql -h 127.0.0.1 -U sitetrack -d sitetrack -c "CREATE SCHEMA IF NOT EXISTS testing;"
 ```
 
----
+Then:
 
-## 📝 Development Notes
+```bash
+php artisan test
+```
 
-- Laravel server: `http://127.0.0.1:8000`
-- Vite dev server: `http://127.0.0.1:5173` (proxied by Laravel)
-- Database: PostgreSQL (`mydb` database)
-- All API responses are JSON
-- Frontend makes API calls to `/api/*` endpoints
+The base `TestCase` refuses to reset any schema other than `testing`.
 
----
-
-## 👨‍💻 Built With
-
-- **Laravel 12** - Backend framework
-- **Vue.js 3** - Frontend framework
-- **PostgreSQL** - Database
-- **Tailwind CSS** - Styling
-- **Vite** - Build tool
-- **Axios** - HTTP client
+Coverage: company data isolation, role permissions, every report's figures, and every export.
 
 ---
 
-**Next Steps:**
-1. Upgrade Node.js to v20+
-2. Run `npm run dev`
-3. Visit `http://127.0.0.1:8000` to see the app with full CSS styling! 🚀
+## Deployment
+
+Deployed on Railway with Nixpacks (`railway.json`, `nixpacks.toml`). The start command runs `php artisan migrate --force` before serving. Railway's `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` and `PGPASSWORD` variables are picked up automatically.
+
+---
+
+## Notes for developers
+
+- **API:** every endpoint is under `/api`, returns JSON, and authenticates with a Bearer token (stored in `localStorage` by the SPA).
+- **Downloads:** files must be fetched through `api.download(url)` in `resources/js/api.js`, so the token is sent. A plain `<a href>` to an `/api` URL gets a 401.
+- **Company scoping:** tenant models use the `BelongsToCompany` trait, which applies `CompanyScope` and fills `company_id` on create. Raw `DB::table()` queries bypass this. To validate a reference to another record, use `company_exists:table,id`, not `exists:`.
+- **Styling** (`resources/css/app.css`):
+  - Colours come from the tokens at the top of `app.css` (`var(--primary-600)`, `var(--danger-100)`, …). Don't put hex values in pages.
+  - Shared building blocks (page header, cards, tables, forms, modals, loaders, empty states, buttons) are defined once in `app.css`. Pages use those classes, and only add `<style scoped>` rules for layout unique to that page.
+- **PDF templates** (`resources/views/pdf`): use `DejaVu Sans` with `font-weight` of `normal` or `bold` only. dompdf renders any other weight in a serif fallback font.
