@@ -42,7 +42,7 @@ class InvoiceController extends Controller
             }
 
             $validated = validator($input, [
-                'site_job_id' => 'required|exists:site_jobs,id',
+                'site_job_id' => 'required|company_exists:site_jobs,id',
                 'issue_date' => 'required|date',
                 'due_date' => 'nullable|date|after_or_equal:issue_date',
                 'notes' => 'nullable|string',

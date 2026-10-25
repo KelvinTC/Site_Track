@@ -29,7 +29,7 @@ class SiteJobController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
+            'customer_id' => 'required|company_exists:customers,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'nullable|in:new,in_progress,on_hold,completed,cancelled',
@@ -57,7 +57,7 @@ class SiteJobController extends Controller
     public function update(Request $request, SiteJob $siteJob): JsonResponse
     {
         $validated = $request->validate([
-            'customer_id' => 'sometimes|required|exists:customers,id',
+            'customer_id' => 'sometimes|required|company_exists:customers,id',
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'nullable|in:new,in_progress,on_hold,completed,cancelled',

@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,6 +17,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->defineGates();
+        $this->defineValidationRules();
+    }
+
+    protected function defineValidationRules(): void
+    {
+        // Like "exists", but only matches rows in the current user's company: company_exists:table[,column]
+        Validator::extend('company_exists', function ($attribute, $value, $parameters) {
+            return DB::table($parameters[0])
+                ->where($parameters[1] ?? 'id', $value)
+                ->where('company_id', auth()->user()?->current_company_id)
+                ->exists();
+        }, 'The selected :attribute is invalid.');
     }
 
     protected function defineGates(): void

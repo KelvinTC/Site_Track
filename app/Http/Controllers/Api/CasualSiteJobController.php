@@ -23,7 +23,7 @@ class CasualSiteJobController extends Controller
     {
         $validated = $request->validate([
             'casual_ids' => 'required|array',
-            'casual_ids.*' => 'exists:casuals,id',
+            'casual_ids.*' => 'company_exists:casuals,id',
             'work_date' => 'nullable|date',
             'notes' => 'nullable|string',
         ]);

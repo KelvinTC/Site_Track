@@ -24,7 +24,7 @@ class BankAccountController extends Controller
             'account_type' => 'in:checking,savings,credit_card,money_market',
             'account_number' => 'nullable|string|max:50',
             'opening_balance' => 'nullable|numeric',
-            'gl_account_id' => 'nullable|exists:accounts,id',
+            'gl_account_id' => 'nullable|company_exists:accounts,id',
             'color' => 'nullable|string|max:20',
             'is_active' => 'boolean',
         ]);
@@ -47,7 +47,7 @@ class BankAccountController extends Controller
             'account_type' => 'in:checking,savings,credit_card,money_market',
             'account_number' => 'nullable|string|max:50',
             'opening_balance' => 'nullable|numeric',
-            'gl_account_id' => 'nullable|exists:accounts,id',
+            'gl_account_id' => 'nullable|company_exists:accounts,id',
             'color' => 'nullable|string|max:20',
             'is_active' => 'boolean',
         ]);

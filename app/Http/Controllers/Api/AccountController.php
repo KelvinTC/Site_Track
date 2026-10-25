@@ -26,7 +26,7 @@ class AccountController extends Controller
             'name' => 'required|string|max:255',
             'type' => 'required|in:asset,liability,equity,revenue,expense',
             'sub_type' => 'nullable|string|max:100',
-            'parent_id' => 'nullable|exists:accounts,id',
+            'parent_id' => 'nullable|company_exists:accounts,id',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -57,7 +57,7 @@ class AccountController extends Controller
             'name' => 'required|string|max:255',
             'type' => 'required|in:asset,liability,equity,revenue,expense',
             'sub_type' => 'nullable|string|max:100',
-            'parent_id' => 'nullable|exists:accounts,id',
+            'parent_id' => 'nullable|company_exists:accounts,id',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);

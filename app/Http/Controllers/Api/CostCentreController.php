@@ -20,7 +20,7 @@ class CostCentreController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:50|unique:cost_centres',
             'name' => 'required|string|max:255',
-            'department_id' => 'nullable|exists:departments,id',
+            'department_id' => 'nullable|company_exists:departments,id',
             'budget' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
@@ -41,7 +41,7 @@ class CostCentreController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:50|unique:cost_centres,code,' . $costCentre->id,
             'name' => 'required|string|max:255',
-            'department_id' => 'nullable|exists:departments,id',
+            'department_id' => 'nullable|company_exists:departments,id',
             'budget' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'is_active' => 'boolean',

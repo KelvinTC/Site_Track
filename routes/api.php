@@ -69,16 +69,27 @@ Route::middleware(['auth:sanctum', 'company'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Customers & Jobs - View (Finance: owner, admin, finance)
+    | Finance needs these for invoices, expenses and statements
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:owner,admin,finance')->group(function () {
+        Route::apiResource('customers', CustomerController::class)->only(['index', 'show']);
+        Route::get('customers/{customer}/statement', [CustomerController::class, 'statement']);
+        Route::apiResource('site-jobs', SiteJobController::class)->only(['index', 'show']);
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Customers, Jobs, Workers (Admin Only: owner, admin)
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:owner,admin')->group(function () {
         // Customers
-        Route::apiResource('customers', CustomerController::class);
-        Route::get('customers/{customer}/statement', [CustomerController::class, 'statement']);
+        Route::apiResource('customers', CustomerController::class)->except(['index', 'show']);
 
         // Site Jobs
-        Route::apiResource('site-jobs', SiteJobController::class);
+        Route::apiResource('site-jobs', SiteJobController::class)->except(['index', 'show']);
         Route::patch('site-jobs/{siteJob}/status', [SiteJobController::class, 'updateStatus']);
 
         // Workers (Casuals)
@@ -126,6 +137,10 @@ Route::middleware(['auth:sanctum', 'company'])->group(function () {
             Route::get('jobs-summary', [ReportController::class, 'jobsSummary']);
             Route::get('revenue', [ReportController::class, 'revenue']);
             Route::get('profit-loss', [ReportController::class, 'profitLoss']);
+            Route::get('employee-jobs/export', [ReportController::class, 'employeeJobsExport']);
+            Route::get('jobs-summary/export', [ReportController::class, 'jobsSummaryExport']);
+            Route::get('revenue/export', [ReportController::class, 'revenueExport']);
+            Route::get('profit-loss/export', [ReportController::class, 'profitLossExport']);
         });
 
         // Exports
@@ -139,6 +154,9 @@ Route::middleware(['auth:sanctum', 'company'])->group(function () {
             Route::get('casuals/excel', [ExportController::class, 'casualsExcel']);
             Route::get('casuals-report/excel', [ExportController::class, 'casualsReportExcel']);
             Route::get('casuals/import-template', [ExportController::class, 'casualsImportTemplate']);
+            Route::get('customers/{customer}/statement/excel', [ExportController::class, 'statementExcel']);
+            Route::get('customers/{customer}/statement/csv', [ExportController::class, 'statementCsv']);
+            Route::get('customers/{customer}/statement/pdf', [ExportController::class, 'statementPdf']);
         });
 
         // Imports

@@ -56,10 +56,10 @@ class ExpenseController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'expense_category_id' => 'required|exists:expense_categories,id',
-            'cost_centre_id' => 'nullable|exists:cost_centres,id',
-            'department_id' => 'nullable|exists:departments,id',
-            'site_job_id' => 'nullable|exists:site_jobs,id',
+            'expense_category_id' => 'required|company_exists:expense_categories,id',
+            'cost_centre_id' => 'nullable|company_exists:cost_centres,id',
+            'department_id' => 'nullable|company_exists:departments,id',
+            'site_job_id' => 'nullable|company_exists:site_jobs,id',
             'expense_date' => 'required|date',
             'description' => 'required|string|max:255',
             'reference' => 'nullable|string|max:100',
@@ -86,10 +86,10 @@ class ExpenseController extends Controller
     public function update(Request $request, Expense $expense): JsonResponse
     {
         $validated = $request->validate([
-            'expense_category_id' => 'sometimes|required|exists:expense_categories,id',
-            'cost_centre_id' => 'nullable|exists:cost_centres,id',
-            'department_id' => 'nullable|exists:departments,id',
-            'site_job_id' => 'nullable|exists:site_jobs,id',
+            'expense_category_id' => 'sometimes|required|company_exists:expense_categories,id',
+            'cost_centre_id' => 'nullable|company_exists:cost_centres,id',
+            'department_id' => 'nullable|company_exists:departments,id',
+            'site_job_id' => 'nullable|company_exists:site_jobs,id',
             'expense_date' => 'sometimes|required|date',
             'description' => 'sometimes|required|string|max:255',
             'reference' => 'nullable|string|max:100',
