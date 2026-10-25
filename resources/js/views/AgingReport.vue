@@ -504,7 +504,7 @@ onMounted(() => {
 }
 
 .aging-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: 1rem;
     padding: 1.25rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -585,7 +585,7 @@ onMounted(() => {
     font-weight: 500;
     border: 1px solid var(--gray-300);
     border-radius: 0.5rem;
-    background: white;
+    background: var(--bg-card);
     color: var(--gray-500);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -688,7 +688,7 @@ onMounted(() => {
 .filter-input:focus {
     outline: none;
     border-color: var(--primary-600);
-    background: white;
+    background: var(--bg-card);
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 

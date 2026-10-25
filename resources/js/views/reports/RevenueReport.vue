@@ -217,12 +217,12 @@ onMounted(() => loadReport());
 
 <style scoped>
 
-.filter-select, .date-input { padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid var(--gray-300); border-radius: 0.5rem; background: white; }
+.filter-select, .date-input { padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid var(--gray-300); border-radius: 0.5rem; background: var(--bg-card); }
 
 .revenue-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
 @media (min-width: 1024px) { .revenue-cards { grid-template-columns: repeat(4, 1fr); }
 }
-.revenue-card { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.revenue-card { background: var(--bg-card); border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
 .revenue-card.total { background: linear-gradient(135deg, var(--primary-600), var(--accent-600)); color: white; }
 .revenue-header { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; margin-bottom: 0.75rem; opacity: 0.9; }
 .revenue-amount { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.25rem; }

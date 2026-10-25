@@ -278,7 +278,7 @@ onMounted(() => loadData());
 @media (min-width: 1024px) { .cost-centre-cards { grid-template-columns: repeat(3, 1fr); }
 }
 
-.cost-centre-card { background: white; border-radius: 0.75rem; padding: 1.25rem; border: 1px solid var(--gray-200); transition: box-shadow 0.2s; }
+.cost-centre-card { background: var(--bg-card); border-radius: 0.75rem; padding: 1.25rem; border: 1px solid var(--gray-200); transition: box-shadow 0.2s; }
 .cost-centre-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
 .cc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }

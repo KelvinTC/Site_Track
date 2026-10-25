@@ -599,7 +599,7 @@ onMounted(() => {
 }
 
 .status-select option {
-    background: white;
+    background: var(--bg-card);
     color: var(--gray-700);
     font-weight: 500;
     padding: 0.5rem;

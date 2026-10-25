@@ -885,7 +885,7 @@ onMounted(() => {
     width: 100%;
     padding: 0.625rem 1rem;
     font-size: 0.9375rem;
-    background: white;
+    background: var(--bg-card);
     border: 1.5px solid var(--gray-200);
     border-radius: 0.75rem;
     cursor: pointer;
@@ -921,7 +921,7 @@ onMounted(() => {
 
 /* Stat Card */
 .stat-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: 1.25rem;
     padding: 1.75rem 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
@@ -1063,7 +1063,7 @@ onMounted(() => {
     width: 100%;
     padding: 0.375rem 0.5rem;
     font-size: 0.6875rem;
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--gray-300);
     border-radius: 0.25rem;
 }
@@ -1252,7 +1252,7 @@ onMounted(() => {
 }
 
 .amount-item.highlight {
-    background: white;
+    background: var(--bg-card);
     margin: 0.5rem -1rem -1rem;
     padding: 0.75rem 1rem;
     border-radius: 0 0 0.75rem 0.75rem;
@@ -1334,7 +1334,7 @@ onMounted(() => {
 }
 
 /* Invoice Preview */
-.invoice-preview { background: white; }
+.invoice-preview { background: var(--bg-card); }
 
 .invoice-header-row {
     display: flex;
@@ -1569,7 +1569,7 @@ onMounted(() => {
 
 .method-badge {
     background: var(--primary-100);
-    color: var(--primary-700);
+    color: var(--primary-text);
     padding: 0.125rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.6875rem;
@@ -1601,7 +1601,7 @@ onMounted(() => {
 
     .modal-backdrop {
         position: absolute;
-        background: white !important;
+        background: var(--bg-card) !important;
         backdrop-filter: none;
     }
 

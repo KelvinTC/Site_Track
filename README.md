@@ -23,6 +23,7 @@ Job management, invoicing and bookkeeping for construction companies.
 **Platform**
 - **Multi-company:** a user can belong to several companies and switch between them; all data is scoped to the current company
 - **Audit log** (owner/admin): records who created, changed, deleted or restored customers, jobs, employees, invoices, payments, expenses, company settings and team members, with before/after values. A deleted record can be restored from its log entry.
+- **Dark mode:** toggle in the sidebar, remembered per browser
 - **Roles** (per company):
 
   | Role | Access |

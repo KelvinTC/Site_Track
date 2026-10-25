@@ -304,7 +304,7 @@ onMounted(() => loadData());
 .summary-card:not(.total) .summary-icon { background: var(--gray-100); color: var(--gray-500); }
 
 .accounts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
-.bank-card { background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden; }
+.bank-card { background: var(--bg-card); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden; }
 .bank-header { display: flex; align-items: center; gap: 1rem; padding: 1.25rem; border-bottom: 1px solid var(--gray-100); }
 .bank-icon { width: 3rem; height: 3rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; }
 .bank-info { flex: 1; }

@@ -337,7 +337,7 @@ onMounted(() => {
 
 <style scoped>
 
-.filter-input, .filter-select { padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid var(--gray-300); border-radius: 0.5rem; background: white; }
+.filter-input, .filter-select { padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid var(--gray-300); border-radius: 0.5rem; background: var(--bg-card); }
 
 .record-count { font-size: 0.75rem; opacity: 0.9; }
 

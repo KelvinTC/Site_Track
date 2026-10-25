@@ -112,6 +112,10 @@
                     <i class="bi bi-gear-fill"></i>
                     <span>Settings</span>
                 </router-link>
+                <button @click="toggleDarkMode" class="nav-item">
+                    <i :class="isDark ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill'"></i>
+                    <span>{{ isDark ? 'Light mode' : 'Dark mode' }}</span>
+                </button>
                 <button @click="logout" class="nav-item logout-btn">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Logout</span>
@@ -128,6 +132,9 @@
                 <span>SiteTrack</span>
             </router-link>
             <div class="mobile-actions">
+                <button @click="toggleDarkMode" class="mobile-action-btn" :title="isDark ? 'Light mode' : 'Dark mode'">
+                    <i :class="isDark ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill'"></i>
+                </button>
                 <router-link v-if="isOwner" to="/settings" class="mobile-action-btn">
                     <i class="bi bi-gear-fill"></i>
                 </router-link>
@@ -174,8 +181,10 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/api';
+import { useDarkMode } from '@/composables/useDarkMode';
 
 const router = useRouter();
+const { isDark, toggleDarkMode } = useDarkMode();
 const user = ref(null);
 
 // Load user from localStorage
@@ -366,7 +375,7 @@ const logout = async () => {
     align-items: center;
     justify-content: space-between;
     padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.98);
+    background: var(--glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border-light);
@@ -469,7 +478,7 @@ const logout = async () => {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.98);
+    background: var(--glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid var(--border-light);
@@ -539,7 +548,7 @@ const logout = async () => {
     }
 
     .app-wrapper {
-        background: white !important;
+        background: var(--bg-card) !important;
     }
 
     .main-content {

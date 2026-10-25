@@ -542,7 +542,7 @@ onMounted(async () => {
     font-size: 0.8125rem;
     border: 1px solid var(--gray-300);
     border-radius: 0.5rem;
-    background: white;
+    background: var(--bg-card);
     min-width: 140px;
 }
 

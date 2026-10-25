@@ -258,7 +258,7 @@ const handleLogin = async () => {
 
 /* Login Card */
 .login-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: 1.5rem;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
     padding: 2.5rem;
@@ -434,7 +434,7 @@ const handleLogin = async () => {
 .form-control:focus {
     outline: none;
     border-color: var(--primary-500);
-    background: white;
+    background: var(--bg-card);
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 

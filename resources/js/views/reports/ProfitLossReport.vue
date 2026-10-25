@@ -262,12 +262,12 @@ onMounted(() => loadReport());
 
 <style scoped>
 
-.filter-select, .date-input { padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid var(--gray-300); border-radius: 0.5rem; background: white; }
+.filter-select, .date-input { padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid var(--gray-300); border-radius: 0.5rem; background: var(--bg-card); }
 
 .pl-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
 @media (min-width: 1024px) { .pl-summary { grid-template-columns: repeat(4, 1fr); }
 }
-.pl-card { background: white; border-radius: 1rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.pl-card { background: var(--bg-card); border-radius: 1rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
 .pl-card.revenue { border-left: 4px solid var(--success-500); }
 .pl-card.expenses { border-left: 4px solid var(--danger-500); }
 .pl-card.profit { border-left: 4px solid var(--primary-600); background: linear-gradient(135deg, var(--primary-50), var(--primary-100)); }

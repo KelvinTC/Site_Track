@@ -285,7 +285,7 @@ onMounted(() => {
 .employee-stats .stat { font-size: 0.875rem; color: var(--gray-500); }
 .employee-stats .stat.total { font-weight: 700; color: var(--success-600); }
 
-.job-row { background: white; }
+.job-row { background: var(--bg-card); }
 .job-row:hover { background: var(--gray-50); }
 
 @keyframes spin { to { transform: rotate(360deg); } }

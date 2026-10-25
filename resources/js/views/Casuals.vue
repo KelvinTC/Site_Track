@@ -772,7 +772,7 @@ onUnmounted(() => {
     top: 100%;
     right: 0;
     margin-top: 0.5rem;
-    background: white;
+    background: var(--bg-card);
     border-radius: 0.75rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     min-width: 180px;
@@ -1122,7 +1122,7 @@ onUnmounted(() => {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--gray-700);
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--gray-300);
     border-radius: 0.5rem;
     cursor: pointer;
@@ -1153,7 +1153,7 @@ onUnmounted(() => {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--gray-700);
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--gray-300);
     border-radius: 0.375rem;
     cursor: pointer;

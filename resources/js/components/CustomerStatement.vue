@@ -155,7 +155,7 @@ onMounted(() => {
 
 <style scoped>
 .statement-container {
-    background: white;
+    background: var(--bg-card);
     padding: 2rem;
     max-width: 800px;
     margin: 0 auto;

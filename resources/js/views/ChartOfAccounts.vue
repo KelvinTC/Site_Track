@@ -260,7 +260,7 @@ onMounted(() => loadData());
 <style scoped>
 
 .account-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-.tab-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; background: white; border: 1px solid var(--gray-200); border-radius: 0.625rem; font-size: 0.875rem; font-weight: 500; color: var(--gray-500); cursor: pointer; transition: all 0.2s; }
+.tab-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--gray-200); border-radius: 0.625rem; font-size: 0.875rem; font-weight: 500; color: var(--gray-500); cursor: pointer; transition: all 0.2s; }
 .tab-btn:hover { border-color: var(--primary-600); color: var(--primary-600); }
 .tab-btn.active { background: var(--primary-600); border-color: var(--primary-600); color: white; }
 .tab-count { background: rgba(0,0,0,0.1); padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; }

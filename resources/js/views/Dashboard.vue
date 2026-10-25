@@ -452,7 +452,7 @@ onMounted(() => loadData());
 }
 
 .stat-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: 1rem;
     padding: 1.25rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -547,7 +547,7 @@ onMounted(() => loadData());
     align-items: center;
     gap: 0.75rem;
     padding: 1.25rem;
-    background: white;
+    background: var(--bg-card);
     border-radius: 1rem;
     border: 1px solid var(--gray-100);
     text-decoration: none;
@@ -739,7 +739,7 @@ onMounted(() => loadData());
 
 /* Aging Widget */
 .aging-widget {
-    background: white;
+    background: var(--bg-card);
     border-radius: 1rem;
     padding: 1.25rem;
     margin-bottom: 2rem;

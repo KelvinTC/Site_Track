@@ -387,7 +387,7 @@ onMounted(() => {
 
 /* Stat Card */
 .stat-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: 1.25rem;
     padding: 1.75rem 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
@@ -470,7 +470,7 @@ onMounted(() => {
     font-weight: 600;
 }
 
-.badge-primary { background: var(--primary-100); color: var(--primary-700); }
+.badge-primary { background: var(--primary-100); color: var(--primary-text); }
 .badge-warning { background: var(--warning-100); color: var(--warning-700); }
 .badge-info { background: var(--info-100); color: var(--info-700); }
 
