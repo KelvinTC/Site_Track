@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -110,6 +111,13 @@ class UserController extends Controller
         $user->current_company_id = $companyId;
         $user->save();
 
+        AuditLog::record('created', $user, null, [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'role' => $validated['role'],
+        ], $companyId, $this->auditLabel($user));
+
         return response()->json([
             'message' => 'User created successfully',
             'data' => [
@@ -166,6 +174,8 @@ class UserController extends Controller
             'role' => 'sometimes|in:owner,admin,finance,member',
         ]);
 
+        $before = $this->auditSnapshot($user, $companyId);
+
         // Update user fields
         if (isset($validated['name'])) {
             $user->name = $validated['name'];
@@ -192,6 +202,19 @@ class UserController extends Controller
         }
 
         $pivot = $user->companies()->where('company_id', $companyId)->first()?->pivot;
+
+        $after = $this->auditSnapshot($user, $companyId);
+        $changed = array_keys(array_diff_assoc(array_map('strval', $after), array_map('strval', $before)));
+        if (isset($validated['password'])) {
+            // Record that the password changed, never the password itself
+            $before['password_changed'] = false;
+            $after['password_changed'] = true;
+            $changed[] = 'password_changed';
+        }
+        if ($changed) {
+            $keep = array_flip($changed);
+            AuditLog::record('updated', $user, array_intersect_key($before, $keep), array_intersect_key($after, $keep), $companyId, $this->auditLabel($user));
+        }
 
         return response()->json([
             'message' => 'User updated successfully',
@@ -221,6 +244,8 @@ class UserController extends Controller
             return response()->json(['message' => 'You cannot remove yourself from the company'], 400);
         }
 
+        AuditLog::record('deleted', $user, $this->auditSnapshot($user, $companyId), null, $companyId, $this->auditLabel($user));
+
         // Detach user from company (don't delete the user)
         $user->companies()->detach($companyId);
 
@@ -234,5 +259,21 @@ class UserController extends Controller
         return response()->json([
             'message' => 'User removed from company successfully',
         ]);
+    }
+
+    protected function auditSnapshot(User $user, int $companyId): array
+    {
+        return [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'is_active' => $user->is_active,
+            'role' => $user->companies()->where('company_id', $companyId)->first()?->pivot?->role,
+        ];
+    }
+
+    protected function auditLabel(User $user): string
+    {
+        return "{$user->name} ({$user->email})";
     }
 }

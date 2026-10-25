@@ -104,6 +104,10 @@
                     <i class="bi bi-people-fill"></i>
                     <span>Team</span>
                 </router-link>
+                <router-link v-if="isAdmin" to="/audit-log" class="nav-item" :class="{ active: $route.path === '/audit-log' }">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Audit Log</span>
+                </router-link>
                 <router-link v-if="isOwner" to="/settings" class="nav-item" :class="{ active: $route.path === '/settings' }">
                     <i class="bi bi-gear-fill"></i>
                     <span>Settings</span>

@@ -3,6 +3,7 @@ import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 import Dashboard from '../views/Dashboard.vue';
 import Users from '../views/Users.vue';
+import AuditLog from '../views/AuditLog.vue';
 import Clients from '../views/Customers.vue';
 import Jobs from '../views/Jobs.vue';
 import Employees from '../views/Casuals.vue';
@@ -49,6 +50,12 @@ const routes = [
         path: '/users',
         name: 'Users',
         component: Users,
+        meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
+        path: '/audit-log',
+        name: 'AuditLog',
+        component: AuditLog,
         meta: { requiresAuth: true, requiresAdmin: true },
     },
     {

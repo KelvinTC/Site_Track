@@ -75,6 +75,16 @@ export default {
         },
     },
 
+    // Audit trail
+    auditLogs: {
+        getAll(params = {}) {
+            return api.get('/audit-logs', { params });
+        },
+        restore(id) {
+            return api.post(`/audit-logs/${id}/restore`);
+        },
+    },
+
     // Clients (formerly Customers)
     customers: {
         getAll() {

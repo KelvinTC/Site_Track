@@ -22,6 +22,7 @@ Job management, invoicing and bookkeeping for construction companies.
 
 **Platform**
 - **Multi-company:** a user can belong to several companies and switch between them; all data is scoped to the current company
+- **Audit log** (owner/admin): records who created, changed, deleted or restored customers, jobs, employees, invoices, payments, expenses, company settings and team members, with before/after values. A deleted record can be restored from its log entry.
 - **Roles** (per company):
 
   | Role | Access |
@@ -96,6 +97,7 @@ Deployed on Railway with Nixpacks (`railway.json`, `nixpacks.toml`). The start c
 
 - **API:** every endpoint is under `/api`, returns JSON, and authenticates with a Bearer token (stored in `localStorage` by the SPA).
 - **Downloads:** files must be fetched through `api.download(url)` in `resources/js/api.js`, so the token is sent. A plain `<a href>` to an `/api` URL gets a 401.
+- **Audit trail:** to track a model, add the `Auditable` trait and an entry in `AuditLog::TYPES`. For changes that aren't model events, such as role changes in `company_user`, call `AuditLog::record()` directly.
 - **Company scoping:** tenant models use the `BelongsToCompany` trait, which applies `CompanyScope` and fills `company_id` on create. Raw `DB::table()` queries bypass this. To validate a reference to another record, use `company_exists:table,id`, not `exists:`.
 - **Styling** (`resources/css/app.css`):
   - Colours come from the tokens at the top of `app.css` (`var(--primary-600)`, `var(--danger-100)`, …). Don't put hex values in pages.

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CustomerController;
@@ -65,6 +66,10 @@ Route::middleware(['auth:sanctum', 'company'])->group(function () {
     */
     Route::middleware('role:owner,admin')->group(function () {
         Route::apiResource('users', UserController::class);
+
+        // Audit trail
+        Route::get('audit-logs', [AuditLogController::class, 'index']);
+        Route::post('audit-logs/{auditLog}/restore', [AuditLogController::class, 'restore']);
     });
 
     /*

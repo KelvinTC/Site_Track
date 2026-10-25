@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,7 +11,7 @@ use App\Services\NumberGenerator;
 
 class Expense extends Model
 {
-    use SoftDeletes, BelongsToCompany;
+    use SoftDeletes, BelongsToCompany, Auditable;
 
     protected static function booted(): void
     {
