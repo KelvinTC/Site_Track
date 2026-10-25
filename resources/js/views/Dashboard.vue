@@ -74,25 +74,25 @@
             <h2 class="section-title">Quick Actions</h2>
             <div class="actions-grid">
                 <router-link to="/customers" class="action-card">
-                    <div class="action-icon" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #4f46e5;">
+                    <div class="action-icon" style="background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%); color: var(--primary-600);">
                         <i class="bi bi-person-plus-fill"></i>
                     </div>
                     <span class="action-label">Add Customer</span>
                 </router-link>
                 <router-link to="/jobs" class="action-card">
-                    <div class="action-icon" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #059669;">
+                    <div class="action-icon" style="background: linear-gradient(135deg, var(--success-100) 0%, var(--success-200) 100%); color: var(--success-600);">
                         <i class="bi bi-briefcase-fill"></i>
                     </div>
                     <span class="action-label">Create Job</span>
                 </router-link>
                 <router-link to="/invoices" class="action-card">
-                    <div class="action-icon" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #d97706;">
+                    <div class="action-icon" style="background: linear-gradient(135deg, var(--warning-100) 0%, var(--warning-200) 100%); color: var(--warning-600);">
                         <i class="bi bi-receipt"></i>
                     </div>
                     <span class="action-label">New Invoice</span>
                 </router-link>
                 <router-link to="/payments" class="action-card">
-                    <div class="action-icon" style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); color: #7c3aed;">
+                    <div class="action-icon" style="background: linear-gradient(135deg, var(--accent-100) 0%, var(--accent-200) 100%); color: var(--accent-600);">
                         <i class="bi bi-credit-card-fill"></i>
                     </div>
                     <span class="action-label">Record Payment</span>
@@ -208,7 +208,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-left">
-                        <i class="bi bi-exclamation-triangle-fill" style="color: #d97706;"></i>
+                        <i class="bi bi-exclamation-triangle-fill" style="color: var(--warning-600);"></i>
                         <span>Unpaid Invoices</span>
                     </div>
                     <router-link to="/invoices" class="view-all-link">
@@ -251,7 +251,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-left">
-                        <i class="bi bi-credit-card-fill" style="color: #059669;"></i>
+                        <i class="bi bi-credit-card-fill" style="color: var(--success-600);"></i>
                         <span>Recent Payments</span>
                     </div>
                     <router-link to="/payments" class="view-all-link">
@@ -423,20 +423,6 @@ onMounted(() => loadData());
 /* Dashboard Header */
 .dashboard-header { margin-bottom: 2rem; }
 
-.header-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-@media (min-width: 768px) {
-    .header-content {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-    }
-}
-
 .greeting-title {
     font-size: 1.75rem;
     font-weight: 800;
@@ -451,9 +437,6 @@ onMounted(() => loadData());
     margin: 0.375rem 0 0;
 }
 
-.header-actions { display: flex; gap: 0.75rem; }
-
-.spin { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 /* Stats Grid */
@@ -489,7 +472,7 @@ onMounted(() => loadData());
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--primary-500), #8b5cf6);
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -507,10 +490,10 @@ onMounted(() => loadData());
     margin-bottom: 0.75rem;
 }
 
-.icon-primary { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #4f46e5; }
-.icon-warning { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #d97706; }
-.icon-success { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #059669; }
-.icon-danger { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #dc2626; }
+.icon-primary { background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%); color: var(--primary-600); }
+.icon-warning { background: linear-gradient(135deg, var(--warning-100) 0%, var(--warning-200) 100%); color: var(--warning-600); }
+.icon-success { background: linear-gradient(135deg, var(--success-100) 0%, var(--success-200) 100%); color: var(--success-600); }
+.icon-danger { background: linear-gradient(135deg, var(--danger-100) 0%, var(--danger-200) 100%); color: var(--danger-600); }
 
 .stat-value {
     font-size: 1.5rem;
@@ -535,8 +518,8 @@ onMounted(() => loadData());
     font-size: 0.875rem;
 }
 
-.trend-up { color: #059669; }
-.trend-warning { color: #d97706; }
+.trend-up { color: var(--success-600); }
+.trend-warning { color: var(--warning-600); }
 
 /* Quick Actions */
 .quick-actions { margin-bottom: 2rem; }
@@ -607,35 +590,6 @@ onMounted(() => loadData());
     .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* Card */
-.card {
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--gray-100);
-    overflow: hidden;
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--gray-100);
-    background: transparent;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: var(--gray-900);
-}
-
-.header-left i { color: var(--primary-500); }
-
 .view-all-link {
     display: flex;
     align-items: center;
@@ -648,9 +602,6 @@ onMounted(() => loadData());
 }
 
 .view-all-link:hover { gap: 0.5rem; }
-
-.card-body { padding: 1rem; }
-.p-0 { padding: 0 !important; }
 
 /* Loading State */
 .loading-state { padding: 1rem; }
@@ -689,7 +640,7 @@ onMounted(() => loadData());
 
 .empty-state-small i { font-size: 2rem; margin-bottom: 0.75rem; }
 .empty-state-small p { margin: 0 0 1rem; font-size: 0.875rem; }
-.empty-state-small.success { color: #059669; }
+.empty-state-small.success { color: var(--success-600); }
 
 /* List Items */
 .list-items { padding: 0.5rem 0; }
@@ -708,19 +659,19 @@ onMounted(() => loadData());
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 0.625rem;
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #4f46e5;
+    color: var(--primary-600);
     flex-shrink: 0;
 }
 
 .item-avatar.success {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: #059669;
+    background: linear-gradient(135deg, var(--success-100) 0%, var(--success-200) 100%);
+    color: var(--success-600);
 }
 
 .item-info { flex: 1; min-width: 0; }
@@ -755,11 +706,9 @@ onMounted(() => loadData());
     letter-spacing: 0.02em;
 }
 
-.badge-info { background: #dbeafe; color: #1d4ed8; }
-.badge-warning { background: #fef3c7; color: #b45309; }
-.badge-secondary { background: #f3f4f6; color: #4b5563; }
-.badge-success { background: #d1fae5; color: #047857; }
-.badge-danger { background: #fee2e2; color: #b91c1c; }
+.badge-info { background: var(--info-100); color: var(--info-700); }
+.badge-warning { background: var(--warning-100); color: var(--warning-700); }
+.badge-danger { background: var(--danger-100); color: var(--danger-700); }
 
 /* Invoice Amount */
 .item-amount { text-align: right; }
@@ -776,15 +725,15 @@ onMounted(() => loadData());
     margin: 0.125rem 0 0;
 }
 
-.amount-status.overdue { color: #dc2626; }
-.amount-status.due-today { color: #d97706; }
-.amount-status.upcoming { color: #059669; }
+.amount-status.overdue { color: var(--danger-600); }
+.amount-status.due-today { color: var(--warning-600); }
+.amount-status.upcoming { color: var(--success-600); }
 
 /* Payment Amount */
 .payment-amount {
     font-size: 0.9375rem;
     font-weight: 700;
-    color: #059669;
+    color: var(--success-600);
     margin: 0;
 }
 
@@ -846,7 +795,7 @@ onMounted(() => loadData());
 }
 
 .aging-value.danger {
-    color: #dc2626;
+    color: var(--danger-600);
 }
 
 .aging-bar-track {
@@ -862,9 +811,9 @@ onMounted(() => loadData());
     transition: width 0.5s ease;
 }
 
-.aging-bar-fill.current { background: #10b981; }
-.aging-bar-fill.days-30 { background: #f59e0b; }
-.aging-bar-fill.days-60 { background: #f97316; }
-.aging-bar-fill.days-90 { background: #ef4444; }
-.aging-bar-fill.days-90plus { background: #7f1d1d; }
+.aging-bar-fill.current { background: var(--success-500); }
+.aging-bar-fill.days-30 { background: var(--warning-500); }
+.aging-bar-fill.days-60 { background: var(--orange-500); }
+.aging-bar-fill.days-90 { background: var(--danger-500); }
+.aging-bar-fill.days-90plus { background: var(--danger-900); }
 </style>

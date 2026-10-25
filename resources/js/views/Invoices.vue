@@ -20,11 +20,11 @@
                             <option value="partial">Partially Paid</option>
                         </select>
                     </div>
-                    <a :href="api.exports.invoicesExcel()" class="btn btn-secondary">
+                    <a href="#" @click.prevent="api.download(api.exports.invoicesExcel())" class="btn btn-secondary">
                         <i class="bi bi-file-earmark-excel"></i>
                         <span>Export</span>
                     </a>
-                    <button @click="openCreateModal" class="btn btn-success">
+                    <button @click="openCreateModal" class="btn btn-primary">
                         <i class="bi bi-plus-lg"></i>
                         <span>New Invoice</span>
                     </button>
@@ -77,7 +77,7 @@
                     <i class="bi bi-receipt"></i>
                     <span>Invoice List</span>
                 </div>
-                <span class="invoice-count">{{ filteredInvoices.length }} invoices</span>
+                <span class="invoice-count">{{ filteredInvoices.length }} {{ filteredInvoices.length === 1 ? 'invoice' : 'invoices' }}</span>
             </div>
             <div class="card-body p-0">
                 <div v-if="filteredInvoices.length === 0" class="empty-state">
@@ -153,7 +153,7 @@
                                         <button @click="openEmailModal(invoice)" class="btn btn-sm btn-ghost" title="Email Invoice">
                                             <i class="bi bi-envelope"></i>
                                         </button>
-                                        <a :href="api.exports.invoicePdf(invoice.id)" class="btn btn-sm btn-ghost" title="Download PDF">
+                                        <a href="#" @click.prevent="api.download(api.exports.invoicePdf(invoice.id))" class="btn btn-sm btn-ghost" title="Download PDF">
                                             <i class="bi bi-file-pdf"></i>
                                         </a>
                                         <button @click="deleteInvoice(invoice.id)" class="btn btn-sm btn-ghost btn-ghost-danger" title="Delete">
@@ -287,7 +287,7 @@
                     <div class="modal-header">
                         <h5>Invoice Details</h5>
                         <div class="header-actions-modal">
-                            <a v-if="viewingInvoice" :href="api.exports.invoicePdf(viewingInvoice.id)" class="btn btn-sm btn-success">
+                            <a v-if="viewingInvoice" href="#" @click.prevent="api.download(api.exports.invoicePdf(viewingInvoice.id))" class="btn btn-sm btn-success">
                                 <i class="bi bi-file-pdf"></i> PDF
                             </a>
                             <button @click="printInvoice" class="btn btn-sm btn-primary">
@@ -874,90 +874,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Page Header */
-.page-header {
-    margin-bottom: 2.5rem;
-    text-align: center;
-}
-
-@media (min-width: 768px) {
-    .page-header {
-        text-align: left;
-    }
-}
-
-.header-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
-}
-
-@media (min-width: 768px) {
-    .header-content {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-    }
-}
-
-.header-title h1 {
-    font-size: 1.875rem;
-    font-weight: 800;
-    color: #111827;
-    margin: 0;
-    letter-spacing: -0.025em;
-}
-
-.header-subtitle {
-    color: #6b7280;
-    font-size: 0.9375rem;
-    margin: 0.5rem 0 0;
-    line-height: 1.5;
-}
-
-.header-actions {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-@media (min-width: 768px) {
-    .header-actions {
-        justify-content: flex-end;
-    }
-}
-
-/* Search Box */
-.search-box {
-    position: relative;
-    min-width: 200px;
-}
-
-.search-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9ca3af;
-}
-
-.search-input {
-    width: 100%;
-    padding: 0.625rem 1rem 0.625rem 2.75rem;
-    font-size: 0.9375rem;
-    background: white;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 0.75rem;
-    transition: all 0.2s ease;
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-}
 
 /* Filter Dropdown */
 .filter-dropdown {
@@ -969,7 +885,7 @@ onMounted(() => {
     padding: 0.625rem 1rem;
     font-size: 0.9375rem;
     background: white;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid var(--gray-200);
     border-radius: 0.75rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -983,7 +899,7 @@ onMounted(() => {
 
 .status-filter:focus {
     outline: none;
-    border-color: #4f46e5;
+    border-color: var(--primary-600);
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 
@@ -1032,71 +948,26 @@ onMounted(() => {
     margin: 0 auto 0.75rem;
 }
 
-.icon-primary { background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); color: #4f46e5; }
-.icon-warning { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #d97706; }
-.icon-success { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #059669; }
-.icon-danger { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #dc2626; }
+.icon-primary { background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%); color: var(--primary-600); }
+.icon-warning { background: linear-gradient(135deg, var(--warning-100) 0%, var(--warning-200) 100%); color: var(--warning-600); }
+.icon-success { background: linear-gradient(135deg, var(--success-100) 0%, var(--success-200) 100%); color: var(--success-600); }
+.icon-danger { background: linear-gradient(135deg, var(--danger-100) 0%, var(--danger-200) 100%); color: var(--danger-600); }
 
 .stat-value {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #111827;
+    color: var(--gray-900);
 }
 
 .stat-label {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--gray-500);
     font-weight: 600;
     text-transform: uppercase;
     margin-top: 0.25rem;
 }
 
-/* Loading */
-.loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 4rem 2rem;
-}
-
-.loader {
-    width: 3rem;
-    height: 3rem;
-    border: 3px solid #e5e7eb;
-    border-top-color: #4f46e5;
-    border-radius: 50%;
-    animation: spin 0.8s ease-in-out infinite;
-}
-
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.loading-text {
-    margin-top: 1rem;
-    color: #6b7280;
-}
-
-/* Card */
-.card {
-    border-radius: 1.25rem;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    background: white;
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    font-weight: 600;
-}
 
 .invoice-count {
     font-size: 0.8125rem;
@@ -1104,286 +975,87 @@ onMounted(() => {
     opacity: 0.9;
 }
 
-/* Table */
-.table-container { overflow-x: auto; }
-
-.table {
-    width: 100%;
-    font-size: 0.875rem;
-}
-
-.table thead th {
-    background: #f9fafb;
-    color: #6b7280;
-    font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    padding: 0.875rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.table tbody tr:hover {
-    background: linear-gradient(90deg, rgba(99, 102, 241, 0.04) 0%, transparent 100%);
-}
-
-.table tbody td {
-    padding: 1rem;
-    border-bottom: 1px solid #f3f4f6;
-}
-
 .invoice-number {
     font-weight: 700;
-    color: #4f46e5;
+    color: var(--primary-600);
     font-family: monospace;
 }
 
-.customer-cell {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.customer-avatar {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.5rem;
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    color: #4f46e5;
-}
-
-.job-ref { color: #6b7280; }
+.job-ref { color: var(--gray-500); }
 
 .total-amount {
     font-weight: 700;
-    color: #111827;
+    color: var(--gray-900);
 }
 
 .paid-amount {
-    color: #059669;
+    color: var(--success-600);
 }
 
 .balance-amount {
     font-weight: 600;
 }
 
-.text-danger { color: #dc2626; }
-.text-success { color: #059669; }
+.text-danger { color: var(--danger-600); }
 
-.date-cell { color: #6b7280; }
-
-/* Status Badges */
-.status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 9999px;
-    text-transform: capitalize;
-}
+.date-cell { color: var(--gray-500); }
 
 .status-paid {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: #059669;
+    background: linear-gradient(135deg, var(--success-100) 0%, var(--success-200) 100%);
+    color: var(--success-600);
 }
 
 .status-unpaid,
 .status-sent {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    color: #d97706;
+    background: linear-gradient(135deg, var(--warning-100) 0%, var(--warning-200) 100%);
+    color: var(--warning-600);
 }
 
 .status-partial {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    color: #2563eb;
+    background: linear-gradient(135deg, var(--info-100) 0%, var(--info-200) 100%);
+    color: var(--info-600);
 }
 
 .status-overdue {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    color: #dc2626;
+    background: linear-gradient(135deg, var(--danger-100) 0%, var(--danger-200) 100%);
+    color: var(--danger-600);
 }
 
 .status-draft {
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    color: #6b7280;
+    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+    color: var(--gray-500);
 }
-
-.action-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.375rem;
-}
-
-.btn-ghost {
-    padding: 0.5rem;
-    color: #6b7280;
-    background: transparent;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-ghost:hover { background: #f3f4f6; color: #4f46e5; }
-.btn-ghost-danger:hover { background: #fee2e2; color: #dc2626; }
 
 .btn-success-soft {
     padding: 0.5rem;
-    color: #059669;
-    background: #d1fae5;
+    color: var(--success-600);
+    background: var(--success-100);
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.btn-success-soft:hover { background: #a7f3d0; }
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 3.5rem 1.5rem;
-}
-
-.empty-state-icon {
-    width: 4.5rem;
-    height: 4.5rem;
-    border-radius: 1rem;
-    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.25rem;
-    font-size: 1.75rem;
-    color: #4f46e5;
-}
-
-.empty-state-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 0.5rem;
-}
-
-.empty-state-description {
-    font-size: 0.9375rem;
-    color: #6b7280;
-    margin: 0 auto 1.5rem;
-}
-
-/* Modal */
-.modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(17, 24, 39, 0.6);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1050;
-    padding: 1rem;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    width: 100%;
-    max-width: 420px;
-    max-height: calc(100vh - 2rem);
-    overflow-y: auto;
-}
+.btn-success-soft:hover { background: var(--success-200); }
 
 .modal-lg { max-width: 600px; }
-
-.modal-header {
-    padding: 0.75rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.modal-header h5 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin: 0;
-}
 
 .header-actions-modal {
     display: flex;
     gap: 0.5rem;
 }
 
-.modal-header-primary { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); }
+.modal-header-primary { background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%); }
 .modal-header-primary h5 { color: white; }
 
-.modal-header-success { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+.modal-header-success { background: linear-gradient(135deg, var(--success-600) 0%, var(--success-700) 100%); }
 .modal-header-success h5 { color: white; }
-
-.modal-close {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: white;
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.modal-body { padding: 1rem; }
-.modal-footer {
-    padding: 0.75rem 1rem;
-    border-top: 1px solid #f3f4f6;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    background: #f9fafb;
-}
-
-/* Form */
-.form-group { margin-bottom: 0.75rem; }
-
-.form-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-}
-
-.form-label {
-    display: block;
-    font-weight: 500;
-    font-size: 0.6875rem;
-    color: #6b7280;
-    margin-bottom: 0.25rem;
-}
 
 .form-label-sm {
     font-size: 0.625rem;
     font-weight: 500;
-    color: #6b7280;
+    color: var(--gray-500);
     margin-bottom: 0.125rem;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.5rem 0.625rem;
-    font-size: 0.75rem;
-    background: white;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #4f46e5;
 }
 
 .form-control-sm {
@@ -1391,13 +1063,13 @@ onMounted(() => {
     padding: 0.375rem 0.5rem;
     font-size: 0.6875rem;
     background: white;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--gray-300);
     border-radius: 0.25rem;
 }
 
 .form-control-sm:focus {
     outline: none;
-    border-color: #4f46e5;
+    border-color: var(--primary-600);
 }
 
 .input-wrapper {
@@ -1409,7 +1081,7 @@ onMounted(() => {
     left: 0.625rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #6b7280;
+    color: var(--gray-500);
     font-weight: 500;
     font-size: 0.75rem;
 }
@@ -1420,7 +1092,7 @@ onMounted(() => {
 
 /* Line Items */
 .line-items-section {
-    background: #f9fafb;
+    background: var(--gray-50);
     border-radius: 0.75rem;
     margin-bottom: 1rem;
     overflow: hidden;
@@ -1431,7 +1103,7 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    background: #f3f4f6;
+    background: var(--gray-100);
 }
 
 .line-items-title {
@@ -1458,15 +1130,15 @@ onMounted(() => {
 
 .item-total {
     font-weight: 600;
-    color: #111827;
+    color: var(--gray-900);
     padding: 0.5rem;
     display: block;
 }
 
 .btn-remove {
     padding: 0.5rem;
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--danger-100);
+    color: var(--danger-600);
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;
@@ -1479,7 +1151,7 @@ onMounted(() => {
 
 .line-items-footer {
     padding: 0.75rem 1rem;
-    background: #f3f4f6;
+    background: var(--gray-100);
 }
 
 .totals-summary {
@@ -1494,20 +1166,20 @@ onMounted(() => {
     justify-content: space-between;
     gap: 2rem;
     font-size: 0.8125rem;
-    color: #4b5563;
+    color: var(--gray-600);
 }
 
 .summary-row.total {
-    border-top: 1px solid #d1d5db;
+    border-top: 1px solid var(--gray-300);
     padding-top: 0.5rem;
     margin-top: 0.25rem;
     font-size: 0.9375rem;
-    color: #111827;
+    color: var(--gray-900);
 }
 
 /* Email Invoice Summary */
 .email-invoice-summary {
-    background: #f9fafb;
+    background: var(--gray-50);
     border-radius: 0.75rem;
     padding: 1rem;
     margin-bottom: 1rem;
@@ -1525,17 +1197,17 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--gray-500);
 }
 
 .email-invoice-summary .last-sent {
     font-size: 0.75rem;
-    color: #059669;
+    color: var(--success-600);
 }
 
 /* Payment Invoice Summary */
 .payment-invoice-summary {
-    background: #f9fafb;
+    background: var(--gray-50);
     border-radius: 0.75rem;
     padding: 1rem;
     margin-bottom: 1rem;
@@ -1547,7 +1219,7 @@ onMounted(() => {
     align-items: center;
     margin-bottom: 0.75rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .summary-header .invoice-number {
@@ -1555,7 +1227,7 @@ onMounted(() => {
 }
 
 .summary-header .customer-name {
-    color: #6b7280;
+    color: var(--gray-500);
 }
 
 .summary-amounts {
@@ -1571,7 +1243,7 @@ onMounted(() => {
 }
 
 .amount-item .amount-label {
-    color: #6b7280;
+    color: var(--gray-500);
 }
 
 .amount-item .amount-value {
@@ -1597,8 +1269,8 @@ onMounted(() => {
 
 .quick-amount-btn {
     padding: 0.375rem 0.75rem;
-    background: #e0e7ff;
-    color: #4f46e5;
+    background: var(--primary-100);
+    color: var(--primary-600);
     border: none;
     border-radius: 0.375rem;
     font-size: 0.75rem;
@@ -1608,7 +1280,7 @@ onMounted(() => {
 }
 
 .quick-amount-btn:hover {
-    background: #c7d2fe;
+    background: var(--primary-200);
 }
 
 /* Method Options */
@@ -1624,8 +1296,8 @@ onMounted(() => {
     align-items: center;
     gap: 0.375rem;
     padding: 0.75rem 0.5rem;
-    background: #f9fafb;
-    border: 1.5px solid #e5e7eb;
+    background: var(--gray-50);
+    border: 1.5px solid var(--gray-200);
     border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1637,27 +1309,27 @@ onMounted(() => {
 
 .method-option i {
     font-size: 1.25rem;
-    color: #6b7280;
+    color: var(--gray-500);
 }
 
 .method-option span {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--gray-500);
 }
 
 .method-option:hover {
-    border-color: #4f46e5;
+    border-color: var(--primary-600);
 }
 
 .method-option.active {
-    background: #eef2ff;
-    border-color: #4f46e5;
+    background: var(--primary-50);
+    border-color: var(--primary-600);
 }
 
 .method-option.active i,
 .method-option.active span {
-    color: #4f46e5;
+    color: var(--primary-600);
 }
 
 /* Invoice Preview */
@@ -1668,7 +1340,7 @@ onMounted(() => {
     justify-content: space-between;
     align-items: flex-start;
     padding-bottom: 1.5rem;
-    border-bottom: 2px solid #4f46e5;
+    border-bottom: 2px solid var(--primary-600);
     margin-bottom: 1.5rem;
 }
 
@@ -1685,13 +1357,13 @@ onMounted(() => {
 
 .company-details {
     font-size: 0.5625rem;
-    color: #4b5563;
+    color: var(--gray-600);
     line-height: 1.3;
 }
 
 .company-details .company-name {
     font-weight: 600;
-    color: #111827;
+    color: var(--gray-900);
     font-size: 0.6875rem;
 }
 
@@ -1706,7 +1378,7 @@ onMounted(() => {
 .invoice-title {
     font-size: 2rem;
     font-weight: 800;
-    color: #4f46e5;
+    color: var(--primary-600);
     margin: 0;
     letter-spacing: 0.05em;
 }
@@ -1716,7 +1388,7 @@ onMounted(() => {
     justify-content: space-between;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .invoice-meta {
@@ -1731,13 +1403,13 @@ onMounted(() => {
 }
 
 .meta-label {
-    color: #6b7280;
+    color: var(--gray-500);
     font-size: 0.8125rem;
 }
 
 .meta-value {
     font-weight: 600;
-    color: #111827;
+    color: var(--gray-900);
     font-size: 0.875rem;
     min-width: 6rem;
     text-align: right;
@@ -1745,19 +1417,19 @@ onMounted(() => {
 
 .detail-label {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--gray-500);
     margin: 0;
 }
 
 .detail-value {
     font-weight: 600;
-    color: #111827;
+    color: var(--gray-900);
     margin: 0;
 }
 
 .detail-sub {
     font-size: 0.8125rem;
-    color: #6b7280;
+    color: var(--gray-500);
     margin: 0;
 }
 
@@ -1768,23 +1440,23 @@ onMounted(() => {
 }
 
 .invoice-table th {
-    background: #f9fafb;
+    background: var(--gray-50);
     padding: 0.625rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: #6b7280;
-    border-bottom: 1px solid #e5e7eb;
+    color: var(--gray-500);
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .invoice-table td {
     padding: 0.625rem 0.75rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--gray-100);
 }
 
 .type-badge {
-    background: #f3f4f6;
-    color: #4b5563;
+    background: var(--gray-100);
+    color: var(--gray-600);
     padding: 0.125rem 0.5rem;
     border-radius: 9999px;
     font-size: 0.6875rem;
@@ -1794,7 +1466,7 @@ onMounted(() => {
 /* Invoice Totals */
 .invoice-totals {
     margin-top: 1rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--gray-200);
     padding-top: 0.75rem;
 }
 
@@ -1803,40 +1475,40 @@ onMounted(() => {
     justify-content: space-between;
     padding: 0.375rem 0;
     font-size: 0.875rem;
-    color: #4b5563;
+    color: var(--gray-600);
 }
 
 .totals-row.total-final {
-    border-top: 2px solid #e5e7eb;
+    border-top: 2px solid var(--gray-200);
     margin-top: 0.5rem;
     padding-top: 0.75rem;
     font-size: 1.125rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--gray-900);
 }
 
 .totals-row.paid-row {
-    background: #f0fdf4;
+    background: var(--success-50);
     margin: 0.5rem -1rem 0;
     padding: 0.5rem 1rem;
 }
 
 .totals-row.balance-row {
-    background: #fef2f2;
+    background: var(--danger-50);
     margin: 0 -1rem;
     padding: 0.5rem 1rem;
     font-weight: 700;
 }
 
-.total-value { color: #4f46e5; }
+.total-value { color: var(--primary-600); }
 
 .vat-number {
     font-weight: 600;
-    color: #4f46e5;
+    color: var(--primary-600);
 }
 
 .invoice-notes {
-    background: #f9fafb;
+    background: var(--gray-50);
     padding: 1rem;
     border-radius: 0.5rem;
     margin-top: 1rem;
@@ -1844,31 +1516,31 @@ onMounted(() => {
 }
 
 .notes-label {
-    color: #6b7280;
+    color: var(--gray-500);
     margin: 0 0 0.25rem;
     font-size: 0.75rem;
 }
 
 .invoice-footer {
     text-align: center;
-    color: #9ca3af;
+    color: var(--gray-400);
     font-size: 0.875rem;
     margin-top: 1.5rem;
     padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--gray-200);
 }
 
 /* Payment History */
 .payment-history {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--gray-200);
 }
 
 .payment-history h4 {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--gray-700);
     margin: 0 0 1rem;
     display: flex;
     align-items: center;
@@ -1881,22 +1553,22 @@ onMounted(() => {
 }
 
 .payments-table th {
-    background: #f9fafb;
+    background: var(--gray-50);
     padding: 0.5rem 0.75rem;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--gray-500);
     font-size: 0.6875rem;
     text-transform: uppercase;
 }
 
 .payments-table td {
     padding: 0.625rem 0.75rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--gray-100);
 }
 
 .method-badge {
-    background: #e0e7ff;
-    color: #4338ca;
+    background: var(--primary-100);
+    color: var(--primary-700);
     padding: 0.125rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.6875rem;
@@ -1914,23 +1586,6 @@ onMounted(() => {
     font-size: 1rem;
 }
 
-.spinner {
-    width: 1.25rem;
-    height: 1.25rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-/* Modal Transition */
-.modal-enter-active, .modal-leave-active { transition: all 0.3s ease; }
-.modal-enter-from, .modal-leave-to { opacity: 0; }
-
-/* Utilities */
-.p-0 { padding: 0 !important; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
 .font-semibold { font-weight: 600; }
 
 @media print {

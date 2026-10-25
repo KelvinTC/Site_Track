@@ -91,7 +91,7 @@
                     <span>Statement Preview</span>
                 </div>
                 <div class="header-actions">
-                    <button @click="exportStatement('excel')" class="btn btn-sm btn-success">
+                    <button @click="exportStatement('excel')" class="btn btn-sm btn-secondary">
                         <i class="bi bi-file-earmark-excel"></i>
                         Excel
                     </button>
@@ -216,7 +216,7 @@ const exportStatement = (format) => {
             url = api.exports.statementPdf(selectedCustomerId.value, fromDate.value, toDate.value);
             break;
     }
-    if (url) window.open(url, '_blank');
+    if (url) api.download(url);
 };
 
 const printStatement = () => {
@@ -230,109 +230,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Page Header */
-.page-header {
-    margin-bottom: 2.5rem;
-    text-align: center;
-}
-
-@media (min-width: 768px) {
-    .page-header {
-        text-align: left;
-    }
-}
-
-.header-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
-}
-
-@media (min-width: 768px) {
-    .header-content {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-    }
-}
-
-.header-title h1 {
-    font-size: 1.875rem;
-    font-weight: 800;
-    color: #111827;
-    margin: 0;
-    letter-spacing: -0.025em;
-}
-
-.header-subtitle {
-    color: #6b7280;
-    font-size: 0.9375rem;
-    margin: 0.5rem 0 0;
-    line-height: 1.5;
-}
-
-/* Loading State */
-.loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-}
-
-.loader {
-    width: 3rem;
-    height: 3rem;
-    border: 3px solid #e5e7eb;
-    border-top-color: #4f46e5;
-    border-radius: 50%;
-    animation: spin 0.8s ease-in-out infinite;
-}
 
 @keyframes spin {
     to { transform: rotate(360deg); }
-}
-
-.loading-text {
-    margin-top: 1rem;
-    color: #6b7280;
-    font-size: 0.9375rem;
-}
-
-/* Card */
-.card {
-    border-radius: 1.25rem;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    background: white;
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-    background: transparent;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    font-weight: 600;
-    font-size: 0.9375rem;
-}
-
-.header-left i {
-    font-size: 1rem;
-    opacity: 0.9;
-}
-
-.card-body {
-    padding: 1.5rem;
 }
 
 /* Generator Form */
@@ -341,34 +241,6 @@ onMounted(() => {
     flex-direction: column;
     gap: 1.25rem;
     max-width: 600px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-}
-
-.form-label {
-    font-weight: 500;
-    font-size: 0.75rem;
-    color: #6b7280;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.625rem 0.75rem;
-    font-size: 0.875rem;
-    color: #111827;
-    background: white;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 select.form-control {
@@ -398,16 +270,6 @@ select.form-control {
 /* Form Actions */
 .form-actions {
     padding-top: 0.5rem;
-}
-
-/* Spinner */
-.spinner {
-    width: 1.25rem;
-    height: 1.25rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
 }
 
 /* Utilities */

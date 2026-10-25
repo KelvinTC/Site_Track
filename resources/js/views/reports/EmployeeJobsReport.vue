@@ -146,7 +146,7 @@
                                                 <span class="employee-dept">{{ employee.department }}</span>
                                             </div>
                                             <div class="employee-stats">
-                                                <span class="stat">{{ employee.jobs.length }} jobs</span>
+                                                <span class="stat">{{ employee.jobs.length }} {{ employee.jobs.length === 1 ? 'job' : 'jobs' }}</span>
                                                 <span class="stat">{{ employee.total_hours }} hrs</span>
                                                 <span class="stat total">${{ formatNumber(employee.total_earnings) }}</span>
                                             </div>
@@ -254,7 +254,7 @@ const exportReport = (format) => {
         end_date: endDate.value,
         format
     });
-    window.open(`/api/reports/employee-jobs/export?${params}`, '_blank');
+    api.download(`/api/reports/employee-jobs/export?${params}`);
 };
 
 onMounted(() => {
@@ -263,83 +263,30 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-header { margin-bottom: 1.5rem; }
-.header-content { display: flex; flex-direction: column; gap: 1rem; }
-@media (min-width: 768px) { .header-content { flex-direction: row; align-items: flex-end; justify-content: space-between; } }
-.header-title h1 { font-size: 1.875rem; font-weight: 800; color: #111827; margin: 0; }
-.header-subtitle { color: #6b7280; font-size: 0.9375rem; margin: 0.25rem 0 0; }
-.header-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; }
 
-.filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
-.filter-group label { font-size: 0.6875rem; font-weight: 500; color: #6b7280; text-transform: uppercase; }
-.date-input { padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid #d1d5db; border-radius: 0.5rem; }
+.date-input { padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid var(--gray-300); border-radius: 0.5rem; }
 .date-range { display: flex; align-items: center; gap: 0.5rem; }
-.date-range span { color: #6b7280; font-size: 0.875rem; }
+.date-range span { color: var(--gray-500); font-size: 0.875rem; }
 
-.filters-bar { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; background: white; padding: 1rem 1.25rem; border-radius: 0.75rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.search-box { position: relative; }
-.search-box i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af; }
-.search-input { width: 220px; padding: 0.5rem 0.75rem 0.5rem 2.25rem; font-size: 0.875rem; border: 1px solid #d1d5db; border-radius: 0.5rem; background: #f9fafb; }
-.search-input:focus { outline: none; border-color: #4f46e5; background: white; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
-.filter-select { min-width: 160px; padding: 0.5rem 2rem 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid #d1d5db; border-radius: 0.5rem; background: #f9fafb url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") right 0.5rem center/1.25rem no-repeat; appearance: none; cursor: pointer; }
-.filter-select:focus { outline: none; border-color: #4f46e5; background-color: white; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+@media (min-width: 768px) { .summary-cards { grid-template-columns: repeat(4, 1fr); }
+}
+.summary-icon.blue { background: var(--info-100); color: var(--info-600); }
+.summary-icon.purple { background: var(--accent-100); color: var(--accent-600); }
 
-.summary-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
-@media (min-width: 768px) { .summary-cards { grid-template-columns: repeat(4, 1fr); } }
-.summary-card { background: white; border-radius: 1rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.summary-icon { width: 3rem; height: 3rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
-.summary-icon.blue { background: #dbeafe; color: #2563eb; }
-.summary-icon.green { background: #d1fae5; color: #059669; }
-.summary-icon.purple { background: #ede9fe; color: #7c3aed; }
-.summary-icon.orange { background: #fed7aa; color: #ea580c; }
-.summary-content { display: flex; flex-direction: column; }
-.summary-value { font-size: 1.5rem; font-weight: 800; color: #111827; }
-.summary-label { font-size: 0.75rem; color: #6b7280; }
-
-.card { background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden; }
-.card-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; }
-.header-left { display: flex; align-items: center; gap: 0.625rem; font-weight: 600; }
-.card-body { padding: 1rem; }
-.p-0 { padding: 0 !important; }
-
-.table-container { overflow-x: auto; }
-.table { width: 100%; font-size: 0.875rem; border-collapse: collapse; }
-.table thead th { background: #f9fafb; color: #6b7280; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
-.table tbody td { padding: 0.75rem 1rem; vertical-align: middle; border-bottom: 1px solid #f3f4f6; }
-
-.employee-row { background: #f8fafc; }
+.employee-row { background: var(--gray-50); }
 .employee-row td { padding: 0 !important; }
 .employee-header { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; }
-.employee-avatar { width: 2.5rem; height: 2.5rem; border-radius: 0.625rem; background: linear-gradient(135deg, #4f46e5, #7c3aed); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem; }
+.employee-avatar { width: 2.5rem; height: 2.5rem; border-radius: 0.625rem; background: linear-gradient(135deg, var(--primary-600), var(--accent-600)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem; }
 .employee-info { flex: 1; }
-.employee-name { display: block; font-weight: 700; color: #111827; }
-.employee-dept { font-size: 0.75rem; color: #6b7280; }
+.employee-name { display: block; font-weight: 700; color: var(--gray-900); }
+.employee-dept { font-size: 0.75rem; color: var(--gray-500); }
 .employee-stats { display: flex; gap: 1.5rem; }
-.employee-stats .stat { font-size: 0.875rem; color: #6b7280; }
-.employee-stats .stat.total { font-weight: 700; color: #059669; }
+.employee-stats .stat { font-size: 0.875rem; color: var(--gray-500); }
+.employee-stats .stat.total { font-weight: 700; color: var(--success-600); }
 
 .job-row { background: white; }
-.job-row:hover { background: #f9fafb; }
-.job-number { font-family: monospace; font-weight: 600; color: #4f46e5; }
+.job-row:hover { background: var(--gray-50); }
 
-.empty-state { text-align: center; padding: 3rem; color: #6b7280; }
-.empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
-.empty-state h3 { font-size: 1.125rem; font-weight: 700; margin: 0 0 0.5rem; color: #374151; }
-.empty-state p { margin: 0; }
-
-.loading-container { display: flex; flex-direction: column; align-items: center; padding: 4rem; }
-.loader { width: 3rem; height: 3rem; border: 3px solid #e5e7eb; border-top-color: #4f46e5; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.spin { animation: spin 1s linear infinite; }
 
-.btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1rem; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; border: none; cursor: pointer; transition: all 0.2s; }
-.btn-primary { background: #4f46e5; color: white; }
-.btn-primary:hover { background: #4338ca; }
-.btn-secondary { background: #f3f4f6; color: #374151; }
-.btn-secondary:hover { background: #e5e7eb; }
-.btn-ghost { background: transparent; color: #ef4444; }
-.btn-ghost:hover { background: #fef2f2; }
-
-.text-center { text-align: center; }
-.text-right { text-align: right; }
 </style>

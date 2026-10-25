@@ -394,14 +394,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
 
 .page-title {
     font-size: 1.5rem;
@@ -414,42 +406,6 @@ onUnmounted(() => {
     color: var(--text-muted);
     font-size: 0.875rem;
     margin: 0.25rem 0 0;
-}
-
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    border-radius: 0.5rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-primary {
-    background: var(--primary-600);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: var(--primary-700);
-}
-
-.btn-secondary {
-    background: var(--gray-100);
-    color: var(--text-primary);
-}
-
-.btn-danger {
-    background: #dc2626;
-    color: white;
-}
-
-.btn-danger:hover {
-    background: #b91c1c;
 }
 
 /* Role Legend */
@@ -481,18 +437,18 @@ onUnmounted(() => {
 }
 
 .role-badge.owner {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--warning-100);
+    color: var(--warning-800);
 }
 
 .role-badge.admin {
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--info-100);
+    color: var(--info-800);
 }
 
 .role-badge.finance {
-    background: #d1fae5;
-    color: #065f46;
+    background: var(--success-100);
+    color: var(--success-800);
 }
 
 .role-badge.member {
@@ -527,7 +483,7 @@ onUnmounted(() => {
     width: 3rem;
     height: 3rem;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-500), #8b5cf6);
+    background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
     color: white;
     display: flex;
     align-items: center;
@@ -595,8 +551,8 @@ onUnmounted(() => {
 }
 
 .btn-icon.danger:hover {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--danger-100);
+    color: var(--danger-600);
 }
 
 /* Loading & Empty States */
@@ -616,48 +572,12 @@ onUnmounted(() => {
     margin: 0 auto 1rem;
 }
 
-.empty-state i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.3;
-}
-
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
 
-/* Modal */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    z-index: 1000;
-}
-
-.modal {
-    background: var(--bg-card);
-    border-radius: 0.75rem;
-    width: 100%;
-    max-width: 420px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-}
-
 .modal-sm {
     max-width: 360px;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border-light);
 }
 
 .modal-header h2 {
@@ -666,54 +586,12 @@ onUnmounted(() => {
     margin: 0;
 }
 
-.modal-close {
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    border-radius: 0.375rem;
-    cursor: pointer;
-}
-
 .modal-close:hover {
     background: var(--gray-100);
 }
 
-.modal-body {
-    padding: 1.25rem;
-}
-
 .modal-body p {
     margin: 0 0 0.5rem;
-}
-
-.text-muted {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding-top: 1rem;
-}
-
-/* Form */
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 0.375rem;
 }
 
 .form-label .optional {
@@ -721,35 +599,10 @@ onUnmounted(() => {
     color: var(--text-muted);
 }
 
-.form-control {
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    font-size: 0.875rem;
-    border: 1px solid var(--border-light);
-    border-radius: 0.5rem;
-    background: var(--bg-base);
-    color: var(--text-primary);
-    transition: all 0.2s;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
 .form-hint {
     font-size: 0.75rem;
     color: var(--text-muted);
     margin-top: 0.25rem;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    cursor: pointer;
 }
 
 .form-checkbox {
@@ -766,9 +619,9 @@ onUnmounted(() => {
 }
 
 .alert-danger {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: var(--danger-100);
+    color: var(--danger-800);
+    border: 1px solid var(--danger-200);
 }
 
 .spinner-sm {
@@ -780,48 +633,8 @@ onUnmounted(() => {
     animation: spin 0.8s linear infinite;
 }
 
-/* Header Actions */
-.header-actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-/* Search Box */
-.search-box {
-    position: relative;
-    min-width: 200px;
-}
-
-.search-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: 0.875rem;
-}
-
-.search-input {
-    width: 100%;
-    padding: 0.625rem 1rem 0.625rem 2.5rem;
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    background: var(--bg-card);
-    border: 1px solid var(--border-light);
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-}
-
 .search-input::placeholder {
     color: var(--text-muted);
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .total-count {
@@ -908,14 +721,6 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .header-actions {
-        width: 100%;
-    }
 
     .search-box {
         flex: 1;

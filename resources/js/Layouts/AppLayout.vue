@@ -216,6 +216,8 @@ const logout = async () => {
     min-height: 100vh;
     background: var(--bg-base);
     display: flex;
+    /* Stack the mobile header above the content; the desktop sidebar is fixed */
+    flex-direction: column;
 }
 
 /* ==========================================
@@ -229,7 +231,7 @@ const logout = async () => {
     position: fixed;
     left: 0;
     top: 0;
-    background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+    background: linear-gradient(180deg, var(--primary-950) 0%, var(--primary-900) 100%);
     flex-direction: column;
     z-index: 100;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
@@ -276,6 +278,18 @@ const logout = async () => {
     flex: 1;
     padding: 1rem 0;
     overflow-y: auto;
+    /* Thin, dark scrollbar so the browser default doesn't show a white strip */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
 }
 
 .nav-section {
@@ -336,7 +350,7 @@ const logout = async () => {
 
 .sidebar .logout-btn:hover {
     background: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
+    color: var(--danger-300);
 }
 
 /* ==========================================
@@ -374,7 +388,7 @@ const logout = async () => {
     width: 2rem;
     height: 2rem;
     border-radius: 0.5rem;
-    background: linear-gradient(135deg, var(--primary-600) 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--accent-500) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -385,7 +399,7 @@ const logout = async () => {
 .mobile-brand span {
     font-size: 1.125rem;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--primary-600) 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--accent-500) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -423,6 +437,7 @@ const logout = async () => {
 
 .main-content {
     flex: 1;
+    min-width: 0;
     padding: 1.5rem 1rem;
     padding-bottom: 6rem;
     min-height: 100vh;
@@ -504,7 +519,7 @@ const logout = async () => {
     transform: translateX(-50%);
     width: 2rem;
     height: 3px;
-    background: linear-gradient(90deg, var(--primary-500), #8b5cf6);
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
     border-radius: 2px;
 }
 

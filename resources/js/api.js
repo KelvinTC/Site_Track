@@ -372,6 +372,28 @@ export default {
         },
     },
 
+    // Download a file through axios so the auth token is sent
+    async download(url) {
+        try {
+            const response = await api.get(url, { baseURL: '', responseType: 'blob' });
+            const disposition = response.headers['content-disposition'] || '';
+            const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+            const filename = match ? decodeURIComponent(match[1]) : url.split('/').pop().split('?')[0];
+
+            const objectUrl = URL.createObjectURL(response.data);
+            const link = document.createElement('a');
+            link.href = objectUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(objectUrl);
+        } catch (error) {
+            console.error('Download failed:', error);
+            alert('Download failed. Please try again.');
+        }
+    },
+
     // Exports
     exports: {
         invoicePdf(id) {

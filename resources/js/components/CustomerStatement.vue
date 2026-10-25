@@ -167,7 +167,7 @@ onMounted(() => {
     align-items: flex-start;
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
-    border-bottom: 2px solid #e5e7eb;
+    border-bottom: 2px solid var(--gray-200);
 }
 
 .company-info {
@@ -177,19 +177,19 @@ onMounted(() => {
 .company-name {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--gray-900);
     margin: 0 0 0.5rem;
 }
 
 .company-info p {
     margin: 0.25rem 0;
-    color: #4b5563;
+    color: var(--gray-600);
     font-size: 0.875rem;
 }
 
 .vat-number {
     font-weight: 600;
-    color: #4f46e5 !important;
+    color: var(--primary-600) !important;
 }
 
 .statement-title {
@@ -199,12 +199,12 @@ onMounted(() => {
 .statement-title h1 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #4f46e5;
+    color: var(--primary-600);
     margin: 0 0 0.5rem;
 }
 
 .period-text {
-    color: #6b7280;
+    color: var(--gray-500);
     font-size: 0.9375rem;
     margin: 0;
 }
@@ -212,7 +212,7 @@ onMounted(() => {
 .customer-details {
     margin-bottom: 2rem;
     padding: 1rem;
-    background: #f9fafb;
+    background: var(--gray-50);
     border-radius: 0.5rem;
 }
 
@@ -220,19 +220,19 @@ onMounted(() => {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #6b7280;
+    color: var(--gray-500);
     margin: 0 0 0.5rem;
 }
 
 .customer-details .customer-name {
     font-weight: 600;
-    color: #111827;
+    color: var(--gray-900);
     margin: 0 0 0.25rem;
 }
 
 .customer-details p {
     margin: 0.25rem 0;
-    color: #4b5563;
+    color: var(--gray-600);
     font-size: 0.875rem;
 }
 
@@ -248,63 +248,59 @@ onMounted(() => {
 }
 
 .statement-table thead th {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--gray-100);
+    color: var(--gray-700);
     font-weight: 600;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     padding: 0.75rem 1rem;
     text-align: left;
-    border-bottom: 2px solid #e5e7eb;
+    border-bottom: 2px solid var(--gray-200);
 }
 
 .statement-table tbody td {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #f3f4f6;
-    color: #4b5563;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-600);
 }
 
 .statement-table tbody tr:hover {
-    background: #fafafa;
+    background: var(--gray-50);
 }
 
 .statement-table tbody tr.invoice td {
-    color: #111827;
+    color: var(--gray-900);
 }
 
 .statement-table tbody tr.payment td {
-    color: #059669;
+    color: var(--success-600);
 }
 
 .invoice-ref {
     font-size: 0.8125rem;
-    color: #4f46e5;
+    color: var(--primary-600);
     font-weight: 600;
 }
 
 .opening-balance-row,
 .closing-balance-row {
-    background: #f9fafb;
+    background: var(--gray-50);
 }
 
 .opening-balance-row td,
 .closing-balance-row td {
-    color: #111827 !important;
+    color: var(--gray-900) !important;
 }
 
 .closing-balance-row {
-    border-top: 2px solid #e5e7eb;
-}
-
-.text-right {
-    text-align: right;
+    border-top: 2px solid var(--gray-200);
 }
 
 .statement-summary {
     margin-top: 1.5rem;
     padding: 1rem;
-    background: #f9fafb;
+    background: var(--gray-50);
     border-radius: 0.5rem;
     max-width: 300px;
     margin-left: auto;
@@ -315,16 +311,16 @@ onMounted(() => {
     justify-content: space-between;
     padding: 0.5rem 0;
     font-size: 0.875rem;
-    color: #4b5563;
+    color: var(--gray-600);
 }
 
 .summary-row.total {
-    border-top: 2px solid #e5e7eb;
+    border-top: 2px solid var(--gray-200);
     margin-top: 0.5rem;
     padding-top: 0.75rem;
     font-weight: 700;
     font-size: 1rem;
-    color: #111827;
+    color: var(--gray-900);
 }
 
 .print-actions {
@@ -348,7 +344,7 @@ onMounted(() => {
     }
 
     .statement-table thead th {
-        background: #eee !important;
+        background: var(--gray-200) !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
@@ -360,13 +356,13 @@ onMounted(() => {
     .opening-balance-row,
     .closing-balance-row,
     .statement-summary {
-        background: #f5f5f5 !important;
+        background: var(--gray-100) !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
     .customer-details {
-        background: #f5f5f5 !important;
+        background: var(--gray-100) !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }

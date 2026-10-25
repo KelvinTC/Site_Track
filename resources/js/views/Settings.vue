@@ -304,51 +304,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-header {
-    margin-bottom: 1rem;
-}
 .page-header h1 {
     font-size: 1rem;
     font-weight: 600;
     margin: 0;
 }
 
-.loading-container {
-    display: flex;
-    justify-content: center;
-    padding: 2rem;
-}
-.loader {
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 2px solid #e5e7eb;
-    border-top-color: #6366f1;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-}
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    overflow: hidden;
-}
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: transparent;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 0.875rem;
-    font-weight: 600;
-}
 .card-header i {
     margin-right: 0.25rem;
-}
-.card-body {
-    padding: 0.75rem;
 }
 
 /* Logo Section */
@@ -364,7 +329,7 @@ onMounted(() => {
     height: 4rem;
     border-radius: 0.5rem;
     overflow: hidden;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--gray-200);
 }
 
 .logo-preview img {
@@ -377,27 +342,18 @@ onMounted(() => {
     width: 4rem;
     height: 4rem;
     border-radius: 0.5rem;
-    background: #f3f4f6;
-    border: 2px dashed #d1d5db;
+    background: var(--gray-100);
+    border: 2px dashed var(--gray-300);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #9ca3af;
+    color: var(--gray-400);
     font-size: 1.5rem;
 }
 
 .logo-actions {
     display: flex;
     gap: 0.5rem;
-}
-
-.btn-danger {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.btn-danger:hover {
-    background: #fecaca;
 }
 
 /* View Mode */
@@ -415,51 +371,36 @@ onMounted(() => {
 .info-label {
     display: block;
     font-size: 0.625rem;
-    color: #6b7280;
+    color: var(--gray-500);
     margin-bottom: 0.1rem;
 }
 .info-value {
     font-size: 0.75rem;
-    color: #111827;
+    color: var(--gray-900);
 }
 
-/* Edit Mode */
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-}
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
 .form-group.full {
     grid-column: 1 / -1;
-}
-.form-group label {
-    font-size: 0.6875rem;
-    color: #6b7280;
-    margin-bottom: 0.25rem;
 }
 .form-group input,
 .form-group textarea {
     padding: 0.5rem 0.625rem;
     font-size: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--gray-300);
     border-radius: 0.375rem;
     width: 100%;
 }
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #6366f1;
+    border-color: var(--primary-500);
 }
 .form-group textarea {
     resize: vertical;
     min-height: 2rem;
 }
 .form-group input:disabled {
-    background: #f3f4f6;
+    background: var(--gray-100);
     cursor: not-allowed;
 }
 
@@ -467,12 +408,12 @@ onMounted(() => {
 .section-divider {
     margin: 1rem 0 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--gray-200);
 }
 .section-title {
     font-size: 0.6875rem;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--gray-500);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -480,36 +421,28 @@ onMounted(() => {
     margin-right: 0.25rem;
 }
 
-/* Checkbox Label */
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    padding: 0.5rem 0;
-}
 .checkbox-label input[type="checkbox"] {
     width: 1rem;
     height: 1rem;
-    accent-color: #6366f1;
+    accent-color: var(--primary-500);
 }
 .checkbox-label span {
     font-size: 0.75rem;
-    color: #374151;
+    color: var(--gray-700);
 }
 
 /* Status Badges */
 .status-yes {
-    background: #d1fae5;
-    color: #047857;
+    background: var(--success-100);
+    color: var(--success-700);
     padding: 0.125rem 0.375rem;
     border-radius: 0.25rem;
     font-size: 0.6875rem;
     font-weight: 600;
 }
 .status-no {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--gray-100);
+    color: var(--gray-500);
     padding: 0.125rem 0.375rem;
     border-radius: 0.25rem;
     font-size: 0.6875rem;
@@ -522,31 +455,7 @@ onMounted(() => {
     gap: 0.5rem;
     margin-top: 1rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-.btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-}
-.btn-sm {
-    padding: 0.375rem 0.5rem;
-    font-size: 0.6875rem;
-}
-.btn-primary {
-    background: #6366f1;
-    color: white;
-}
-.btn-primary:hover {
-    background: #4f46e5;
-}
-.btn-secondary {
-    background: #e5e7eb;
-    color: #374151;
+    border-top: 1px solid var(--gray-200);
 }
 
 /* Toast */
@@ -562,7 +471,7 @@ onMounted(() => {
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 .toast-success {
-    background: #10b981;
+    background: var(--success-500);
     color: white;
 }
 .toast-enter-active { animation: slideIn 0.2s ease; }
